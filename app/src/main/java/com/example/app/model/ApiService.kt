@@ -1,0 +1,37 @@
+package com.example.app.model
+
+import android.content.Context
+import com.example.app.model.request.AuthenticationRequest
+import com.example.app.model.request.LogoutRequest
+import com.example.app.model.request.RefreshRequest
+import com.example.app.model.request.UserCreationRequest
+import com.example.app.model.request.UserUpdateRequest
+import com.example.app.model.response.ApiError
+import com.example.app.model.response.AuthenticationResponse
+import com.example.app.model.response.UserResponse
+import com.example.app.viewmodel.SessionManager
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+
+interface ApiService {
+    @POST("auth/token")
+    suspend fun authenticate(@Body request: AuthenticationRequest): Response<AuthenticationResponse>
+    @POST("users")
+    suspend fun createUser(@Body request: UserCreationRequest): Response<UserResponse>
+    @POST("auth/logout")
+    suspend fun logout(@Body request: LogoutRequest): Response<ApiError>
+    @POST("auth/refresh")
+    suspend fun refreshToken(@Body request: RefreshRequest): Response<AuthenticationResponse>
+    @PUT("users/{id}")
+    suspend fun updateUser(@Path("id") id : String, @Body request: UserUpdateRequest): Response<UserResponse>
+    @GET("users/my-info")
+    suspend fun getUserInfo(): Response<UserResponse>
+}

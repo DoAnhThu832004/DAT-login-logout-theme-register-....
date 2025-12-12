@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App</string>
+    <string name="dang_nhap">Đăng nhập</string>
+    <string name="ten_dang_nhap">User name</string>
+    <string name="mat_khau">Password</string>
+    <string name="thong_bao_khong_duoc_de_trong">Please check your username and password</string>
+    <string name="thong_bao_tai_khoan_mat_khau_khong_ton_tai">User name or password is not exist</string>
+    <string name="dang_ky">Sign Up</string>
+    <string name="hoi_dang_ky">Don\'t have an account, Signup?</string>
+    <string name="hoi_dang_nhap">Already have an account, Login?</string>
+    <string name="ho">First name</string>
+    <string name="ten">Last name</string>
+    <string name="ngay_sinh">Date</string>
+    <string name="thong_bao_tai_khoan_mat_khau_da_ton_tai">User name or password is not exist</string>
+    <string name="dang_ky_thanh_cong">Register successfully</string>
+    <string name="thong_bao_khong_de_trong">Please complete all fields.</string>
+    <string name="trang_chu">Home</string>
+    <string name="yeu_thich">Favorite</string>
+    <string name="ho_so">Profile</string>
+    <string name="cai_dat">Setting</string>
+    <string name="dang_xuat">Logout</string>
+    <string name="chao_mung">Hello, Welcome back</string>
+    <string name="khac">Others</string>
+    <string name="chon_ngon_ngu">Select language</string>
+    <string name="tieng_viet">Vietnamese</string>
+    <string name="tieng_anh">English</string>
+    <string name="xac_nhan">Confirm</string>
+    <string name="tieu_de_dang_xuat">Are you sure you want to logout?</string>
+    <string name="quay_lai">Back</string>
+    <string name="chu_de">Theme</string>
+    <string name="chinh_sua_thong_tin">Edit profile</string>
+    <string name="tieu_de_sua_thong_tin">Are you sure you want to edit profile?</string>
+    <string name="xac_nhan_sua">Edit</string>
+    <string name="thong_tin_ho_so">Profile information</string>
+    <string name="ho_va_ten">Full name</string>
+</resources>

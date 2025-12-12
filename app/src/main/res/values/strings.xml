@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">App</string>
+    <string name="dang_nhap">Đăng nhập</string>
+    <string name="ten_dang_nhap">Tên đăng nhập</string>
+    <string name="mat_khau">Mật khẩu</string>
+    <string name="thong_bao_khong_duoc_de_trong">Không được để trống</string>
+    <string name="thong_bao_tai_khoan_mat_khau_khong_ton_tai">Tài khoản hoặc mật khẩu không tồn tại</string>
+    <string name="dang_ky">Đăng ký</string>
+    <string name="hoi_dang_ky">Chưa có tài khoản, Đăng ký ngay ?</string>
+    <string name="hoi_dang_nhap">Đã có tài khoản, Đăng nhập ngay ?</string>
+    <string name="ho">Họ</string>
+    <string name="ten">Tên</string>
+    <string name="ngay_sinh">Ngày sinh</string>
+    <string name="thong_bao_tai_khoan_mat_khau_da_ton_tai">Tài khoản hoặc mật khẩu đã tồn tại</string>
+    <string name="dang_ky_thanh_cong">Đăng ký thành công</string>
+    <string name="thong_bao_khong_de_trong">Vui lòng nhập đầy đủ thông tin</string>
+    <string name="trang_chu">Trang chủ</string>
+    <string name="yeu_thich">Yêu thích</string>
+    <string name="ho_so">Hồ sơ</string>
+    <string name="cai_dat">Cài đặt</string>
+    <string name="dang_xuat">Đăng xuất</string>
+    <string name="chao_mung">Xin chào, Chào mừng quay lại</string>
+    <string name="khac">Khác</string>
+    <string name="chon_ngon_ngu">Chọn ngôn ngữ</string>
+    <string name="tieng_viet">Tiếng Việt</string>
+    <string name="tieng_anh">Tiếng Anh</string>
+    <string name="xac_nhan">Xác nhận</string>
+    <string name="tieu_de_dang_xuat">Bạn có chắc chắn muốn đăng xuất không?</string>
+    <string name="quay_lai">Quay lại</string>
+    <string name="chu_de">Chủ đề</string>
+    <string name="chinh_sua_thong_tin">Chỉnh sửa thông tin</string>
+    <string name="tieu_de_sua_thong_tin">Bạn có chắc chắn muốn sửa thông tin không?</string>
+    <string name="xac_nhan_sua">Sửa</string>
+    <string name="thong_tin_ho_so">Thông tin hồ sơ</string>
+    <string name="ho_va_ten">Họ và tên</string>
+</resources>
