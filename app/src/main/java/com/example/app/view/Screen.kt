@@ -15,4 +15,5 @@ sealed class Screen(val route : String) {
     object ProfilePage : Screen("profile_page")
     object EditProfilePage : Screen("edit_profile_page")
     object InformationProfilePage : Screen("information_profile_page")
+    object ListAllSong : Screen("list_all_song")
 }

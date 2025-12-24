@@ -7,7 +7,9 @@ import com.example.app.model.request.RefreshRequest
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.ApiError
+import com.example.app.model.response.ApiResponse
 import com.example.app.model.response.AuthenticationResponse
+import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.SessionManager
 import okhttp3.Interceptor
@@ -34,4 +36,6 @@ interface ApiService {
     suspend fun updateUser(@Path("id") id : String, @Body request: UserUpdateRequest): Response<UserResponse>
     @GET("users/my-info")
     suspend fun getUserInfo(): Response<UserResponse>
+    @GET("songs")
+    suspend fun getSongs(): Response<ApiResponse<List<Song>>>
 }

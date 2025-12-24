@@ -17,6 +17,7 @@ import com.example.app.model.response.AuthResult
 import com.example.app.model.response.UserResponse
 import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
+import com.example.app.view.Song.ListAllSong
 import com.example.app.view.admin.HomePage
 import com.example.app.view.admin.NavigationDraw
 import com.example.app.view.user.EditProfilePage
@@ -31,6 +32,8 @@ import com.example.app.viewmodel.LoginViewModelFactory
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
 import com.example.app.viewmodel.SessionManager
+import com.example.app.viewmodel.SongViewModel
+import com.example.app.viewmodel.SongViewModelFactory
 
 @Composable
 fun RecipeApp(
@@ -50,6 +53,9 @@ fun RecipeApp(
     )
     val editProfileViewModel : EditProfileViewModel = viewModel(
         factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+    )
+    val songViewModel : SongViewModel = viewModel(
+        factory = SongViewModelFactory(apiService)
     )
     NavHost(
         navController = navController,
@@ -90,7 +96,11 @@ fun RecipeApp(
             UserHomePage(
                 navController = navController,
                 loginViewModel = loginViewModel,
+                songViewModel = songViewModel,
                 name = name,
+                onViewAllSongs = {
+                    navController.navigate(Screen.ListAllSong.route)
+                }
             )
         }
         composable(route = Screen.RegisterScreen.route) {
@@ -117,6 +127,12 @@ fun RecipeApp(
             InformationProfilePage(
                 navController = navController,
                 editProfileViewModel = editProfileViewModel
+            )
+        }
+        composable(route = Screen.ListAllSong.route) {
+            ListAllSong(
+                songs = songViewModel.songState.value.songs ?: emptyList(),
+                onBack = { navController.popBackStack() }
             )
         }
     }

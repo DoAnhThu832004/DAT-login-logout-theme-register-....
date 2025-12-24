@@ -31,13 +31,16 @@ import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.SongViewModel
 
 @Composable
 fun UserHomePage(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     loginViewModel: LoginViewModel,
-    name: String
+    songViewModel: SongViewModel,
+    name: String,
+    onViewAllSongs: () -> Unit,
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
@@ -70,7 +73,9 @@ fun UserHomePage(
             navController = navController,
             loginViewModel = loginViewModel,
             selectedIndex = selectIndex,
-            name = name
+            name = name,
+            songViewModel = songViewModel,
+            onViewAllSongs = onViewAllSongs
         )
     }
 }
@@ -80,10 +85,12 @@ fun ContentScreen(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
     selectedIndex: Int,
-    name: String
+    name: String,
+    songViewModel: SongViewModel,
+    onViewAllSongs: () -> Unit,
 ) {
     when(selectedIndex) {
-        0 -> HomePageU()
+        0 -> HomePageU(songViewModel = songViewModel,onViewAllSongs = onViewAllSongs)
         1 -> FavoritePage()
         2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
     }
