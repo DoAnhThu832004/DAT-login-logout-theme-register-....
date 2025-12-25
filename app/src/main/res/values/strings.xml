@@ -33,4 +33,6 @@
     <string name="xac_nhan_sua">Sửa</string>
     <string name="thong_tin_ho_so">Thông tin hồ sơ</string>
     <string name="ho_va_ten">Họ và tên</string>
+    <string name="mo_ta">Mô tả : </string>
+    <string name="ngay_phat_hanh">Ngày phát hành :</string>
 </resources>

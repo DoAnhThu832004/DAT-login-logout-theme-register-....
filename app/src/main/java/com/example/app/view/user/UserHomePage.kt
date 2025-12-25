@@ -31,6 +31,7 @@ import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
 @Composable
@@ -39,6 +40,7 @@ fun UserHomePage(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
     songViewModel: SongViewModel,
+    searchViewModel: SearchViewModel,
     name: String,
     onViewAllSongs: () -> Unit,
 ) {
@@ -75,6 +77,7 @@ fun UserHomePage(
             selectedIndex = selectIndex,
             name = name,
             songViewModel = songViewModel,
+            searchViewModel = searchViewModel,
             onViewAllSongs = onViewAllSongs
         )
     }
@@ -87,10 +90,11 @@ fun ContentScreen(
     selectedIndex: Int,
     name: String,
     songViewModel: SongViewModel,
+    searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,onViewAllSongs = onViewAllSongs)
+        0 -> HomePageU(songViewModel = songViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs)
         1 -> FavoritePage()
         2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
     }

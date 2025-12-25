@@ -18,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.unit.dp
 import com.example.app.view.Song.SongScreen
+import com.example.app.view.general.SearchBar
+import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
 @Composable
 fun HomePageU(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel,
+    searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit
 ) {
     val songState by songViewModel.songState
@@ -36,6 +39,7 @@ fun HomePageU(
             .padding(top = 32.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
+        SearchBar(searchViewModel = searchViewModel)
         Box(
             modifier = Modifier
                 .fillMaxWidth()

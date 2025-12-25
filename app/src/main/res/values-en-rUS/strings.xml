@@ -34,4 +34,6 @@
     <string name="xac_nhan_sua">Edit</string>
     <string name="thong_tin_ho_so">Profile information</string>
     <string name="ho_va_ten">Full name</string>
+    <string name="mo_ta">Description :</string>
+    <string name="ngay_phat_hanh">Release date :</string>
 </resources>

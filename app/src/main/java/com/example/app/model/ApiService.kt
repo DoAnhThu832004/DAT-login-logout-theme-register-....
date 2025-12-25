@@ -22,6 +22,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @POST("auth/token")
@@ -38,4 +39,8 @@ interface ApiService {
     suspend fun getUserInfo(): Response<UserResponse>
     @GET("songs")
     suspend fun getSongs(): Response<ApiResponse<List<Song>>>
+    @GET("songs/searchKey")
+    suspend fun searchSongs(
+        @Query("name") name: String
+    ): Response<ApiResponse<List<Song>>>
 }

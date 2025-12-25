@@ -31,6 +31,8 @@ import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.LoginViewModelFactory
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
+import com.example.app.viewmodel.SearchViewModel
+import com.example.app.viewmodel.SearchViewModelFactory
 import com.example.app.viewmodel.SessionManager
 import com.example.app.viewmodel.SongViewModel
 import com.example.app.viewmodel.SongViewModelFactory
@@ -56,6 +58,9 @@ fun RecipeApp(
     )
     val songViewModel : SongViewModel = viewModel(
         factory = SongViewModelFactory(apiService)
+    )
+    val searchViewModel : SearchViewModel = viewModel(
+        factory = SearchViewModelFactory(apiService)
     )
     NavHost(
         navController = navController,
@@ -97,6 +102,7 @@ fun RecipeApp(
                 navController = navController,
                 loginViewModel = loginViewModel,
                 songViewModel = songViewModel,
+                searchViewModel = searchViewModel,
                 name = name,
                 onViewAllSongs = {
                     navController.navigate(Screen.ListAllSong.route)
