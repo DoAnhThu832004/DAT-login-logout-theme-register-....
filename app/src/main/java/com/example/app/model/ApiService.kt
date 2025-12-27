@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.RefreshRequest
+import com.example.app.model.request.SongCreationRequest
+import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.ApiError
@@ -13,14 +15,18 @@ import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.SessionManager
 import okhttp3.Interceptor
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -39,8 +45,24 @@ interface ApiService {
     suspend fun getUserInfo(): Response<UserResponse>
     @GET("songs")
     suspend fun getSongs(): Response<ApiResponse<List<Song>>>
+    @POST("songs")
+    suspend fun createSong(@Body request: SongCreationRequest): Response<ApiResponse<Song>>
     @GET("songs/searchKey")
     suspend fun searchSongs(
         @Query("name") name: String
     ): Response<ApiResponse<List<Song>>>
+    @DELETE("songs/{id}")
+    suspend fun deleteSong(@Path("id") id: String): Response<ApiError>
+    @Multipart
+    @POST("songs/{id}/upload")
+    suspend fun uploadSongFiles(
+        @Path("id") id: String,
+        @Part image: MultipartBody.Part,
+        @Part audio: MultipartBody.Part
+    ): Response<ApiResponse<Song>>
+    @PUT("songs/{id}")
+    suspend fun updateSong(
+        @Path("id") id: String,
+        @Body request: SongUpdateRequest
+    ): Response<ApiResponse<Song>>
 }

@@ -34,6 +34,20 @@
     <string name="xac_nhan_sua">Edit</string>
     <string name="thong_tin_ho_so">Profile information</string>
     <string name="ho_va_ten">Full name</string>
-    <string name="mo_ta">Description :</string>
-    <string name="ngay_phat_hanh">Release date :</string>
+    <string name="mo_ta">Description</string>
+    <string name="ngay_phat_hanh">Release date</string>
+    <string name="bai_hat">Song</string>
+    <string name="album">Album</string>
+    <string name="tac_gia">Artist</string>
+    <string name="danh_sach_bai_hat">List song</string>
+    <string name="tao_bai_hat">Add song</string>
+    <string name="upload_file">Upload file</string>
+    <string name="them_bai_hat">Add song</string>
+    <string name="thoi_gian">Duration</string>
+    <string name="tao_bai_hat_thanh_cong">Add song successfully</string>
+    <string name="tieu_de_xoa_bai_hat">Are you sure you want to delete song?</string>
+    <string name="trang_thai">Status</string>
+    <string name="the_loai">Type</string>
+    <string name="chinh_sua_bai_hat">Update song</string>
+    <string name="cap_nhap_bai_hat_thanh_cong">Update song successfully</string>
 </resources>

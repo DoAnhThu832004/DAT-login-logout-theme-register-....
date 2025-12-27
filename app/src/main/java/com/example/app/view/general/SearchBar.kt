@@ -37,6 +37,7 @@ import com.example.app.viewmodel.SearchViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchBar(
+    modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
     //onArtistClick: (Artist) -> Unit,
     //onSongClick: (Song) -> Unit

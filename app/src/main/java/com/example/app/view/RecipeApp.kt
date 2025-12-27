@@ -3,7 +3,6 @@ package com.example.app.view
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -12,17 +11,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.app.model.ApiClient
-import com.example.app.model.ApiService
-import com.example.app.model.response.AuthResult
-import com.example.app.model.response.UserResponse
 import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
 import com.example.app.view.Song.ListAllSong
-import com.example.app.view.admin.HomePage
 import com.example.app.view.admin.NavigationDraw
 import com.example.app.view.user.EditProfilePage
 import com.example.app.view.user.InformationProfilePage
-import com.example.app.view.user.ProfilePage
 import com.example.app.view.user.SettingPage
 import com.example.app.view.user.UserHomePage
 import com.example.app.viewmodel.EditProfileViewModel
@@ -82,15 +76,17 @@ fun RecipeApp(
                 }
             )
         }
-        composable(route = Screen.HomeScreen.route) {
-            HomePage()
-        }
+//        composable(route = Screen.HomeScreen.route) {
+//            HomePage()
+//        }
         composable(route = Screen.NavigationDraw.route) { backStackEntry ->
             val name = backStackEntry.arguments?.getString("name") ?: "Guest"
             NavigationDraw(
                 navController = navController,
                 loginViewModel = loginViewModel,
                 editProfileViewModel = editProfileViewModel,
+                songViewModel = songViewModel,
+                searchViewModel = searchViewModel,
                 darkTheme = darkTheme,
                 onThemeUpdated = onThemeUpdated,
                 name = name

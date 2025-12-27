@@ -16,4 +16,12 @@ sealed class Screen(val route : String) {
     object EditProfilePage : Screen("edit_profile_page")
     object InformationProfilePage : Screen("information_profile_page")
     object ListAllSong : Screen("list_all_song")
+    object AlbumScreen: Screen("album_screen")
+    object ArtistScreenA : Screen("artist_screen_a")
+    object UploadFileSong : Screen("uploadFileSong?songId={songId}") {
+        fun createRoute(songId: String) = "uploadFileSong?songId=$songId"
+    }
+    object EditSongScreen : Screen("editSongScreen?songId={songId}") {
+        fun createRoute(songId: String) = "editSongScreen?songId=$songId"
+    }
 }

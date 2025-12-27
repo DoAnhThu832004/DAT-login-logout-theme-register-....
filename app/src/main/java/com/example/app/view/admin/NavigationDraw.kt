@@ -1,6 +1,7 @@
 package com.example.app.view.admin
 
 
+import UploadFileSong
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +35,6 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -55,14 +57,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.app.R
-import com.example.app.model.NavItems
 import com.example.app.model.NavItemsDrawer
 import com.example.app.view.Screen
+import com.example.app.view.admin.song.EditSongScreen
+import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.SearchViewModel
+import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
 
 
@@ -71,6 +76,8 @@ fun NavigationDraw(
     modifier: Modifier = Modifier,
     loginViewModel: LoginViewModel,
     editProfileViewModel: EditProfileViewModel,
+    songViewModel: SongViewModel,
+    searchViewModel: SearchViewModel,
     navController: NavHostController,
     darkTheme: Boolean,
     onThemeUpdated: () -> Unit,
@@ -119,13 +126,47 @@ fun NavigationDraw(
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Screen.HomeScreen.route) {
-                    HomePage()
+                    HomePage(
+                        songViewModel = songViewModel,
+                        searchViewModel = searchViewModel,
+                        onUploadScreen = { song ->
+                            adminNavController.navigate(Screen.UploadFileSong.createRoute(song.id))
+                        },
+                        onUpdateScreen = { song ->
+                            adminNavController.navigate(Screen.EditSongScreen.createRoute(song.id))
+                        }
+                    )
                 }
                 composable(Screen.SettingPageA.route) {
                     SettingPageA(darkTheme = darkTheme, onThemeUpdated = onThemeUpdated, navController = adminNavController)
                 }
                 composable(route = Screen.InformationProfilePage.route) {
                     InformationProfilePage(navController = adminNavController, editProfileViewModel = editProfileViewModel)
+                }
+                composable(route = Screen.AlbumScreen.route) {
+                    AlbumScreen()
+                }
+                composable(route = Screen.ArtistScreenA.route) {
+                    ArtistScreenA()
+                }
+                composable(route = Screen.UploadFileSong.route) {
+                    val songId = it.arguments?.getString("songId") ?: ""
+                    UploadFileSong(
+                        songId = songId,
+                        viewModel = songViewModel
+                    )
+                }
+                composable(route = Screen.EditSongScreen.route) {
+                    val songId = it.arguments?.getString("songId") ?: ""
+                    val currentSongs = songViewModel.songState.value.songs ?: emptyList()
+
+                    val foundSong = currentSongs.find { it.id == songId } ?: com.example.app.model.response.Song(
+                        id = "", name = "", description = "", status = "", duration = 0, releasedDate = "", type = "", artistName = "",imageUrl = "", audioUrl = "")
+                    EditSongScreen(
+                        songViewModel = songViewModel,
+                        songToEdit = foundSong,
+                        songId = songId
+                    )
                 }
             }
         }
@@ -142,7 +183,9 @@ fun DrawerContent(
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val itemDraw = listOf(
-        NavItemsDrawer(stringResource(R.string.trang_chu), Icons.Default.Home, Screen.HomeScreen.route),
+        NavItemsDrawer(stringResource(R.string.bai_hat), Icons.Default.MusicNote, Screen.HomeScreen.route),
+        NavItemsDrawer(stringResource(R.string.album), Icons.Default.Album, Screen.AlbumScreen.route),
+        NavItemsDrawer(stringResource(R.string.tac_gia), Icons.Default.Person, Screen.ArtistScreenA.route),
         NavItemsDrawer(stringResource(R.string.cai_dat), Icons.Default.Settings, Screen.SettingPageA.route),
         NavItemsDrawer(stringResource(R.string.dang_xuat), Icons.Default.Logout, Screen.LoginScreen.route)
     )

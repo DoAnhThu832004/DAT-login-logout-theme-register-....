@@ -9,14 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun HomePage() {
+fun ArtistScreenA() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "This is HomePage"
+            text = "This is ArtistPageA"
         )
     }
 }
