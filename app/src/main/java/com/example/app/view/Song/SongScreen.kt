@@ -27,7 +27,7 @@ import com.example.test_ms.view.SongItem
 fun SongScreen(
     songs : List<Song>,
     onViewAllClick: () -> Unit,
-    //onSongClick: (Song) -> Unit,
+    onSongClick: (Song) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -69,9 +69,10 @@ fun SongScreen(
                             //.background(MaterialTheme.colorScheme.background)
                     ) {
                         //if(song.status == "PUBLISHED") {
-                        SongItem(song = song,
+                        SongItem(
+                            song = song,
                             //artist = artist,
-                            //onClick = { onSongClick(song) }
+                            onClick = { onSongClick(song) }
                         )
                         //}
                     }

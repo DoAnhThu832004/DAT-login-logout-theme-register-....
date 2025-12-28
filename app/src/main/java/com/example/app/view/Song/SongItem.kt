@@ -27,7 +27,7 @@ import com.example.app.model.response.Song
 @Composable
 fun SongItem(
     song: Song,
-    //onClick: () -> Unit = {}
+    onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -35,7 +35,7 @@ fun SongItem(
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.background, shape = RoundedCornerShape(12.dp))
             .clickable {
-                //onClick()
+                onClick()
             }
     ) {
         Image(

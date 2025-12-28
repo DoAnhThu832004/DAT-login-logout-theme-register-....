@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.model.NavItems
+import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
@@ -43,6 +44,7 @@ fun UserHomePage(
     searchViewModel: SearchViewModel,
     name: String,
     onViewAllSongs: () -> Unit,
+    onPlayerScreen: (Song) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
@@ -78,7 +80,8 @@ fun UserHomePage(
             name = name,
             songViewModel = songViewModel,
             searchViewModel = searchViewModel,
-            onViewAllSongs = onViewAllSongs
+            onViewAllSongs = onViewAllSongs,
+            onPlayerScreen = onPlayerScreen
         )
     }
 }
@@ -92,9 +95,10 @@ fun ContentScreen(
     songViewModel: SongViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
+    onPlayerScreen: (Song) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs)
+        0 -> HomePageU(songViewModel = songViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen)
         1 -> FavoritePage()
         2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
     }

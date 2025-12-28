@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.unit.dp
+import com.example.app.model.response.Song
 import com.example.app.view.Song.SongScreen
 import com.example.app.view.general.SearchBar
 import com.example.app.viewmodel.SearchViewModel
@@ -27,7 +28,8 @@ fun HomePageU(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel,
     searchViewModel: SearchViewModel,
-    onViewAllSongs: () -> Unit
+    onViewAllSongs: () -> Unit,
+    onPlayerScreen: (Song) -> Unit
 ) {
     val songState by songViewModel.songState
     LaunchedEffect(Unit) {
@@ -39,7 +41,7 @@ fun HomePageU(
             .padding(top = 32.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
-        SearchBar(searchViewModel = searchViewModel)
+        SearchBar(searchViewModel = searchViewModel, onSongClick = onPlayerScreen)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,7 +57,10 @@ fun HomePageU(
                 else -> {
                     SongScreen(
                         songs = songState.songs ?: emptyList(),
-                        onViewAllClick = onViewAllSongs
+                        onViewAllClick = onViewAllSongs,
+                        onSongClick = { song ->
+                            onPlayerScreen(song)
+                        }
                     )
                 }
             }

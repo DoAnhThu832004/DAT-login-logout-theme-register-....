@@ -50,4 +50,6 @@
     <string name="the_loai">Type</string>
     <string name="chinh_sua_bai_hat">Update song</string>
     <string name="cap_nhap_bai_hat_thanh_cong">Update song successfully</string>
+    <string name="notification_channel_name">Music Player</string>
+    <string name="notification_channel_description">Control music playback</string>
 </resources>

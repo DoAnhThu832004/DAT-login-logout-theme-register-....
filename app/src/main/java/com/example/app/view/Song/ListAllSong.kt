@@ -50,12 +50,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
+import com.example.app.viewmodel.PlayerViewModel
 
 @Composable
 fun ListAllSong(
     songs: List<Song>,
-    //playerViewModel: PlayerViewModel,
-    //onSongClick: (Song) -> Unit,
+    playerViewModel: PlayerViewModel,
+    onSongClick: (Song) -> Unit,
     onBack: () -> Unit
 ) {
     Column(
@@ -90,7 +91,7 @@ fun ListAllSong(
                 DetailListSong(
                     song = i,
                     //artist = artist,
-                    //onSongClick = { onSongClick(i)}
+                    onSongClick = { onSongClick(i)}
                 )
             }
         }
@@ -99,7 +100,7 @@ fun ListAllSong(
 @Composable
 fun DetailListSong(
     song: Song,
-    //onSongClick: () -> Unit
+    onSongClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
@@ -118,7 +119,7 @@ fun DetailListSong(
                 easing = LinearOutSlowInEasing
                 )
             )
-            .clickable {  }
+            .clickable { onSongClick() }
     ) {
         Row(
             modifier = Modifier

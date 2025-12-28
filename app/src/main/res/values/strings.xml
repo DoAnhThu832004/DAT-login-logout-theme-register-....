@@ -49,4 +49,6 @@
     <string name="tao_bai_hat_thanh_cong">Tạo bài hát thành công</string>
     <string name="cap_nhap_bai_hat_thanh_cong">Cập nhập bài hát thành công</string>
     <string name="tieu_de_xoa_bai_hat">Bạn có chắc chắn muốn xoá bài hát không?</string>
+    <string name="notification_channel_name">Music Player</string>
+    <string name="notification_channel_description">Control music playback</string>
 </resources>

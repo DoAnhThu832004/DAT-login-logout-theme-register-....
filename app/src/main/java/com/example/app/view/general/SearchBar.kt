@@ -40,7 +40,7 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
     //onArtistClick: (Artist) -> Unit,
-    //onSongClick: (Song) -> Unit
+    onSongClick: (Song) -> Unit = {}
 ) {
     //val suggestion by searchViewModel.suggestions.collectAsState()
     val sSong by searchViewModel.sSong.collectAsState()
@@ -130,7 +130,7 @@ fun SearchBar(
                             query = songs.name
                             expanded = false
                             searchViewModel.clearSuggestions()
-                            //onSongClick(songs)
+                            onSongClick(songs)
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     )
