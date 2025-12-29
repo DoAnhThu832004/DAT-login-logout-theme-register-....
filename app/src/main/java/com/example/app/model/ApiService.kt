@@ -1,6 +1,8 @@
 package com.example.app.model
 
 import android.content.Context
+import com.example.app.model.request.AlbumCreationRequest
+import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.RefreshRequest
@@ -8,6 +10,7 @@ import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.request.UserUpdateRequest
+import com.example.app.model.response.Album
 import com.example.app.model.response.ApiError
 import com.example.app.model.response.ApiResponse
 import com.example.app.model.response.AuthenticationResponse
@@ -65,4 +68,19 @@ interface ApiService {
         @Path("id") id: String,
         @Body request: SongUpdateRequest
     ): Response<ApiResponse<Song>>
+    @GET("albums")
+    suspend fun getAlbums(): Response<ApiResponse<List<Album>>>
+    @GET("albums/searchKey")
+    suspend fun searchAlbums(
+        @Query("name") name: String
+    ): Response<ApiResponse<List<Album>>>
+    @POST("albums")
+    suspend fun createAlbum(@Body request: AlbumCreationRequest): Response<ApiResponse<Album>>
+    @DELETE("albums/{id}")
+    suspend fun deleteAlbum(@Path("id") id: String): Response<ApiError>
+    @PUT("albums/{id}")
+    suspend fun updateAlbum(
+        @Path("id") id: String,
+        @Body request: AlbumUpdateRequest
+    ): Response<ApiResponse<Album>>
 }

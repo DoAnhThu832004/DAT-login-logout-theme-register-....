@@ -37,6 +37,7 @@ import com.example.app.view.user.ContentScreen
 import com.example.app.view.user.FavoritePage
 import com.example.app.view.user.HomePageU
 import com.example.app.view.user.ProfilePage
+import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
@@ -44,6 +45,7 @@ import com.example.app.viewmodel.SongViewModel
 @Composable
 fun HomePage(
     songViewModel: SongViewModel,
+    albumViewModel: AlbumViewModel,
     searchViewModel: SearchViewModel,
     onUploadScreen: (Song) -> Unit,
     onUpdateScreen: (Song) -> Unit

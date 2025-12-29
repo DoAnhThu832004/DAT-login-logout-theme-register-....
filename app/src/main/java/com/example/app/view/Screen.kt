@@ -27,4 +27,11 @@ sealed class Screen(val route : String) {
     object PlayerScreen : Screen("playerScreen?songs={songs}") {  // Dùng query param
         fun createRoute() = "playerScreen"
     }
+    object AlbumDetailScreen : Screen("albumDetailScreen?albumId={albumId}") {
+        fun createRoute(albumId: String) = "albumDetailScreen?albumId=$albumId"
+    }
+    object UpdateAlbumScreen : Screen("updateAlbumScreen?albumId={albumId}") {
+        fun createRoute(albumId: String) = "updateAlbumScreen?albumId=$albumId"
+    }
+
 }

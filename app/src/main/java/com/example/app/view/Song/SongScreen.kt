@@ -21,19 +21,26 @@ import androidx.compose.ui.unit.dp
 import com.example.app.model.response.Song
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.stringResource
+import com.example.app.R
+import com.example.app.model.response.Album
+import com.example.app.view.Album.AlbumItem
 import com.example.test_ms.view.SongItem
 
 @Composable
 fun SongScreen(
     songs : List<Song>,
+    albums : List<Album>,
     onViewAllClick: () -> Unit,
     onSongClick: (Song) -> Unit,
+    onAlbumClick: (Album) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
         val previewSongs = songs.take(4)
+        val previewAlbums = albums.take(4)
         item {
             Row(
                 modifier = Modifier
@@ -42,11 +49,11 @@ fun SongScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Gợi ý bài hát",
+                    text = stringResource(R.string.goi_y_bai_hat),
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "Tất cả >",
+                    text = stringResource(R.string.tat_ca) + " >",
                     modifier = Modifier
                         .clickable {
                             onViewAllClick()
@@ -75,6 +82,28 @@ fun SongScreen(
                             onClick = { onSongClick(song) }
                         )
                         //}
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "Album Hot",
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(previewAlbums, key = {it.id}) { album ->
+                    Box(
+                        modifier = Modifier
+                            .width(140.dp)
+                    ) {
+                        AlbumItem(album = album, onClick = { onAlbumClick(album) })
                     }
                 }
             }

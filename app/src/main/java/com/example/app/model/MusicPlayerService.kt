@@ -32,6 +32,14 @@ class MusicPlayerService : Service() {
 
         createNotificationChannel()
 
+        val tempNotification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Music Player")
+            .setContentText("Starting...")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setOngoing(true)
+            .build()
+        startForeground(notificationId, tempNotification)
+
         val player = PlayerManager.getPlayer()
         if (player != null) {
             mediaSession = MediaSession.Builder(this, player).build()
@@ -114,6 +122,15 @@ class MusicPlayerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (notificationManager == null) {
+            val tempNotification = NotificationCompat.Builder(this, channelId)
+                .setContentTitle("Music Player")
+                .setContentText("Starting...")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setOngoing(true)
+                .build()
+            startForeground(notificationId, tempNotification)
+        }
         return START_STICKY
     }
 

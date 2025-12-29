@@ -49,7 +49,7 @@ object DataStoreUtils {
     }
     suspend fun clearTokens(context: Context) {
         context.authDataStore.edit { prefs ->
-            prefs.remove(DataStoreKeys.REFRESH_TOKEN_KEY)
+            prefs.remove(DataStoreKeys.ACCESS_TOKEN_KEY)
             prefs.remove(DataStoreKeys.REFRESH_TOKEN_KEY)
             prefs[DataStoreKeys.IS_LOGGED_IN_KEY] = false
         }

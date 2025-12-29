@@ -52,4 +52,8 @@
     <string name="cap_nhap_bai_hat_thanh_cong">Update song successfully</string>
     <string name="notification_channel_name">Music Player</string>
     <string name="notification_channel_description">Control music playback</string>
+    <string name="goi_y_bai_hat">Suggested Songs</string>
+    <string name="tat_ca">All</string>
+    <string name="danh_sach_album">List album</string>
+    <string name="them_album">Add album</string>
 </resources>

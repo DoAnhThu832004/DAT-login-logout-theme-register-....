@@ -21,11 +21,6 @@ interface AuthApi {
     suspend fun refreshToken(@Body request: RefreshRequest): retrofit2.Response<AuthenticationResponse>
 }
 
-/**
- * ApiClient tạo 2 retrofit:
- *  - retrofitNoAuth: không thêm interceptor (dùng để refresh token)
- *  - retrofitWithAuth: dùng interceptor + authenticator (dùng cho tất cả request)
- */
 object ApiClient {
 
     fun build(context: Context): ApiService {

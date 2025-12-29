@@ -1,61 +1,55 @@
-package com.example.app.view.user
+package com.example.app.view.admin.album
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.ListAlt
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.util.fastForEachIndexed
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Album
 import com.example.app.model.response.Song
-import com.example.app.model.response.UserResponse
+import com.example.app.view.admin.song.AddSong
+import com.example.app.view.admin.song.ListSongA
 import com.example.app.viewmodel.AlbumViewModel
-import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
 @Composable
-fun UserHomePage(
-    modifier: Modifier = Modifier,
-    navController: NavHostController,
-    loginViewModel: LoginViewModel,
-    songViewModel: SongViewModel,
+fun AlbumScreen(
+//    songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
     searchViewModel: SearchViewModel,
-    name: String,
-    onViewAllSongs: () -> Unit,
-    onPlayerScreen: (Song) -> Unit,
-    onAlbumScreen: (Album) -> Unit
+//    onUploadScreen: (Song) -> Unit,
+    onUpdateScreen: (Album) -> Unit
 ) {
     val navItemsList = listOf(
-        NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
-        NavItems(stringResource(R.string.yeu_thich),Icons.Default.Favorite),
-        NavItems(stringResource(R.string.ho_so),Icons.Default.Person)
+        NavItems(stringResource(R.string.danh_sach_album), Icons.Default.ListAlt),
+        NavItems(stringResource(R.string.them_album), Icons.Default.AddCircleOutline),
     )
+    val albumState by albumViewModel.albumState
     var selectIndex by rememberSaveable { mutableStateOf(0) }
+    LaunchedEffect(Unit) {
+        albumViewModel.getAlbums()
+    }
     Scaffold(
         bottomBar = {
             NavigationBar(
@@ -66,7 +60,7 @@ fun UserHomePage(
                     NavigationBarItem(
                         selected = selectIndex == index,
                         onClick = { selectIndex = index },
-                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary)},
+                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary) },
                         label = { Text(
                             text = item.label,
                             color = MaterialTheme.colorScheme.onBackground
@@ -75,39 +69,30 @@ fun UserHomePage(
                 }
             }
         }
-    ) {
-        ContentScreen(
+    ) { it ->
+        ContentScreenA(
             modifier = Modifier.padding(it),
-            navController = navController,
-            loginViewModel = loginViewModel,
             selectedIndex = selectIndex,
-            name = name,
-            songViewModel = songViewModel,
-            albumViewModel = albumViewModel,
+            albums = albumState.albums ?: emptyList(),
             searchViewModel = searchViewModel,
-            onViewAllSongs = onViewAllSongs,
-            onPlayerScreen = onPlayerScreen,
-            onAlbumScreen = onAlbumScreen
+            albumViewModel = albumViewModel,
+//            onUploadScreen = onUploadScreen,
+            onUpdateClick = onUpdateScreen
         )
     }
 }
 @Composable
-fun ContentScreen(
+fun ContentScreenA(
     modifier: Modifier = Modifier,
-    navController: NavHostController,
-    loginViewModel: LoginViewModel,
     selectedIndex: Int,
-    name: String,
-    songViewModel: SongViewModel,
-    albumViewModel: AlbumViewModel,
+    albums: List<Album>,
     searchViewModel: SearchViewModel,
-    onViewAllSongs: () -> Unit,
-    onPlayerScreen: (Song) -> Unit,
-    onAlbumScreen: (Album) -> Unit
+    albumViewModel: AlbumViewModel,
+//    onUploadScreen: (Song) -> Unit,
+    onUpdateClick: (Album) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen)
-        1 -> FavoritePage()
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
+        0 -> ListAlbumScreen(modifier = modifier,albums = albums,searchViewModel = searchViewModel,albumViewModel = albumViewModel,onUpdateClick = onUpdateClick)
+        1 -> AddAlbumScreen(albumViewModel = albumViewModel)
     }
 }

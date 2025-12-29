@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.app.model.ApiClient
+import com.example.app.view.Album.AlbumDetailScreen
 import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
 import com.example.app.view.Player.MiniPlayer
@@ -26,6 +27,8 @@ import com.example.app.view.user.EditProfilePage
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.view.user.SettingPage
 import com.example.app.view.user.UserHomePage
+import com.example.app.viewmodel.AlbumViewModel
+import com.example.app.viewmodel.AlbumViewModelFactory
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.EditProfileViewModelFactory
 import com.example.app.viewmodel.LoginViewModel
@@ -66,6 +69,11 @@ fun RecipeApp(
     val searchViewModel : SearchViewModel = viewModel(
         factory = SearchViewModelFactory(apiService)
     )
+    val albumViewModel : AlbumViewModel = viewModel(
+        factory = AlbumViewModelFactory(apiService)
+    )
+    val albumState by albumViewModel.albumState
+    val albums = albumState.albums ?: emptyList()
     val playerViewModel : PlayerViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -103,6 +111,7 @@ fun RecipeApp(
                     loginViewModel = loginViewModel,
                     editProfileViewModel = editProfileViewModel,
                     songViewModel = songViewModel,
+                    albumViewModel = albumViewModel,
                     searchViewModel = searchViewModel,
                     darkTheme = darkTheme,
                     onThemeUpdated = onThemeUpdated,
@@ -115,6 +124,7 @@ fun RecipeApp(
                     navController = navController,
                     loginViewModel = loginViewModel,
                     songViewModel = songViewModel,
+                    albumViewModel = albumViewModel,
                     searchViewModel = searchViewModel,
                     name = name,
                     onViewAllSongs = {
@@ -123,6 +133,9 @@ fun RecipeApp(
                     onPlayerScreen = { song ->
                         playerViewModel.play(song, songs)
                         navController.navigate(Screen.PlayerScreen.createRoute())
+                    },
+                    onAlbumScreen = { album ->
+                        navController.navigate(Screen.AlbumDetailScreen.createRoute(album.id))
                     }
                 )
             }
@@ -168,6 +181,20 @@ fun RecipeApp(
                     playerViewModel = playerViewModel,
                     onBack = {navController.popBackStack()}
                 )
+            }
+            composable(route = Screen.AlbumDetailScreen.route) {
+                val albumId = it.arguments?.getString("albumId")
+                val album = albums.find { it.id == albumId }
+                if (album != null) {
+                    AlbumDetailScreen(
+                        album = album,
+                        onSongClick = { song ->
+                            playerViewModel.play(song, songs)
+                            navController.navigate(Screen.PlayerScreen.createRoute())
+                        },
+                        onBack = {navController.popBackStack()}
+                    )
+                }
             }
         }
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()

@@ -58,12 +58,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.app.R
 import com.example.app.model.NavItemsDrawer
+import com.example.app.model.response.Album
 import com.example.app.view.Screen
+import com.example.app.view.admin.album.AlbumScreen
+import com.example.app.view.admin.album.UpdateAlbumScreen
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.view.user.InformationProfilePage
+import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
@@ -77,6 +81,7 @@ fun NavigationDraw(
     loginViewModel: LoginViewModel,
     editProfileViewModel: EditProfileViewModel,
     songViewModel: SongViewModel,
+    albumViewModel: AlbumViewModel,
     searchViewModel: SearchViewModel,
     navController: NavHostController,
     darkTheme: Boolean,
@@ -128,6 +133,7 @@ fun NavigationDraw(
                 composable(Screen.HomeScreen.route) {
                     HomePage(
                         songViewModel = songViewModel,
+                        albumViewModel = albumViewModel,
                         searchViewModel = searchViewModel,
                         onUploadScreen = { song ->
                             adminNavController.navigate(Screen.UploadFileSong.createRoute(song.id))
@@ -144,7 +150,13 @@ fun NavigationDraw(
                     InformationProfilePage(navController = adminNavController, editProfileViewModel = editProfileViewModel)
                 }
                 composable(route = Screen.AlbumScreen.route) {
-                    AlbumScreen()
+                    AlbumScreen(
+                        albumViewModel = albumViewModel,
+                        searchViewModel = searchViewModel,
+                        onUpdateScreen = { album ->
+                            adminNavController.navigate(Screen.UpdateAlbumScreen.createRoute(album.id))
+                        }
+                    )
                 }
                 composable(route = Screen.ArtistScreenA.route) {
                     ArtistScreenA()
@@ -166,6 +178,18 @@ fun NavigationDraw(
                         songViewModel = songViewModel,
                         songToEdit = foundSong,
                         songId = songId
+                    )
+                }
+                composable(route = Screen.UpdateAlbumScreen.route) {
+                    val albumId = it.arguments?.getString("albumId") ?: ""
+                    val currentAlbums = albumViewModel.albumState.value.albums ?: emptyList()
+                    val foundAlbum = currentAlbums.find { it.id == albumId } ?: Album(
+                        id = "", name = "", description = "", status = "", imageUrlA = "", songs = emptyList()
+                    )
+                    UpdateAlbumScreen(
+                        albumViewModel = albumViewModel,
+                        album = foundAlbum,
+                        albumId = albumId
                     )
                 }
             }

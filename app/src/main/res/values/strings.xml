@@ -46,9 +46,13 @@
     <string name="thoi_gian">Thời gian</string>
     <string name="trang_thai">Trạng thái</string>
     <string name="the_loai">Thể loại</string>
-    <string name="tao_bai_hat_thanh_cong">Tạo bài hát thành công</string>
+    <string name="tao_bai_hat_thanh_cong">Tạo thành công</string>
     <string name="cap_nhap_bai_hat_thanh_cong">Cập nhập bài hát thành công</string>
     <string name="tieu_de_xoa_bai_hat">Bạn có chắc chắn muốn xoá bài hát không?</string>
     <string name="notification_channel_name">Music Player</string>
     <string name="notification_channel_description">Control music playback</string>
+    <string name="goi_y_bai_hat">Gợi ý bài hát</string>
+    <string name="tat_ca">Tất cả</string>
+    <string name="danh_sach_album">Danh sách album</string>
+    <string name="them_album">Thêm album</string>
 </resources>

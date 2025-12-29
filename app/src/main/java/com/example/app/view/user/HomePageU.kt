@@ -17,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.unit.dp
+import com.example.app.model.response.Album
 import com.example.app.model.response.Song
 import com.example.app.view.Song.SongScreen
 import com.example.app.view.general.SearchBar
+import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
@@ -27,13 +29,17 @@ import com.example.app.viewmodel.SongViewModel
 fun HomePageU(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel,
+    albumViewModel: AlbumViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
-    onPlayerScreen: (Song) -> Unit
+    onPlayerScreen: (Song) -> Unit,
+    onAlbumScreen: (Album) -> Unit,
 ) {
     val songState by songViewModel.songState
+    val albumState by albumViewModel.albumState
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
+        albumViewModel.getAlbums()
     }
     Column(
         modifier = Modifier
@@ -57,9 +63,13 @@ fun HomePageU(
                 else -> {
                     SongScreen(
                         songs = songState.songs ?: emptyList(),
+                        albums = albumState.albums ?: emptyList(),
                         onViewAllClick = onViewAllSongs,
                         onSongClick = { song ->
                             onPlayerScreen(song)
+                        },
+                        onAlbumClick = { album ->
+                            onAlbumScreen(album)
                         }
                     )
                 }
