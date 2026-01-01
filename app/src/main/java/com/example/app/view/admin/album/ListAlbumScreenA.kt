@@ -27,7 +27,8 @@ fun ListAlbumScreen(
     albums: List<Album>,
     searchViewModel: SearchViewModel,
     albumViewModel: AlbumViewModel,
-    onUpdateClick: (Album) -> Unit
+    onUpdateClick: (Album) -> Unit,
+    albumOnClick: (Album) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -47,6 +48,7 @@ fun ListAlbumScreen(
             items(albums) { album ->
                 AlbumItemA(
                     album = album,
+                    onClick = {albumOnClick(album)},
                     onDeleteClick = { songId ->
                         albumViewModel.deleteAlbum(songId)
                     },

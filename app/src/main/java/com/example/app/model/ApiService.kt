@@ -83,4 +83,14 @@ interface ApiService {
         @Path("id") id: String,
         @Body request: AlbumUpdateRequest
     ): Response<ApiResponse<Album>>
+    @DELETE("albums/{albumId}/songs/{songId}")
+    suspend fun deleteSongFromAlbum(
+        @Path("albumId") albumId: String,
+        @Path("songId") songId: String
+    ) : Response<ApiError>
+    @PUT("albums/{albumId}/songs/{songId}")
+    suspend fun addSongToAlbum(
+        @Path("albumId") albumId: String,
+        @Path("songId") songId: String
+    ): Response<ApiResponse<String>>
 }

@@ -60,6 +60,7 @@ import com.example.app.R
 import com.example.app.model.NavItemsDrawer
 import com.example.app.model.response.Album
 import com.example.app.view.Screen
+import com.example.app.view.admin.album.AlbumDetailScreenA
 import com.example.app.view.admin.album.AlbumScreen
 import com.example.app.view.admin.album.UpdateAlbumScreen
 import com.example.app.view.admin.song.EditSongScreen
@@ -155,6 +156,9 @@ fun NavigationDraw(
                         searchViewModel = searchViewModel,
                         onUpdateScreen = { album ->
                             adminNavController.navigate(Screen.UpdateAlbumScreen.createRoute(album.id))
+                        },
+                        albumOnClick = { album ->
+                            adminNavController.navigate(Screen.AlbumScreenDetailA.createRoute(album.id))
                         }
                     )
                 }
@@ -190,6 +194,18 @@ fun NavigationDraw(
                         albumViewModel = albumViewModel,
                         album = foundAlbum,
                         albumId = albumId
+                    )
+                }
+                composable(route = Screen.AlbumScreenDetailA.route) {
+                    val albumId = it.arguments?.getString("albumId") ?: ""
+                    AlbumDetailScreenA(
+                        albumId = albumId,
+                        albumViewModel = albumViewModel,
+                        onSongClick = { song ->
+                            //playerViewModel.play(song, songs)
+                            adminNavController.navigate(Screen.PlayerScreen.createRoute())
+                        },
+                        onBack = {adminNavController.popBackStack()}
                     )
                 }
             }

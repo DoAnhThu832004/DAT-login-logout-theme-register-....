@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">App</string>
-    <string name="dang_nhap">Đăng nhập</string>
+    <string name="dang_nhap">Log in</string>
     <string name="ten_dang_nhap">User name</string>
     <string name="mat_khau">Password</string>
     <string name="thong_bao_khong_duoc_de_trong">Please check your username and password</string>

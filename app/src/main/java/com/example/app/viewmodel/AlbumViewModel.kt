@@ -11,13 +11,18 @@ import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.response.Album
+import com.example.app.model.response.Song
 import kotlinx.coroutines.launch
+import okhttp3.internal.toImmutableList
 
 class AlbumViewModel(
     private val apiService: ApiService
 ) : ViewModel() {
     private val _albumUiState = mutableStateOf(AlbumState())
     val albumState: State<AlbumState> = _albumUiState
+
+    private val _allSongsState = mutableStateOf<List<Song>>(emptyList())
+    val allSongsState: State<List<Song>> = _allSongsState
 
     fun getAlbums() {
         viewModelScope.launch {
@@ -155,6 +160,87 @@ class AlbumViewModel(
                 }
             } catch (e : Exception) {
                 _albumUiState.value = _albumUiState.value.copy(isLoading = false)
+            }
+        }
+    }
+    fun deleteSongFromAlbum(albumId: String, songId: String) {
+        viewModelScope.launch {
+            _albumUiState.value = _albumUiState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val response = apiService.deleteSongFromAlbum(albumId, songId)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000) {
+                        val currentAlbums = _albumUiState.value.albums ?: emptyList()
+                        val updatedAlbums = currentAlbums.map { album ->
+                            if (album.id == albumId) {
+                                // Nếu đúng là Album cần sửa:
+                                // 1. Lọc bỏ bài hát có songId
+                                val updatedSongs = album.songs?.filter { song -> song.id != songId }
+
+                                // 2. Trả về bản sao của Album với danh sách bài hát mới
+                                album.copy(songs = updatedSongs)
+                            } else {
+                                // Nếu không phải Album này, giữ nguyên
+                                album
+                            }
+                        }
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            albums = updatedAlbums,
+                            error = null
+                        )
+                    } else {
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            error = "Failed to delete song from album"
+                        )
+                    }
+                }
+            } catch (e : Exception) {
+                _albumUiState.value = _albumUiState.value.copy(isLoading = false)
+            }
+        }
+    }
+    fun getAllSongs() {
+        viewModelScope.launch {
+            val response = apiService.getSongs()
+            if (response.isSuccessful && response.body()?.result != null) {
+                _allSongsState.value = response.body()!!.result
+            }
+        }
+    }
+    fun addSongToAlbum(albumId: String, song: Song) { // Truyền cả Object Song để update UI
+        viewModelScope.launch {
+            try {
+                val response = apiService.addSongToAlbum(albumId, song.id)
+
+                if (response.isSuccessful && response.body()?.code == 1000) {
+                    val currentAlbums = _albumUiState.value.albums ?: emptyList()
+
+                    val updatedAlbums = currentAlbums.map { album ->
+                        if (album.id == albumId) {
+                            val currentSongs = album.songs?.toMutableList() ?: mutableListOf()
+                            if (currentSongs.none { it.id == song.id }) {
+                                currentSongs.add(song)
+                            }
+                            album.copy(songs = currentSongs)
+                        } else {
+                            album
+                        }
+                    }
+
+                    _albumUiState.value = _albumUiState.value.copy(
+                        isLoading = false,
+                        albums = updatedAlbums,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                // Handle exception
             }
         }
     }
