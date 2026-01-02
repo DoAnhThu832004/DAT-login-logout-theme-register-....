@@ -257,7 +257,7 @@ fun DrawerContent(
                         ), shape = RoundedCornerShape(40.dp)
                     )
             )
-            HeaderView(name=name, top = 24)
+            HeaderView(name=name, image = "",top = 24,check = true)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

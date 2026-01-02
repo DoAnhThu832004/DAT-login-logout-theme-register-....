@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiService
 import com.example.app.model.response.Album
+import com.example.app.model.response.Artist
 import com.example.app.model.response.Song
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,6 +24,8 @@ class SearchViewModel(
     private val _sAlbum = MutableStateFlow<List<Album>>(emptyList())
     val sAlbum = _sAlbum.asStateFlow()
     private var searchJob: Job? = null
+    private val _sArtist = MutableStateFlow<List<Artist>>(emptyList())
+    val sArtist = _sArtist.asStateFlow()
 
     fun onQueryChanged(query: String) {
         searchJob?.cancel()
@@ -64,13 +67,28 @@ class SearchViewModel(
                     emptyList()
                 }
             }
+            val artistDeferred = async {
+                try {
+                    val response = retrofitService.searchArtists(name)
+                    if (response.isSuccessful) {
+                        response.body()?.result ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                    emptyList()
+                }
+            }
             _sSong.value = songDeferred.await()
             _sAlbum.value = albumDeferred.await()
+            _sArtist.value = artistDeferred.await()
         }
     }
     fun clearSuggestions() {
         searchJob?.cancel()
         _sSong.value = emptyList()
         _sAlbum.value = emptyList()
+        _sArtist.value = emptyList()
     }
 }

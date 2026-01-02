@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.app.model.response.Artist
 import com.example.app.model.response.Song
 import com.example.app.viewmodel.SearchViewModel
 
@@ -39,11 +40,12 @@ import com.example.app.viewmodel.SearchViewModel
 fun SearchBar(
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel,
-    //onArtistClick: (Artist) -> Unit,
+    onArtistClick: (Artist) -> Unit = {},
     onSongClick: (Song) -> Unit = {}
 ) {
     //val suggestion by searchViewModel.suggestions.collectAsState()
     val sSong by searchViewModel.sSong.collectAsState()
+    val sArtist by searchViewModel.sArtist.collectAsState()
     var query by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
@@ -81,33 +83,33 @@ fun SearchBar(
                 expanded = expanded,
                 onDismissRequest = {expanded = false}
             ) {
-//                suggestion.forEach { artist ->
-//                    DropdownMenuItem(
-//                        text = {
-//                            Row(verticalAlignment = Alignment.CenterVertically) {
-//                                AsyncImage(
-//                                    model = artist.imageUrlAr,
-//                                    contentDescription = null,
-//                                    modifier = Modifier
-//                                        .size(40.dp)
-//                                        .clip(shape = RoundedCornerShape(50.dp)),
-//                                    contentScale = ContentScale.Crop,
-//                                )
-//                                Spacer(modifier = Modifier.width(12.dp))
-//                                Text(
-//                                    text = artist.name
-//                                )
-//                            }
-//                        },
-//                        onClick = {
-//                            query = artist.name
-//                            expanded = false
-//                            searchViewModel.clearSuggestions()
-//                            onArtistClick(artist)
-//                        },
-//                        contentPadding = PaddingValues(8.dp)
-//                    )
-//                }
+                sArtist.forEach { artist ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                AsyncImage(
+                                    model = artist.imageUrlAr,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(shape = RoundedCornerShape(50.dp)),
+                                    contentScale = ContentScale.Crop,
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = artist.name
+                                )
+                            }
+                        },
+                        onClick = {
+                            query = artist.name
+                            expanded = false
+                            searchViewModel.clearSuggestions()
+                            onArtistClick(artist)
+                        },
+                        contentPadding = PaddingValues(8.dp)
+                    )
+                }
                 sSong.forEach { songs ->
                     DropdownMenuItem(
                         text = {

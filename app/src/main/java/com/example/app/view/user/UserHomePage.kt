@@ -30,9 +30,11 @@ import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Album
+import com.example.app.model.response.Artist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.AlbumViewModel
+import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
@@ -44,11 +46,13 @@ fun UserHomePage(
     loginViewModel: LoginViewModel,
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
+    artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
     name: String,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
-    onAlbumScreen: (Album) -> Unit
+    onAlbumScreen: (Album) -> Unit,
+    onArtistScreen: (Artist) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
@@ -84,10 +88,12 @@ fun UserHomePage(
             name = name,
             songViewModel = songViewModel,
             albumViewModel = albumViewModel,
+            artistViewModel = artistViewModel,
             searchViewModel = searchViewModel,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
-            onAlbumScreen = onAlbumScreen
+            onAlbumScreen = onAlbumScreen,
+            onArtistScreen = onArtistScreen
         )
     }
 }
@@ -100,13 +106,15 @@ fun ContentScreen(
     name: String,
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
+    artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
-    onAlbumScreen: (Album) -> Unit
+    onAlbumScreen: (Album) -> Unit,
+    onArtistScreen: (Artist) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen)
+        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
         1 -> FavoritePage()
         2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
     }

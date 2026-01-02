@@ -87,7 +87,7 @@ fun ProfilePage(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name = name, top = 48)
+            HeaderView(name = name, image = "" ,top = 48,check = true)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -13,6 +13,7 @@ import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.Album
 import com.example.app.model.response.ApiError
 import com.example.app.model.response.ApiResponse
+import com.example.app.model.response.Artist
 import com.example.app.model.response.AuthenticationResponse
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
@@ -93,4 +94,10 @@ interface ApiService {
         @Path("albumId") albumId: String,
         @Path("songId") songId: String
     ): Response<ApiResponse<String>>
+    @GET("artists")
+    suspend fun getArtists(): Response<ApiResponse<List<Artist>>>
+    @GET("artists/searchKey")
+    suspend fun searchArtists(
+        @Query("name") name: String
+    ): Response<ApiResponse<List<Artist>>>
 }

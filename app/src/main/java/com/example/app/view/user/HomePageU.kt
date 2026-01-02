@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.unit.dp
 import com.example.app.model.response.Album
+import com.example.app.model.response.Artist
 import com.example.app.model.response.Song
 import com.example.app.view.Song.SongScreen
 import com.example.app.view.general.SearchBar
 import com.example.app.viewmodel.AlbumViewModel
+import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
@@ -30,16 +32,19 @@ fun HomePageU(
     modifier: Modifier = Modifier,
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
+    artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
+    onArtistScreen: (Artist) -> Unit
 ) {
     val songState by songViewModel.songState
     val albumState by albumViewModel.albumState
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
         albumViewModel.getAlbums()
+        artistViewModel.getArtists()
     }
     Column(
         modifier = Modifier
@@ -47,7 +52,7 @@ fun HomePageU(
             .padding(top = 32.dp)
             .background(MaterialTheme.colorScheme.background)
     ) {
-        SearchBar(searchViewModel = searchViewModel, onSongClick = onPlayerScreen)
+        SearchBar(searchViewModel = searchViewModel, onArtistClick = onArtistScreen ,onSongClick = onPlayerScreen)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
