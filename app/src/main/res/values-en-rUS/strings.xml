@@ -56,4 +56,6 @@
     <string name="tat_ca">All</string>
     <string name="danh_sach_album">List album</string>
     <string name="them_album">Add album</string>
+    <string name="danh_sach_tac_gia">List artist</string>
+    <string name="tao_tac_gia">Add artist</string>
 </resources>

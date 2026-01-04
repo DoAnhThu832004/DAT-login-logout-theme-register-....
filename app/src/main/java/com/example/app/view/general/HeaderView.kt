@@ -32,7 +32,7 @@ import com.example.app.R
 fun HeaderView(
     modifier: Modifier = Modifier,
     name: String,
-    image: String,
+    image: String?,
     top : Int,
     check: Boolean
 ) {

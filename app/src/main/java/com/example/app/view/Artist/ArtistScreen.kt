@@ -92,7 +92,7 @@ fun ArtistScreen(
                             start.linkTo(parent.start)
                         }
                 )
-                artist.imageUrlAr?.let { HeaderView(name = artist.name, image = it, top = 48, check = false) }
+                HeaderView(name = artist.name, image = artist.imageUrlAr, top = 48, check = false)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -111,6 +111,7 @@ fun ArtistScreen(
             }
         }
         item{
+            val previewSongs = artist.songs.take(6)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -129,17 +130,15 @@ fun ArtistScreen(
                 )
 
             }
-            if(artist.songs.size <= 2) {
-                SongsGrid(
-                    songs = artist.songs,
-                    height = 90.dp,
-                    onSongClick = onSongClick
-                )
-            } else if(artist.songs.size > 2 && artist.songs.size <= 4) {
-                SongsGrid(songs = artist.songs, height = 180.dp, onSongClick = onSongClick)
-            } else if(artist.songs.size > 4 && artist.songs.size <= 6) {
-                SongsGrid(songs = artist.songs, height = 270.dp, onSongClick = onSongClick)
-            }
+            SongsGrid(
+                songs = previewSongs,
+                height = when (previewSongs.size) {
+                    in 1..2 -> 80.dp
+                    in 3..4 -> 160.dp
+                    else -> 240.dp
+                },
+                onSongClick = {}
+            )
         }
         item {
             Column(
@@ -155,7 +154,7 @@ fun ArtistScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(albumState.albums!!) { album ->
+                    items(artist.albums) { album ->
                         Box(modifier = Modifier.width(140.dp)) {
                             AlbumItem(
                                 album = album,

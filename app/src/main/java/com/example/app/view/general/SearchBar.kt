@@ -49,8 +49,8 @@ fun SearchBar(
     var query by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(sSong) {
-        if(sSong.isNotEmpty()) {
+    LaunchedEffect(sSong,sArtist) {
+        if(sSong.isNotEmpty() || sArtist.isNotEmpty()) {
             expanded = true
         }
     }
@@ -78,7 +78,7 @@ fun SearchBar(
             singleLine = true,
             shape = RoundedCornerShape(24.dp),
         )
-        if (sSong.isNotEmpty()) {
+        if (sSong.isNotEmpty() || sArtist.isNotEmpty()) {
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = {expanded = false}

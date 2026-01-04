@@ -24,13 +24,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.res.stringResource
 import com.example.app.R
 import com.example.app.model.response.Album
+import com.example.app.model.response.Playlist
 import com.example.app.view.Album.AlbumItem
+import com.example.app.view.Playlist.PlaylistItem
 import com.example.test_ms.view.SongItem
 
 @Composable
 fun SongScreen(
     songs : List<Song>,
     albums : List<Album>,
+    playlists : List<Playlist>,
     onViewAllClick: () -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit
@@ -104,6 +107,28 @@ fun SongScreen(
                             .width(140.dp)
                     ) {
                         AlbumItem(album = album, onClick = { onAlbumClick(album) })
+                    }
+                }
+            }
+        }
+        item {
+            Text(
+                text = "Playlist",
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(playlists) {
+                    Box(
+                        modifier = Modifier
+                            .width(140.dp)
+                    ) {
+                        PlaylistItem(playlist = it)
                     }
                 }
             }

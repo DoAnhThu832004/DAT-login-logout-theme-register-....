@@ -37,6 +37,8 @@ import com.example.app.viewmodel.EditProfileViewModelFactory
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.LoginViewModelFactory
 import com.example.app.viewmodel.PlayerViewModel
+import com.example.app.viewmodel.PlaylistViewModel
+import com.example.app.viewmodel.PlaylistViewModelFactory
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
 import com.example.app.viewmodel.SearchViewModel
@@ -77,6 +79,9 @@ fun RecipeApp(
     )
     val artistViewModel : ArtistViewModel = viewModel(
         factory = ArtistViewModelFactory(apiService)
+    )
+    val playlistViewModel : PlaylistViewModel = viewModel(
+        factory = PlaylistViewModelFactory(apiService)
     )
     val artistState by artistViewModel.artistState
     val artists = artistState.artists ?: emptyList()
@@ -120,6 +125,7 @@ fun RecipeApp(
                     editProfileViewModel = editProfileViewModel,
                     songViewModel = songViewModel,
                     albumViewModel = albumViewModel,
+                    artistViewModel = artistViewModel,
                     searchViewModel = searchViewModel,
                     darkTheme = darkTheme,
                     onThemeUpdated = onThemeUpdated,
@@ -134,6 +140,7 @@ fun RecipeApp(
                     songViewModel = songViewModel,
                     albumViewModel = albumViewModel,
                     artistViewModel = artistViewModel,
+                    playlistViewModel = playlistViewModel,
                     searchViewModel = searchViewModel,
                     name = name,
                     onViewAllSongs = {

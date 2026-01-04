@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,16 +60,21 @@ import androidx.navigation.compose.rememberNavController
 import com.example.app.R
 import com.example.app.model.NavItemsDrawer
 import com.example.app.model.response.Album
+import com.example.app.model.response.Artist
 import com.example.app.view.Screen
 import com.example.app.view.admin.album.AlbumDetailScreenA
 import com.example.app.view.admin.album.AlbumScreen
 import com.example.app.view.admin.album.UpdateAlbumScreen
+import com.example.app.view.admin.artist.ArtistScreenA
+import com.example.app.view.admin.artist.DetailArtistScreen
+import com.example.app.view.admin.artist.UpdateArtistScreen
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.viewmodel.AlbumViewModel
+import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SearchViewModel
@@ -83,6 +89,7 @@ fun NavigationDraw(
     editProfileViewModel: EditProfileViewModel,
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
+    artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
     navController: NavHostController,
     darkTheme: Boolean,
@@ -163,7 +170,16 @@ fun NavigationDraw(
                     )
                 }
                 composable(route = Screen.ArtistScreenA.route) {
-                    ArtistScreenA()
+                    ArtistScreenA(
+                        artistViewModel = artistViewModel,
+                        searchViewModel = searchViewModel,
+                        onUpdateScreen = { artist ->
+                            adminNavController.navigate(Screen.UpdateArtistScreen.createRoute(artist.id))
+                        },
+                        onArtistClick = { artist ->
+                            adminNavController.navigate(Screen.DetailArtistScreen.createRoute(artist.id))
+                        }
+                    )
                 }
                 composable(route = Screen.UploadFileSong.route) {
                     val songId = it.arguments?.getString("songId") ?: ""
@@ -206,6 +222,26 @@ fun NavigationDraw(
                             adminNavController.navigate(Screen.PlayerScreen.createRoute())
                         },
                         onBack = {adminNavController.popBackStack()}
+                    )
+                }
+                composable(route = Screen.DetailArtistScreen.route) {
+                    val artistId = it.arguments?.getString("artistId") ?: ""
+                    DetailArtistScreen(
+                        artistId = artistId,
+                        onBack = {adminNavController.popBackStack()},
+                        artistViewModel = artistViewModel
+                    )
+                }
+                composable(route = Screen.UpdateArtistScreen.route) {
+                    val artistId = it.arguments?.getString("artistId") ?: ""
+                    val currentArtists = artistViewModel.artistState.value.artists ?: emptyList()
+                    val foundArtist = currentArtists.find { it.id == artistId } ?: Artist(
+                        id = "", name = "", description = "", imageUrlAr = "", songs = emptyList(), albums = emptyList()
+                    )
+                    UpdateArtistScreen(
+                        artistViewModel = artistViewModel,
+                        artist = foundArtist,
+                        artistId = artistId
                     )
                 }
             }
@@ -254,7 +290,7 @@ fun DrawerContent(
                                 MaterialTheme.colorScheme.primaryContainer,
                                 MaterialTheme.colorScheme.onPrimaryContainer
                             )
-                        ), shape = RoundedCornerShape(40.dp)
+                        ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
             HeaderView(name=name, image = "",top = 24,check = true)
@@ -336,56 +372,49 @@ fun TopBar(
     modifier: Modifier = Modifier,
     onOpenDrawer: () -> Unit
 ) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(6.dp, shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
-        color = MaterialTheme.colorScheme.primary,
-        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp) // bo 2 góc dưới
-    ) {
-        TopAppBar(
-            navigationIcon = {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 16.dp, end = 8.dp)
-                        .size(28.dp)
-                        .clickable {
-                            onOpenDrawer()
-                        }
-                )
-            },
-            title = {
-                Text(
-                    text = "Name",
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding()
-                )
-            },
-            actions = {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding()
-                        .size(30.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-                Icon(
-                    imageVector = Icons.Default.AccountCircle,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 8.dp, end = 16.dp)
-                        .size(30.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = MaterialTheme.colorScheme.onBackground,
-            ),
-            modifier = Modifier.padding()
-        )
-    }
+    TopAppBar(
+        navigationIcon = {
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 8.dp)
+                    .size(28.dp)
+                    .clickable {
+                        onOpenDrawer()
+                    }
+            )
+        },
+        title = {
+            Text(
+                text = "Name",
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding()
+            )
+        },
+        actions = {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding()
+                    .size(30.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 16.dp)
+                    .size(30.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onBackground,
+        ),
+        modifier = Modifier
+            .padding()
+    )
 }

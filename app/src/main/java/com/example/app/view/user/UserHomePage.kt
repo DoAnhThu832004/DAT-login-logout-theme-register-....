@@ -36,6 +36,7 @@ import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
@@ -47,6 +48,7 @@ fun UserHomePage(
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
+    playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
     name: String,
     onViewAllSongs: () -> Unit,
@@ -89,6 +91,7 @@ fun UserHomePage(
             songViewModel = songViewModel,
             albumViewModel = albumViewModel,
             artistViewModel = artistViewModel,
+            playlistViewModel= playlistViewModel,
             searchViewModel = searchViewModel,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
@@ -107,6 +110,7 @@ fun ContentScreen(
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
+    playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -114,7 +118,7 @@ fun ContentScreen(
     onArtistScreen: (Artist) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
+        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
         1 -> FavoritePage()
         2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
     }

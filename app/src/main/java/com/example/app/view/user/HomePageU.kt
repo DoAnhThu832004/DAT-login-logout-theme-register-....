@@ -24,6 +24,7 @@ import com.example.app.view.Song.SongScreen
 import com.example.app.view.general.SearchBar
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
@@ -33,6 +34,7 @@ fun HomePageU(
     songViewModel: SongViewModel,
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
+    playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -41,10 +43,12 @@ fun HomePageU(
 ) {
     val songState by songViewModel.songState
     val albumState by albumViewModel.albumState
+    val playlistState by playlistViewModel.playlistState
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
         albumViewModel.getAlbums()
         artistViewModel.getArtists()
+        playlistViewModel.getPlaylists()
     }
     Column(
         modifier = Modifier
@@ -62,13 +66,14 @@ fun HomePageU(
                 songState.isLoading -> {
                     CircularProgressIndicator(modifier.align(Alignment.Center))
                 }
-                songState.error != null -> {
-                    Text(text = "error: ${songState.error}")
+                playlistState.error != null -> {
+                    Text(text = "error: ${playlistState.error}")
                 }
                 else -> {
                     SongScreen(
                         songs = songState.songs ?: emptyList(),
                         albums = albumState.albums ?: emptyList(),
+                        playlists = playlistState.playlists ?: emptyList(),
                         onViewAllClick = onViewAllSongs,
                         onSongClick = { song ->
                             onPlayerScreen(song)

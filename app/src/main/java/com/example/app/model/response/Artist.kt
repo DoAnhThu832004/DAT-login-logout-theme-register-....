@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 data class Artist(
     val id: String,
     val name: String,
+    val description: String,
     val imageUrlAr: String?,
     val songs: List<Song>,
     val albums: List<Album>

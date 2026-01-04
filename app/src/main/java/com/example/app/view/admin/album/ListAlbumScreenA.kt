@@ -31,10 +31,9 @@ fun ListAlbumScreen(
     albumOnClick: (Album) -> Unit
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 8.dp)
-            .offset(y = (-40).dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -42,8 +41,7 @@ fun ListAlbumScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                .fillMaxSize(),
         ) {
             items(albums) { album ->
                 AlbumItemA(

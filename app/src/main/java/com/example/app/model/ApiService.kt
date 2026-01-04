@@ -3,6 +3,7 @@ package com.example.app.model
 import android.content.Context
 import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
+import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.RefreshRequest
@@ -15,6 +16,7 @@ import com.example.app.model.response.ApiError
 import com.example.app.model.response.ApiResponse
 import com.example.app.model.response.Artist
 import com.example.app.model.response.AuthenticationResponse
+import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.SessionManager
@@ -100,4 +102,35 @@ interface ApiService {
     suspend fun searchArtists(
         @Query("name") name: String
     ): Response<ApiResponse<List<Artist>>>
+    @POST("artists")
+    suspend fun createArtist(@Body request: com.example.app.model.request.ArtistCreationRequest): Response<ApiResponse<Artist>>
+    @DELETE("artists/{id}")
+    suspend fun deleteArtist(@Path("id") id: String): Response<ApiError>
+    @PUT("artists/{id}")
+    suspend fun updateArtist(
+        @Path("id") id: String,
+        @Body request: ArtistUpdateRequest
+    ): Response<ApiResponse<Artist>>
+    @PUT("artists/{artistId}/songs/{songId}")
+    suspend fun addSongToArtist(
+        @Path("artistId") artistId: String,
+        @Path("songId") songId: String
+    ): Response<ApiResponse<String>>
+    @PUT("artists/{artistId}/albums/{albumId}")
+    suspend fun addAlbumToArtist(
+        @Path("artistId") artistId: String,
+        @Path("albumId") albumId: String
+    ): Response<ApiResponse<String>>
+    @DELETE("artists/{artistId}/albums/{albumId}")
+    suspend fun deleteAlbumFromArtist(
+        @Path("artistId") artistId: String,
+        @Path("albumId") albumId: String
+    ) : Response<ApiError>
+    @DELETE("artists/{artistId}/songs/{songId}")
+    suspend fun deleteSongFromArtist(
+        @Path("artistId") artistId: String,
+        @Path("songId") songId: String
+    ) : Response<ApiError>
+    @GET("playlists")
+    suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
 }

@@ -39,4 +39,10 @@ sealed class Screen(val route : String) {
     object ArtistScreen : Screen("artistScreen?artistId={artistId}") {
         fun createRoute(artistId: String) = "artistScreen?artistId=$artistId"
     }
+    object DetailArtistScreen : Screen("detailArtistScreen?artistId={artistId}") {
+        fun createRoute(artistId: String) = "detailArtistScreen?artistId=$artistId"
+    }
+    object UpdateArtistScreen : Screen("updateArtistScreen?artistId={artistId}") {
+        fun createRoute(artistId: String) = "updateArtistScreen?artistId=$artistId"
+    }
 }
