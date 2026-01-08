@@ -14,5 +14,6 @@ data class Song(
     val type: String,
     val artistName: String?,
     val imageUrl: String?,
-    val audioUrl: String?
+    val audioUrl: String?,
+    val favorite: Boolean
 ): Parcelable

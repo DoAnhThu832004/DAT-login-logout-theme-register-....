@@ -42,8 +42,10 @@ fun SongScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val previewSongs = songs.take(4)
-        val previewAlbums = albums.take(4)
+        val validAlbums = albums.filter { it.status == "PUBLISHED" }
+        val validSongs = songs.filter { it.status == "PUBLISHED" }
+        val previewSongs = validSongs.take(4)
+        val previewAlbums = validAlbums.take(4)
         item {
             Row(
                 modifier = Modifier

@@ -14,19 +14,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material.icons.filled.PersonRemoveAlt1
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
+import com.example.app.model.response.Artist
+import com.example.app.viewmodel.ArtistViewModel
 
 @Composable
 fun HeaderView(
@@ -34,7 +42,18 @@ fun HeaderView(
     name: String,
     image: String?,
     top : Int,
-    check: Boolean
+    check: Boolean,
+    artistViewModel: ArtistViewModel,
+    artist: Artist = Artist(
+        id = "",
+        name = "",
+        imageUrlAr = "",
+        description = "",
+        songs = emptyList(),
+        albums = emptyList(),
+        totalFollowers = 0,
+        followed = false
+    )
 ) {
     Row(
         modifier = Modifier
@@ -73,6 +92,29 @@ fun HeaderView(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp)
             )
+            if(!check) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${artist.totalFollowers} người quan tâm",
+                        color = Color.White,
+                    )
+                    IconButton(
+                        onClick = {
+                            artistViewModel.toggleFollow(artist)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if(!artist.followed) Icons.Default.PersonAddAlt1 else Icons.Default.PersonRemoveAlt1,
+                            contentDescription = null,
+                            //tint = if (.favorite) Color.Red else Color.Gray
+                        )
+                    }
+                }
+            }
         }
     }
 }

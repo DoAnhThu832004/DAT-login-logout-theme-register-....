@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.app.model.ApiErrorUtils
 import com.example.app.model.ApiService
 import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
@@ -302,10 +303,51 @@ class ArtistViewModel(
         }
 
     }
+    fun toggleFollow(artist: Artist) {
+        val newFollowerState = !artist.followed
+        updateLocalArtistFollowerStatus(artist.id, newFollowerState)
+        viewModelScope.launch {
+            try {
+                val response = if (newFollowerState) {
+                    apiService.followArtist(artist.id)
+                } else {
+                    apiService.unfollowArtist(artist.id)
+                }
+                if (!response.isSuccessful) {
+                    updateLocalArtistFollowerStatus(artist.id, !newFollowerState)
+                }
+            } catch (e: Exception) {
+                updateLocalArtistFollowerStatus(artist.id, !newFollowerState)
+            }
+        }
+    }
+    private fun updateLocalArtistFollowerStatus(artistId: String, isFollowing: Boolean) {
+        val currentList = _artistState.value.artists ?: return
+        val updatedList = currentList.map { artist ->
+            if (artist.id == artistId) {
+                val newCount = if (isFollowing) {
+                    artist.totalFollowers + 1
+                } else {
+                    maxOf(0, artist.totalFollowers - 1)
+                }
+
+                artist.copy(
+                    followed = isFollowing,
+                    totalFollowers = newCount
+                )
+            } else {
+                artist
+            }
+        }
+        _artistState.value = _artistState.value.copy(
+            artists = updatedList
+        )
+    }
+
     data class ArtistState(
         val isLoadingA: Boolean = false,
         val artists: List<Artist>? = null,
         val errorA: String? = null,
-        val isCreating: Boolean = false
+        val isCreating: Boolean = false,
     )
 }

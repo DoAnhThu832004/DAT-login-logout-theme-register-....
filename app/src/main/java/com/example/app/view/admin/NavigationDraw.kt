@@ -110,6 +110,7 @@ fun NavigationDraw(
                     loginViewModel = loginViewModel,
                     navController = navController,
                     adminNavController = adminNavController,
+                    artistViewModel = artistViewModel,
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -193,7 +194,7 @@ fun NavigationDraw(
                     val currentSongs = songViewModel.songState.value.songs ?: emptyList()
 
                     val foundSong = currentSongs.find { it.id == songId } ?: com.example.app.model.response.Song(
-                        id = "", name = "", description = "", status = "", duration = 0, releasedDate = "", type = "", artistName = "",imageUrl = "", audioUrl = "")
+                        id = "", name = "", description = "", status = "", duration = 0, releasedDate = "", type = "", artistName = "",imageUrl = "", audioUrl = "", favorite = false)
                     EditSongScreen(
                         songViewModel = songViewModel,
                         songToEdit = foundSong,
@@ -236,7 +237,7 @@ fun NavigationDraw(
                     val artistId = it.arguments?.getString("artistId") ?: ""
                     val currentArtists = artistViewModel.artistState.value.artists ?: emptyList()
                     val foundArtist = currentArtists.find { it.id == artistId } ?: Artist(
-                        id = "", name = "", description = "", imageUrlAr = "", songs = emptyList(), albums = emptyList()
+                        id = "", name = "", description = "", imageUrlAr = "", songs = emptyList(), albums = emptyList(), totalFollowers = 0, followed = false
                     )
                     UpdateArtistScreen(
                         artistViewModel = artistViewModel,
@@ -254,6 +255,7 @@ fun DrawerContent(
     loginViewModel: LoginViewModel,
     navController: NavHostController,
     adminNavController: NavHostController,
+    artistViewModel: ArtistViewModel,
     onCloseDrawer: () -> Unit,
     name: String
 ) {
@@ -293,7 +295,7 @@ fun DrawerContent(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name=name, image = "",top = 24,check = true)
+            HeaderView(name=name, image = "",top = 24,check = true, artistViewModel = artistViewModel)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

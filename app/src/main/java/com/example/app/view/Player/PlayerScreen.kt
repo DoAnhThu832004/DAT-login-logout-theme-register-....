@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
@@ -49,11 +50,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
+import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun PlayerScreen(
     playerViewModel: PlayerViewModel,
+    songViewModel: SongViewModel,
     onBack: () -> Unit
 ) {
     val song = playerViewModel.currentSong.value
@@ -231,6 +234,17 @@ fun PlayerScreen(
                         else -> Color.White
                     },
                     modifier = Modifier.size(28.dp)
+                )
+            }
+            IconButton(
+                onClick = {
+                    songViewModel.toggleFavorite(song)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = if (song.favorite) Color.Red else Color.Gray
                 )
             }
         }

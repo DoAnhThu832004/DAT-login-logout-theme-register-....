@@ -133,4 +133,16 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @POST("favorites/{songId}")
+    suspend fun addSongToFavorite(@Path("songId") songId: String): Response<ApiError>
+    @DELETE("favorites/{songId}")
+    suspend fun deleteSongFromFavorite(@Path("songId") songId: String): Response<ApiError>
+    @GET("favorites/my-favorites")
+    suspend fun getFavoriteSongs(): Response<ApiResponse<List<Song>>>
+    @GET("followers/artists/{artistId}/count")
+    suspend fun getFollowerCount(@Path("artistId") artistId: String): Response<ApiResponse<Int>>
+    @POST("followers/{artistId}")
+    suspend fun followArtist(@Path("artistId") artistId: String): Response<ApiResponse<String>>
+    @DELETE("followers/{artistId}")
+    suspend fun unfollowArtist(@Path("artistId") artistId: String) : Response<ApiResponse<String>>
 }

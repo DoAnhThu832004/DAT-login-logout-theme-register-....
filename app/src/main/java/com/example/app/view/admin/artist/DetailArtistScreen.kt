@@ -114,7 +114,7 @@ fun DetailArtistScreen(
                                 start.linkTo(parent.start)
                             }
                     )
-                    HeaderView(name = currentArtist.name, image = currentArtist.imageUrlAr, top = 48, check = false)
+                    HeaderView(name = currentArtist.name, image = currentArtist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, artist = currentArtist)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

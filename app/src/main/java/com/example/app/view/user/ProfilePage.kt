@@ -43,10 +43,12 @@ import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.NavItemsDrawer
+import com.example.app.model.response.Artist
 import com.example.app.model.response.UserResponse
 import com.example.app.view.Screen
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
+import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.LoginViewModel
 
 @Composable
@@ -54,6 +56,7 @@ fun ProfilePage(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     loginViewModel: LoginViewModel,
+    artistViewModel: ArtistViewModel,
     name: String
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -87,7 +90,7 @@ fun ProfilePage(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name = name, image = "" ,top = 48,check = true)
+            HeaderView(name = name, image = "" ,top = 48,check = true, artistViewModel = artistViewModel)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

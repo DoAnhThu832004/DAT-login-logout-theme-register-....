@@ -119,7 +119,13 @@ fun ContentScreen(
 ) {
     when(selectedIndex) {
         0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
-        1 -> FavoritePage()
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel,name = name)
+        1 -> FavoritePage(
+            songs = songViewModel.songState.value.songs ?: emptyList(),
+            songViewModel = songViewModel,
+            onSongClick = {
+                onPlayerScreen(it)
+            }
+        )
+        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel,name = name)
     }
 }

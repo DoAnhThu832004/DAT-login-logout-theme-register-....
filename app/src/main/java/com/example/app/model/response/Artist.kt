@@ -10,5 +10,7 @@ data class Artist(
     val description: String,
     val imageUrlAr: String?,
     val songs: List<Song>,
-    val albums: List<Album>
+    val albums: List<Album>,
+    val totalFollowers: Int,
+    val followed: Boolean
 ): Parcelable

@@ -230,6 +230,60 @@ class SongViewModel(
             }
         }
     }
+    fun toggleFavorite(song: Song) {
+        // 1. Xác định trạng thái mới (đảo ngược trạng thái hiện tại)
+        val newFavoriteState = !song.favorite
+
+        // 2. Optimistic Update: Cập nhật UI ngay lập tức để user thấy phản hồi nhanh
+        updateLocalSongFavoriteStatus(song.id, newFavoriteState)
+
+        viewModelScope.launch {
+            try {
+                // 3. Gọi API tương ứng dựa trên trạng thái mới
+                val response = if (newFavoriteState) {
+                    apiService.addSongToFavorite(song.id)
+                } else {
+                    apiService.deleteSongFromFavorite(song.id)
+                }
+
+                // 4. Kiểm tra kết quả từ Server
+                if (!response.isSuccessful) {
+                    // Nếu thất bại (lỗi server, lỗi mạng), hoàn tác lại UI (Rollback)
+                    updateLocalSongFavoriteStatus(song.id, !newFavoriteState)
+
+                    val errorBody = response.errorBody()?.string()
+                    val apiErr = ApiErrorUtils.parse(errorBody)
+                    _songUiState.value = _songUiState.value.copy(
+                        error = "Lỗi thao tác: ${apiErr?.message ?: response.code()}"
+                    )
+                }
+                // Nếu thành công thì không cần làm gì thêm vì UI đã update ở bước 2
+
+            } catch (e: Exception) {
+                // Nếu có Exception (mất mạng...), hoàn tác lại UI
+                updateLocalSongFavoriteStatus(song.id, !newFavoriteState)
+                _songUiState.value = _songUiState.value.copy(
+                    error = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
+    }
+    private fun updateLocalSongFavoriteStatus(songId: String, isFavorite: Boolean) {
+        val currentList = _songUiState.value.songs ?: return
+
+        // Tạo list mới với item đã được cập nhật (State trong Compose là bất biến)
+        val updatedList = currentList.map { song ->
+            if (song.id == songId) {
+                song.copy(favorite = isFavorite)
+            } else {
+                song
+            }
+        }
+
+        _songUiState.value = _songUiState.value.copy(
+            songs = updatedList
+        )
+    }
     fun refreshSongs() {
         getSongs()
     }

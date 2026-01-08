@@ -188,6 +188,7 @@ fun RecipeApp(
                 ListAllSong(
                     songs = songViewModel.songState.value.songs ?: emptyList(),
                     onBack = { navController.popBackStack() },
+                    songViewModel = songViewModel,
                     playerViewModel = playerViewModel,
                     onSongClick = { song ->
                         playerViewModel.play(song, songs)
@@ -198,6 +199,7 @@ fun RecipeApp(
             composable(route = Screen.PlayerScreen.createRoute()) {
                 PlayerScreen(
                     playerViewModel = playerViewModel,
+                    songViewModel = songViewModel,
                     onBack = {navController.popBackStack()}
                 )
             }
@@ -227,6 +229,7 @@ fun RecipeApp(
                         },
                         onBack = {navController.popBackStack()},
                         albumViewModel = albumViewModel,
+                        artistViewModel = artistViewModel,
                         onAlbumClick = { album ->
                             navController.navigate(
                                 Screen.AlbumDetailScreen.createRoute(

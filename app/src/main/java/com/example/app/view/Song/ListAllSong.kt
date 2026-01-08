@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,10 +52,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
 import com.example.app.viewmodel.PlayerViewModel
+import com.example.app.viewmodel.SongViewModel
 
 @Composable
 fun ListAllSong(
     songs: List<Song>,
+    songViewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
     onSongClick: (Song) -> Unit,
     onBack: () -> Unit
@@ -90,6 +93,7 @@ fun ListAllSong(
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
                 DetailListSong(
                     song = i,
+                    songViewModel = songViewModel,
                     //artist = artist,
                     onSongClick = { onSongClick(i)}
                 )
@@ -100,6 +104,7 @@ fun ListAllSong(
 @Composable
 fun DetailListSong(
     song: Song,
+    songViewModel: SongViewModel,
     onSongClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -162,6 +167,17 @@ fun DetailListSong(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown, // Dùng 1 icon và xoay nó
                     contentDescription = if (expanded) "Collapse" else "Expand"
+                )
+            }
+            IconButton(
+                onClick = {
+                    songViewModel.toggleFavorite(song)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = if (song.favorite) Color.Red else Color.Gray
                 )
             }
         }
