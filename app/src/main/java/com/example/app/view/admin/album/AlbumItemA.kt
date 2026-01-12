@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,14 +90,24 @@ fun AlbumItemA(
                 )
             }
         }
-        Image(
-            painter = rememberAsyncImagePainter(album.imageUrlA),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(8.dp))
-        )
+        if(album.imageUrlA.isNullOrEmpty()) {
+            Icon(
+                imageVector = Icons.Default.Album,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(album.imageUrlA),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        }
         Text(
             text = album.name,
             fontSize = 16.sp,

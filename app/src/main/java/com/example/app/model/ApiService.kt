@@ -6,6 +6,7 @@ import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.LogoutRequest
+import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.RefreshRequest
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
@@ -133,6 +134,8 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @GET("playlists/myList")
+    suspend fun getMyPlaylists(): Response<ApiResponse<List<Playlist>>>
     @POST("favorites/{songId}")
     suspend fun addSongToFavorite(@Path("songId") songId: String): Response<ApiError>
     @DELETE("favorites/{songId}")
@@ -145,4 +148,6 @@ interface ApiService {
     suspend fun followArtist(@Path("artistId") artistId: String): Response<ApiResponse<String>>
     @DELETE("followers/{artistId}")
     suspend fun unfollowArtist(@Path("artistId") artistId: String) : Response<ApiResponse<String>>
+    @POST("playlists")
+    suspend fun createPlaylist(@Body request: PlaylistCreateRequest): Response<ApiResponse<Playlist>>
 }

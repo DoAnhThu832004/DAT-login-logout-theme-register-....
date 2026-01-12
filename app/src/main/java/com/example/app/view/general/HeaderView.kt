@@ -60,15 +60,27 @@ fun HeaderView(
             .fillMaxWidth()
             .padding(top = top.dp, start = 32.dp, end = 24.dp)
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(image),
-            contentDescription = null,
-            modifier = Modifier
-                .size(120.dp)
-                .padding(end = 16.dp)
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(50.dp))
-        )
+        if(image.isNullOrEmpty()) {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(end = 16.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(50.dp))
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(image),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(end = 16.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(50.dp))
+            )
+        }
         Column(
             modifier = Modifier
                 .height(100.dp)

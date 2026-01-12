@@ -31,6 +31,7 @@ import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Album
 import com.example.app.model.response.Artist
+import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.AlbumViewModel
@@ -126,6 +127,6 @@ fun ContentScreen(
                 onPlayerScreen(it)
             }
         )
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel,name = name)
+        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel,name = name)
     }
 }

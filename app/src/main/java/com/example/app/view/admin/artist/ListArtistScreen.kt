@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -106,15 +107,25 @@ fun ListArtist(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(artist.imageUrlAr),
-                contentDescription = null,
-                modifier = Modifier
-                    .width(70.dp)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(50.dp)),
-                contentScale = ContentScale.Crop
-            )
+            if(artist.imageUrlAr.isNullOrEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(70.dp)
+                        .aspectRatio(1f)
+                )
+            } else {
+                Image(
+                    painter = rememberAsyncImagePainter(artist.imageUrlAr),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(70.dp)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(50.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 modifier = Modifier.weight(1f)

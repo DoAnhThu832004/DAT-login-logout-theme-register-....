@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -88,14 +89,24 @@ fun AlbumDetailScreenA(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                Image(
-                    painter = rememberAsyncImagePainter(currentAlbum.imageUrlA),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                )
+                if(currentAlbum.imageUrlA.isNullOrEmpty()) {
+                    Icon(
+                        imageVector = Icons.Default.Album,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(200.dp)
+                            .aspectRatio(1f)
+                    )
+                } else {
+                    Image(
+                        painter = rememberAsyncImagePainter(currentAlbum.imageUrlA),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(200.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                }
                 Spacer(modifier = Modifier.padding(start = 12.dp))
                 Column(
                     modifier = Modifier
