@@ -55,7 +55,8 @@ fun UserHomePage(
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
-    onArtistScreen: (Artist) -> Unit
+    onArtistScreen: (Artist) -> Unit,
+    onPlaylistClick: (String) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
@@ -97,7 +98,8 @@ fun UserHomePage(
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
             onAlbumScreen = onAlbumScreen,
-            onArtistScreen = onArtistScreen
+            onArtistScreen = onArtistScreen,
+            onPlaylistClick = onPlaylistClick
         )
     }
 }
@@ -116,7 +118,8 @@ fun ContentScreen(
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
-    onArtistScreen: (Artist) -> Unit
+    onArtistScreen: (Artist) -> Unit,
+    onPlaylistClick: (String) -> Unit
 ) {
     when(selectedIndex) {
         0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
@@ -127,6 +130,6 @@ fun ContentScreen(
                 onPlayerScreen(it)
             }
         )
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel,name = name)
+        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel,name = name, onPlaylistClick = onPlaylistClick)
     }
 }

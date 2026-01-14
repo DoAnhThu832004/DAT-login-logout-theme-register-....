@@ -109,6 +109,40 @@ class PlaylistViewModel(
             }
         }
     }
+    fun deletePlaylist(id: String) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val response = apiService.deletePlaylist(id)
+                if(response.isSuccessful) {
+                    val body = response.body()
+                    if(body?.code == 1000) {
+                        val currentPlaylists = _playlistState.value.playlists ?: emptyList()
+                        val updatedPlaylists = currentPlaylists.filter { it.id != id }
+                        _playlistState.value = _playlistState.value.copy(
+                            isLoading = false,
+                            playlists = updatedPlaylists,
+                            error = null
+                        )
+                    } else {
+                        _playlistState.value = _playlistState.value.copy(
+                            isLoading = false,
+                            error = "Failed to delete playlist"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+
+    }
     data class PlaylistState(
         val playlists: List<Playlist>? = null,
         val isCreating: Boolean = false,

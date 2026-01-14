@@ -76,7 +76,8 @@ fun ProfilePage(
     loginViewModel: LoginViewModel,
     artistViewModel: ArtistViewModel,
     playlistViewModel: PlaylistViewModel,
-    name: String
+    name: String,
+    onPlaylistClick: (String) -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(0) }
@@ -200,7 +201,12 @@ fun ProfilePage(
                             .width(100.dp)
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        ListPlaylist(playlist = it)
+                        ListPlaylist(
+                            playlist = it,
+                            onClickPlaylist = {
+                                onPlaylistClick(it.id)
+                            }
+                        )
                     }
                 }
             }

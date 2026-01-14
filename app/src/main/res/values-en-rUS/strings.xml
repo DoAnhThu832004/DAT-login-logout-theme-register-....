@@ -59,4 +59,9 @@
     <string name="danh_sach_tac_gia">List artist</string>
     <string name="tao_tac_gia">Add artist</string>
     <string name="bai_hat_yeu_thich">Song favorite</string>
+    <string name="playlist">Playlist</string>
+    <string name="danh_sach_playlist">List playlist</string>
+    <string name="tao_playlist">Create playlist</string>
+    <string name="ten_playlist">Playlist name</string>
+    <string name="tao_playlist_thanh_cong">Tạo playlist thành công</string>
 </resources>

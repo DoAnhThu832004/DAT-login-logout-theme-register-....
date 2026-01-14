@@ -1,6 +1,7 @@
 package com.example.app.view.Playlist
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,11 +33,13 @@ import com.example.app.model.response.Playlist
 
 @Composable
 fun ListPlaylist(
-    playlist: Playlist
+    playlist: Playlist,
+    onClickPlaylist: () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onClickPlaylist() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Card(

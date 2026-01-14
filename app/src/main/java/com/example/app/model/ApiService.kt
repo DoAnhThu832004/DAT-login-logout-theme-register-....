@@ -150,4 +150,6 @@ interface ApiService {
     suspend fun unfollowArtist(@Path("artistId") artistId: String) : Response<ApiResponse<String>>
     @POST("playlists")
     suspend fun createPlaylist(@Body request: PlaylistCreateRequest): Response<ApiResponse<Playlist>>
+    @DELETE("playlists/{id}")
+    suspend fun deletePlaylist(@Path("id") id: String): Response<ApiError>
 }

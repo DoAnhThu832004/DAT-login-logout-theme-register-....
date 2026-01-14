@@ -22,6 +22,7 @@ import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
 import com.example.app.view.Player.MiniPlayer
 import com.example.app.view.Player.PlayerScreen
+import com.example.app.view.Playlist.MyPlaylistDetailScreen
 import com.example.app.view.Song.ListAllSong
 import com.example.app.view.admin.NavigationDraw
 import com.example.app.view.user.EditProfilePage
@@ -87,6 +88,8 @@ fun RecipeApp(
     val artists = artistState.artists ?: emptyList()
     val albumState by albumViewModel.albumState
     val albums = albumState.albums ?: emptyList()
+    val playlistState by playlistViewModel.playlistState
+    val playlists = playlistState.playlists ?: emptyList()
     val playerViewModel : PlayerViewModel = viewModel()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -127,6 +130,7 @@ fun RecipeApp(
                     albumViewModel = albumViewModel,
                     artistViewModel = artistViewModel,
                     searchViewModel = searchViewModel,
+                    playlistViewModel = playlistViewModel,
                     darkTheme = darkTheme,
                     onThemeUpdated = onThemeUpdated,
                     name = name
@@ -155,6 +159,9 @@ fun RecipeApp(
                     },
                     onArtistScreen = { artist ->
                         navController.navigate(Screen.ArtistScreen.createRoute(artist.id))
+                    },
+                    onPlaylistClick = { id ->
+                        navController.navigate(Screen.MyPlaylistDetailScreen.createRoute(id))
                     }
                 )
             }
@@ -236,6 +243,18 @@ fun RecipeApp(
                                     album.id
                                 )
                             )
+                        }
+                    )
+                }
+            }
+            composable(route = Screen.MyPlaylistDetailScreen.route) {
+                val playlistId = it.arguments?.getString("playlistId")
+                val playlist = playlists.find { it.id == playlistId }
+                if (playlist != null) {
+                    MyPlaylistDetailScreen(
+                        playlist = playlist,
+                        onBack = {
+                            navController.popBackStack()
                         }
                     )
                 }

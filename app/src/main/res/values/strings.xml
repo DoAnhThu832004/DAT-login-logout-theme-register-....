@@ -58,4 +58,9 @@
     <string name="danh_sach_tac_gia">Danh sách tác giả</string>
     <string name="tao_tac_gia">Tạo tác giả</string>
     <string name="bai_hat_yeu_thich">Bài hát yêu thích</string>
+    <string name="playlist">Playlist</string>
+    <string name="danh_sach_playlist">Danh sách playlist</string>
+    <string name="tao_playlist">Tạo playlist</string>
+    <string name="ten_playlist">Tên Playlist</string>
+    <string name="tao_playlist_thanh_cong">Add playlist successfully</string>
 </resources>

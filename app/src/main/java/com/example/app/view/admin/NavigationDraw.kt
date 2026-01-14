@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PlaylistPlay
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,6 +69,7 @@ import com.example.app.view.admin.album.UpdateAlbumScreen
 import com.example.app.view.admin.artist.ArtistScreenA
 import com.example.app.view.admin.artist.DetailArtistScreen
 import com.example.app.view.admin.artist.UpdateArtistScreen
+import com.example.app.view.admin.playlist.PlaylistScreenA
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
@@ -77,6 +79,7 @@ import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.launch
@@ -91,6 +94,7 @@ fun NavigationDraw(
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
+    playlistViewModel: PlaylistViewModel,
     navController: NavHostController,
     darkTheme: Boolean,
     onThemeUpdated: () -> Unit,
@@ -245,6 +249,11 @@ fun NavigationDraw(
                         artistId = artistId
                     )
                 }
+                composable(route = Screen.PlaylistScreenA.route) {
+                    PlaylistScreenA(
+                        playlistViewModel = playlistViewModel
+                    )
+                }
             }
         }
     }
@@ -264,6 +273,7 @@ fun DrawerContent(
         NavItemsDrawer(stringResource(R.string.bai_hat), Icons.Default.MusicNote, Screen.HomeScreen.route),
         NavItemsDrawer(stringResource(R.string.album), Icons.Default.Album, Screen.AlbumScreen.route),
         NavItemsDrawer(stringResource(R.string.tac_gia), Icons.Default.Person, Screen.ArtistScreenA.route),
+        NavItemsDrawer(stringResource(R.string.playlist), Icons.Default.PlaylistPlay,Screen.PlaylistScreenA.route),
         NavItemsDrawer(stringResource(R.string.cai_dat), Icons.Default.Settings, Screen.SettingPageA.route),
         NavItemsDrawer(stringResource(R.string.dang_xuat), Icons.Default.Logout, Screen.LoginScreen.route)
     )
