@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -34,8 +35,10 @@ import com.example.app.model.response.Artist
 import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
+import com.example.app.view.admin.CustomFloatingBottomBar
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
@@ -51,7 +54,9 @@ fun UserHomePage(
     artistViewModel: ArtistViewModel,
     playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
+    editProfileViewModel: EditProfileViewModel,
     name: String,
+    user: UserResponse,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
@@ -66,23 +71,14 @@ fun UserHomePage(
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                navItemsList.fastForEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectIndex == index,
-                        onClick = { selectIndex = index },
-                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary)},
-                        label = { Text(
-                            text = item.label,
-                            color = MaterialTheme.colorScheme.onBackground
-                        ) },
-                    )
-                }
-            }
-        }
+            CustomFloatingBottomBar(
+                items = navItemsList,
+                selectedIndex = selectIndex,
+                onItemClick = { index -> selectIndex = index}
+            )
+        },
+        modifier = modifier
+            .padding(bottom = 24.dp)
     ) {
         ContentScreen(
             modifier = Modifier.padding(it),
@@ -95,6 +91,8 @@ fun UserHomePage(
             artistViewModel = artistViewModel,
             playlistViewModel= playlistViewModel,
             searchViewModel = searchViewModel,
+            editProfileViewModel = editProfileViewModel,
+            user = user,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
             onAlbumScreen = onAlbumScreen,
@@ -115,6 +113,8 @@ fun ContentScreen(
     artistViewModel: ArtistViewModel,
     playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
+    editProfileViewModel: EditProfileViewModel,
+    user: UserResponse,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
@@ -130,6 +130,6 @@ fun ContentScreen(
                 onPlayerScreen(it)
             }
         )
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel,name = name, onPlaylistClick = onPlaylistClick)
+        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, editProfileViewModel = editProfileViewModel,name = name, user = user ,onPlaylistClick = onPlaylistClick)
     }
 }

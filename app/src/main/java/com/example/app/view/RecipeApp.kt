@@ -91,6 +91,8 @@ fun RecipeApp(
     val playlistState by playlistViewModel.playlistState
     val playlists = playlistState.playlists ?: emptyList()
     val playerViewModel : PlayerViewModel = viewModel()
+    val userState by editProfileViewModel.editUiState
+    val users = userState.userResponse
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -138,32 +140,36 @@ fun RecipeApp(
             }
             composable(route = Screen.UserHomePage.route) { backStackEntry ->
                 val name = backStackEntry.arguments?.getString("name") ?: "Guest"
-                UserHomePage(
-                    navController = navController,
-                    loginViewModel = loginViewModel,
-                    songViewModel = songViewModel,
-                    albumViewModel = albumViewModel,
-                    artistViewModel = artistViewModel,
-                    playlistViewModel = playlistViewModel,
-                    searchViewModel = searchViewModel,
-                    name = name,
-                    onViewAllSongs = {
-                        navController.navigate(Screen.ListAllSong.route)
-                    },
-                    onPlayerScreen = { song ->
-                        playerViewModel.play(song, songs)
-                        navController.navigate(Screen.PlayerScreen.createRoute())
-                    },
-                    onAlbumScreen = { album ->
-                        navController.navigate(Screen.AlbumDetailScreen.createRoute(album.id))
-                    },
-                    onArtistScreen = { artist ->
-                        navController.navigate(Screen.ArtistScreen.createRoute(artist.id))
-                    },
-                    onPlaylistClick = { id ->
-                        navController.navigate(Screen.MyPlaylistDetailScreen.createRoute(id))
-                    }
-                )
+                users?.let {
+                    UserHomePage(
+                        navController = navController,
+                        loginViewModel = loginViewModel,
+                        songViewModel = songViewModel,
+                        albumViewModel = albumViewModel,
+                        artistViewModel = artistViewModel,
+                        playlistViewModel = playlistViewModel,
+                        searchViewModel = searchViewModel,
+                        editProfileViewModel = editProfileViewModel,
+                        name = name,
+                        user = it,
+                        onViewAllSongs = {
+                            navController.navigate(Screen.ListAllSong.route)
+                        },
+                        onPlayerScreen = { song ->
+                            playerViewModel.play(song, songs)
+                            navController.navigate(Screen.PlayerScreen.createRoute())
+                        },
+                        onAlbumScreen = { album ->
+                            navController.navigate(Screen.AlbumDetailScreen.createRoute(album.id))
+                        },
+                        onArtistScreen = { artist ->
+                            navController.navigate(Screen.ArtistScreen.createRoute(artist.id))
+                        },
+                        onPlaylistClick = { id ->
+                            navController.navigate(Screen.MyPlaylistDetailScreen.createRoute(id))
+                        }
+                    )
+                }
             }
             composable(route = Screen.RegisterScreen.route) {
                 RegisterScreen(
@@ -237,6 +243,7 @@ fun RecipeApp(
                         onBack = {navController.popBackStack()},
                         albumViewModel = albumViewModel,
                         artistViewModel = artistViewModel,
+                        editProfileViewModel = editProfileViewModel,
                         onAlbumClick = { album ->
                             navController.navigate(
                                 Screen.AlbumDetailScreen.createRoute(
@@ -253,6 +260,7 @@ fun RecipeApp(
                 if (playlist != null) {
                     MyPlaylistDetailScreen(
                         playlist = playlist,
+                        playlistViewModel = playlistViewModel,
                         onBack = {
                             navController.popBackStack()
                         }

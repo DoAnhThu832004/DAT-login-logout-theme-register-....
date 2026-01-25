@@ -103,6 +103,7 @@ class LoginViewModel(
         val isLoading: Boolean = false,
         val isSuccessful: Boolean = false,
         val name : String? = null,
+        val password : String? = null,
         val token: String? = null,
         val userId : String? = null,
         val role: String? = null,

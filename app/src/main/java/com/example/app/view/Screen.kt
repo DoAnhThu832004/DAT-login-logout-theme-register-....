@@ -49,4 +49,7 @@ sealed class Screen(val route : String) {
         fun createRoute(playlistId: String) = "myPlaylistDetailScreen?playlistId=$playlistId"
     }
     object PlaylistScreenA : Screen("playlistScreenA")
+    object UpdatePlaylistScreen : Screen("updatePlaylistScreen?playlistId={playlistId}") {
+        fun createRoute(playlistId: String) = "updatePlaylistScreen?playlistId=$playlistId"
+    }
 }

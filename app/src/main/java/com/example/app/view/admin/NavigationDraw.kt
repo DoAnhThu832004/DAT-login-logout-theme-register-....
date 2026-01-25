@@ -70,6 +70,7 @@ import com.example.app.view.admin.artist.ArtistScreenA
 import com.example.app.view.admin.artist.DetailArtistScreen
 import com.example.app.view.admin.artist.UpdateArtistScreen
 import com.example.app.view.admin.playlist.PlaylistScreenA
+import com.example.app.view.admin.playlist.UpdatePlaylistScreen
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
@@ -115,6 +116,7 @@ fun NavigationDraw(
                     navController = navController,
                     adminNavController = adminNavController,
                     artistViewModel = artistViewModel,
+                    editProfileViewModel = editProfileViewModel,
                     onCloseDrawer = {
                         scope.launch {
                             drawerState.close()
@@ -234,7 +236,8 @@ fun NavigationDraw(
                     DetailArtistScreen(
                         artistId = artistId,
                         onBack = {adminNavController.popBackStack()},
-                        artistViewModel = artistViewModel
+                        artistViewModel = artistViewModel,
+                        editProfileViewModel = editProfileViewModel
                     )
                 }
                 composable(route = Screen.UpdateArtistScreen.route) {
@@ -251,7 +254,20 @@ fun NavigationDraw(
                 }
                 composable(route = Screen.PlaylistScreenA.route) {
                     PlaylistScreenA(
-                        playlistViewModel = playlistViewModel
+                        playlistViewModel = playlistViewModel,
+                        onUpdateScreen = { playlistId ->
+                            adminNavController.navigate(Screen.UpdatePlaylistScreen.createRoute(playlistId))
+                        }
+                    )
+                }
+                composable(route = Screen.UpdatePlaylistScreen.route) {
+                    val playlistId = it.arguments?.getString("playlistId") ?: ""
+                    UpdatePlaylistScreen(
+                        playlistId = playlistId,
+                        playlistViewModel = playlistViewModel,
+                        onBack = {
+                            adminNavController.popBackStack()
+                        }
                     )
                 }
             }
@@ -265,6 +281,7 @@ fun DrawerContent(
     navController: NavHostController,
     adminNavController: NavHostController,
     artistViewModel: ArtistViewModel,
+    editProfileViewModel: EditProfileViewModel,
     onCloseDrawer: () -> Unit,
     name: String
 ) {
@@ -305,7 +322,7 @@ fun DrawerContent(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name=name, image = "",top = 24,check = true, artistViewModel = artistViewModel)
+            HeaderView(name=name, image = "",top = 24,check = true, artistViewModel = artistViewModel, id = "", editProfileViewModel = editProfileViewModel)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

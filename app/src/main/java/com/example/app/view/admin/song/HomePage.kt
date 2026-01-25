@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Song
+import com.example.app.view.admin.CustomFloatingBottomBar
 import com.example.app.view.user.ContentScreen
 import com.example.app.view.user.FavoritePage
 import com.example.app.view.user.HomePageU
@@ -61,22 +62,11 @@ fun HomePage(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                navItemsList.fastForEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectIndex == index,
-                        onClick = { selectIndex = index },
-                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary) },
-                        label = { Text(
-                            text = item.label,
-                            color = MaterialTheme.colorScheme.onBackground
-                        ) },
-                    )
-                }
-            }
+            CustomFloatingBottomBar(
+                items = navItemsList,
+                selectedIndex = selectIndex,
+                onItemClick = { index -> selectIndex = index}
+            )
         }
     ) { it ->
         ContentScreenA(
@@ -100,8 +90,10 @@ fun ContentScreenA(
     onUploadScreen: (Song) -> Unit,
     onUpdateClick: (Song) -> Unit
 ) {
-    when(selectedIndex) {
-        0 -> ListSongA(modifier = modifier,songs = songs, searchViewModel = searchViewModel, songViewModel = songViewModel, onUploadClick = onUploadScreen, onUpdateClick = onUpdateClick)
-        1 -> AddSong(songViewModel = songViewModel)
+    Box() {
+        when(selectedIndex) {
+            0 -> ListSongA(modifier = modifier,songs = songs, searchViewModel = searchViewModel, songViewModel = songViewModel, onUploadClick = onUploadScreen, onUpdateClick = onUpdateClick)
+            1 -> AddSong(songViewModel = songViewModel)
+        }
     }
 }

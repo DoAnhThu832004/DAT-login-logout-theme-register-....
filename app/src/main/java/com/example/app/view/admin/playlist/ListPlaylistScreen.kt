@@ -13,7 +13,8 @@ import com.example.app.viewmodel.PlaylistViewModel
 @Composable
 fun ListPlaylistScreen(
     playlists: List<Playlist>,
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    onUpdateClick : (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -25,6 +26,9 @@ fun ListPlaylistScreen(
                 playlist = playlists,
                 onDeleteClick = {
                     playlistViewModel.deletePlaylist(playlists.id)
+                },
+                onUpdateClick = {
+                    onUpdateClick(playlists.id)
                 }
             )
         }

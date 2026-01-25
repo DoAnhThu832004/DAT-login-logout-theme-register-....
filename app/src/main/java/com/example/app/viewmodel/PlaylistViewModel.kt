@@ -7,7 +7,9 @@ import com.example.app.model.response.Playlist
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.request.AlbumCreationRequest
+import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.PlaylistCreateRequest
+import com.example.app.model.request.PlaylistUpdateRequest
 import kotlinx.coroutines.launch
 
 class PlaylistViewModel(
@@ -142,6 +144,45 @@ class PlaylistViewModel(
             }
         }
 
+    }
+    fun updatePlaylist(id: String, title: String, description: String) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val request = PlaylistUpdateRequest(
+                    title = title,
+                    description = description
+                )
+                val response = apiService.updatePlaylist(id,request)
+                if(response.isSuccessful) {
+                    val body = response.body()
+                    if(body?.code == 1000 && body.result != null) {
+                        val updatePlaylistFromApi = body.result
+                        val currentList = _playlistState.value.playlists ?: emptyList()
+                        val updatedList = currentList.map {
+                            if (it.id == id) {
+                                updatePlaylistFromApi
+                            } else {
+                                it
+                            }
+                        }
+                        _playlistState.value = _playlistState.value.copy(
+                            isLoading = false,
+                            playlists = updatedList,
+                            error = null
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
     }
     data class PlaylistState(
         val playlists: List<Playlist>? = null,

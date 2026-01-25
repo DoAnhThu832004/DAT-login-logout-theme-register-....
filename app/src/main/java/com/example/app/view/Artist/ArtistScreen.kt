@@ -45,6 +45,7 @@ import com.example.app.view.Album.AlbumItem
 import com.example.app.view.general.HeaderView
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.EditProfileViewModel
 
 @Composable
 fun ArtistScreen(
@@ -53,6 +54,7 @@ fun ArtistScreen(
     onBack: () -> Unit,
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
+    editProfileViewModel: EditProfileViewModel,
     onAlbumClick: (Album) -> Unit
 ) {
     val albumState by albumViewModel.albumState
@@ -94,7 +96,7 @@ fun ArtistScreen(
                             start.linkTo(parent.start)
                         }
                 )
-                HeaderView(name = artist.name, image = artist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, artist = artist)
+                HeaderView(name = artist.name, image = artist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, id = artist.id, editProfileViewModel = editProfileViewModel, artist = artist)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

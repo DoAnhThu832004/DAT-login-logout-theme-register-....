@@ -57,6 +57,7 @@ import com.example.app.view.admin.album.SelectSongBottomSheet
 import com.example.app.view.general.HeaderView
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.EditProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,7 @@ fun DetailArtistScreen(
     //onSongClick: (Song) -> Unit,
     onBack: () -> Unit,
     artistViewModel: ArtistViewModel,
+    editProfileViewModel: EditProfileViewModel,
     //onAlbumClick: (Album) -> Unit
 ) {
     val artistState by artistViewModel.artistState
@@ -114,7 +116,7 @@ fun DetailArtistScreen(
                                 start.linkTo(parent.start)
                             }
                     )
-                    HeaderView(name = currentArtist.name, image = currentArtist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, artist = currentArtist)
+                    HeaderView(name = currentArtist.name, image = currentArtist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, id = currentArtist.id, editProfileViewModel = editProfileViewModel, artist = currentArtist)
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

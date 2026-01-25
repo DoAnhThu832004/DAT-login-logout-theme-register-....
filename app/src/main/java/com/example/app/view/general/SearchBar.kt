@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -87,14 +88,24 @@ fun SearchBar(
                     DropdownMenuItem(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                AsyncImage(
-                                    model = artist.imageUrlAr,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(shape = RoundedCornerShape(50.dp)),
-                                    contentScale = ContentScale.Crop,
-                                )
+                                if(artist.imageUrlAr.isNullOrEmpty()) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(shape = RoundedCornerShape(50.dp)),
+                                    )
+                                } else {
+                                    AsyncImage(
+                                        model = artist.imageUrlAr,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(shape = RoundedCornerShape(50.dp)),
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Text(
                                     text = artist.name

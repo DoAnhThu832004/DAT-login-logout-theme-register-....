@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,6 +66,7 @@ import com.example.app.view.Screen
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.PlaylistViewModel
 
@@ -76,9 +78,12 @@ fun ProfilePage(
     loginViewModel: LoginViewModel,
     artistViewModel: ArtistViewModel,
     playlistViewModel: PlaylistViewModel,
+    editProfileViewModel: EditProfileViewModel,
     name: String,
+    user: UserResponse,
     onPlaylistClick: (String) -> Unit
 ) {
+    val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(0) }
     val itemsOthers = listOf(
@@ -116,7 +121,7 @@ fun ProfilePage(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name = name, image = "" ,top = 48,check = true, artistViewModel = artistViewModel)
+            HeaderView(name = name, image = user.result.imageUrl ,top = 48,check = true, id = user.result.id, editProfileViewModel = editProfileViewModel, artistViewModel = artistViewModel)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -264,7 +269,7 @@ fun ProfilePage(
             onDismissRequest = { showPlaylistSheet = false },
             sheetState = sheetStatePlaylist
         ) {
-            SelectArtistBottomSheet(playlistViewModel = playlistViewModel)
+            SelectArtistBottomSheet(playlistViewModel = playlistViewModel, title = context.getString(R.string.tao_playlist), check = true)
         }
     }
     ConfirmDialog(

@@ -36,7 +36,8 @@ import com.example.app.view.general.ConfirmDialog
 @Composable
 fun PlaylistItem(
     playlist: Playlist,
-    onDeleteClick: (String) -> Unit
+    onDeleteClick: (String) -> Unit,
+    onUpdateClick: () -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
     Column(
@@ -81,7 +82,7 @@ fun PlaylistItem(
                     .weight(1f)
             )
             IconButton(
-                onClick = {}
+                onClick = { onUpdateClick() }
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,

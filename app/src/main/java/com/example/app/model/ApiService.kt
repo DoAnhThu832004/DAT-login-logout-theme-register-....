@@ -7,6 +7,7 @@ import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.PlaylistCreateRequest
+import com.example.app.model.request.PlaylistUpdateRequest
 import com.example.app.model.request.RefreshRequest
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
@@ -50,6 +51,12 @@ interface ApiService {
     suspend fun updateUser(@Path("id") id : String, @Body request: UserUpdateRequest): Response<UserResponse>
     @GET("users/my-info")
     suspend fun getUserInfo(): Response<UserResponse>
+    @Multipart
+    @POST("users/{id}/upload")
+    suspend fun uploadUserImage(
+        @Path("id") id: String,
+        @Part image: MultipartBody.Part
+    ): Response<UserResponse>
     @GET("songs")
     suspend fun getSongs(): Response<ApiResponse<List<Song>>>
     @POST("songs")
@@ -134,6 +141,11 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @PUT("playlists/{id}")
+    suspend fun updatePlaylist(
+        @Path("id") id: String,
+        @Body request: PlaylistUpdateRequest
+    ): Response<ApiResponse<Playlist>>
     @GET("playlists/myList")
     suspend fun getMyPlaylists(): Response<ApiResponse<List<Playlist>>>
     @POST("favorites/{songId}")

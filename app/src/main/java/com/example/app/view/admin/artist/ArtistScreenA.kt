@@ -22,6 +22,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Artist
+import com.example.app.view.admin.CustomFloatingBottomBar
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.SearchViewModel
 
@@ -46,22 +47,11 @@ fun ArtistScreenA(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                navItemsList.fastForEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectIndex == index,
-                        onClick = { selectIndex = index },
-                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary) },
-                        label = { Text(
-                            text = item.label,
-                            color = MaterialTheme.colorScheme.onBackground
-                        ) },
-                    )
-                }
-            }
+            CustomFloatingBottomBar(
+                items = navItemsList,
+                selectedIndex = selectIndex,
+                onItemClick = { index -> selectIndex = index}
+            )
         }
     ) { it ->
         ContentScreenA(

@@ -63,4 +63,9 @@
     <string name="tao_playlist">Tạo playlist</string>
     <string name="ten_playlist">Tên Playlist</string>
     <string name="tao_playlist_thanh_cong">Add playlist successfully</string>
+    <string name="cap_nhap_playlist">Cập nhập playlist</string>
+    <string name="mat_khau_cu_sai">Mật khẩu cũ sai</string>
+    <string name="mat_khau_qua_ngan">Mật khẩu quá ngắn</string>
+    <string name="sua_playlist">Sửa Playlist</string>
+    <string name="xoa_playlist">Xoá Playlist</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.app.view.admin.playlist
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -23,6 +24,7 @@ import com.example.app.R
 import com.example.app.model.NavItems
 import com.example.app.model.response.Artist
 import com.example.app.model.response.Playlist
+import com.example.app.view.admin.CustomFloatingBottomBar
 import com.example.app.view.admin.artist.AddArtistScreen
 import com.example.app.view.admin.artist.ContentScreenA
 import com.example.app.view.admin.artist.ListArtistScreen
@@ -32,7 +34,8 @@ import com.example.app.viewmodel.SearchViewModel
 
 @Composable
 fun PlaylistScreenA(
-    playlistViewModel: PlaylistViewModel
+    playlistViewModel: PlaylistViewModel,
+    onUpdateScreen: (String) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.danh_sach_playlist), Icons.Default.ListAlt),
@@ -45,22 +48,11 @@ fun PlaylistScreenA(
     }
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                navItemsList.fastForEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectIndex == index,
-                        onClick = { selectIndex = index },
-                        icon = { Icon(item.icon, contentDescription = item.label, tint = MaterialTheme.colorScheme.onPrimary) },
-                        label = { Text(
-                            text = item.label,
-                            color = MaterialTheme.colorScheme.onBackground
-                        ) },
-                    )
-                }
-            }
+            CustomFloatingBottomBar(
+                items = navItemsList,
+                selectedIndex = selectIndex,
+                onItemClick = { index -> selectIndex = index}
+            )
         }
     ) { it ->
         ContentScreenA(
@@ -71,7 +63,7 @@ fun PlaylistScreenA(
             playlistViewModel = playlistViewModel,
 //            albumViewModel = albumViewModel,
 //            onUploadScreen = onUploadScreen,
-//            onUpdateClick = onUpdateScreen,
+            onUpdateClick = onUpdateScreen,
 //            albumOnClick = albumOnClick,
         )
     }
@@ -85,11 +77,13 @@ fun ContentScreenA(
     playlistViewModel: PlaylistViewModel,
 //    artistViewModel: ArtistViewModel,
 //    onUploadScreen: (Song) -> Unit,
-//    onUpdateClick: (Artist) -> Unit,
+    onUpdateClick: (String) -> Unit,
 //    albumOnClick: (Album) -> Unit,
 ) {
-    when(selectedIndex) {
-        0 -> ListPlaylistScreen(playlists = playlists,playlistViewModel = playlistViewModel)
-        1 -> AddPlaylistScreen(playlistViewModel = playlistViewModel)
+    Box() {
+        when(selectedIndex) {
+            0 -> ListPlaylistScreen(playlists = playlists,playlistViewModel = playlistViewModel,onUpdateClick = onUpdateClick)
+            1 -> AddPlaylistScreen(playlistViewModel = playlistViewModel)
+        }
     }
 }

@@ -1,5 +1,8 @@
 package com.example.app.view.general
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +25,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,6 +44,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
 import com.example.app.model.response.Artist
 import com.example.app.viewmodel.ArtistViewModel
+import com.example.app.viewmodel.EditProfileViewModel
 
 @Composable
 fun HeaderView(
@@ -44,6 +54,8 @@ fun HeaderView(
     top : Int,
     check: Boolean,
     artistViewModel: ArtistViewModel,
+    id: String,
+    editProfileViewModel: EditProfileViewModel,
     artist: Artist = Artist(
         id = "",
         name = "",
@@ -55,12 +67,43 @@ fun HeaderView(
         followed = false
     )
 ) {
+    val context = LocalContext.current
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        imageUri = uri
+    }
+
+    val painter = when {
+        imageUri != null -> rememberAsyncImagePainter(imageUri)
+        !image.isNullOrEmpty() -> rememberAsyncImagePainter(image)
+        else -> null
+    }
+    LaunchedEffect(imageUri) {
+        imageUri?.let {
+            editProfileViewModel.uploadImage(id,imageUri!!,context)
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = top.dp, start = 32.dp, end = 24.dp)
     ) {
-        if(image.isNullOrEmpty()) {
+        if (painter != null) {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(end = 16.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(50.dp))
+                    .clickable {
+                        imagePickerLauncher.launch("image/*")
+                    }
+            )
+        } else {
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = null,
@@ -69,16 +112,9 @@ fun HeaderView(
                     .padding(end = 16.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(50.dp))
-            )
-        } else {
-            Image(
-                painter = rememberAsyncImagePainter(image),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(end = 16.dp)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(50.dp))
+                    .clickable {
+                        imagePickerLauncher.launch("image/*")
+                    }
             )
         }
         Column(
