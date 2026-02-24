@@ -1,5 +1,6 @@
 package com.example.app.view.Artist
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,6 +48,7 @@ import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ArtistScreen(
     artist: Artist,

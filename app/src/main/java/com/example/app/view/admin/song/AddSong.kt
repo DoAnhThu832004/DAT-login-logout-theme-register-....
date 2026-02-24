@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -41,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
+import com.example.app.view.general.DateDialog
 import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -55,6 +58,15 @@ fun AddSong(
     var description by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     var releasedDate by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    if (showDatePicker) {
+        DateDialog(
+            onDateSelected = { formattedDate ->
+                releasedDate = formattedDate
+            },
+            onDismiss = { showDatePicker = false }
+        )
+    }
     BoxWithConstraints {
         val startOffset = maxWidth
         val alphaAnim = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -161,7 +173,8 @@ fun AddSong(
                 Spacer(modifier = Modifier.padding(top = 8.dp))
                 OutlinedTextField(
                     value = releasedDate,
-                    onValueChange = { releasedDate = it},
+                    onValueChange = {},
+                    readOnly = true,
                     label = {
                         Text(
                             text = stringResource(R.string.ngay_phat_hanh),
@@ -169,15 +182,14 @@ fun AddSong(
                         )
                     },
                     leadingIcon = {
-                        Icon(
-                            Icons.Default.DateRange, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(Icons.Default.DateRange, contentDescription = null)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                        .padding(bottom = 8.dp)
+                        .clickable { showDatePicker = true },
                     shape = RoundedCornerShape(15.dp)
                 )
                 Spacer(modifier = Modifier.padding(top = 8.dp))

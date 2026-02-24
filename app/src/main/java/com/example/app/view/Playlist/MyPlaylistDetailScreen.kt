@@ -1,6 +1,10 @@
 package com.example.app.view.Playlist
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +28,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +39,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +71,16 @@ fun MyPlaylistDetailScreen(
     val playlistState by playlistViewModel.playlistState
     var showPlaylistSheet by remember { mutableStateOf(false) }
     val sheetStatePlaylist = rememberModalBottomSheetState()
+
+    val currentPlaylist = playlistState.playlists?.find { it.id == playlist.id } ?: playlist
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            // Thực hiện upload ngay khi có Uri
+            playlistViewModel.uploadImage(playlist.id, it, context)
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,14 +113,19 @@ fun MyPlaylistDetailScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .size(150.dp)
+                            .clickable { imagePickerLauncher.launch("image/*") }
                     )
                 } else {
                     Image(
-                        painter = rememberAsyncImagePainter(playlist.imageUrlP),
+                        painter = rememberAsyncImagePainter(currentPlaylist.imageUrlP),
                         contentDescription = null,
                         modifier = Modifier
                             .size(150.dp)
+                            .clickable { imagePickerLauncher.launch("image/*") }
                     )
+                }
+                if (playlistState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(40.dp), color = Color.White)
                 }
             }
             Box {

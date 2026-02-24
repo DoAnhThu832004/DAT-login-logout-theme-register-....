@@ -2,13 +2,22 @@ package com.example.app.view
 
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -271,7 +280,17 @@ fun RecipeApp(
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()
         MiniPlayer(
             playerViewModel,
-            Modifier.align(androidx.compose.ui.Alignment.BottomCenter).zIndex(1f),
+            modifier = Modifier
+                .align(androidx.compose.ui.Alignment.BottomCenter).zIndex(1f)
+                .navigationBarsPadding()
+                .padding(bottom = 80.dp)
+                .shadow(
+                    elevation = 20.dp, // Độ mờ của box
+                    shape = RoundedCornerShape(36.dp),
+                    spotColor = Color.Black.copy(0.6f)  // màu đậm của bóng
+                )
+                .clip(RoundedCornerShape(36.dp))
+                .border(1.dp, Color(0xFF2B2939).copy(alpha = 0.95f), RoundedCornerShape(36.dp)),
             isOnPlayerScreen = isOnPlayer,
             onBack = {
                 navController.navigate(Screen.PlayerScreen.createRoute()) {
@@ -280,5 +299,4 @@ fun RecipeApp(
             }
         )
     }
-
 }

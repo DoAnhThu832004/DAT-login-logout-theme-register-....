@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -63,33 +64,19 @@ fun PlayerScreen(
     val isPlaying = playerViewModel.isPlaying.value
     val repeatMode = playerViewModel.repeatMode.value
     val isShuffleMode = playerViewModel.isShuffleMode.value
-
-    // Seek states
     val duration = playerViewModel.duration.value
     var currentPosition by remember { mutableStateOf(playerViewModel.currentPosition.value) }
     var isSeeking by remember { mutableStateOf(false) }
-
-    // Volume states
     val maxVolume = playerViewModel.maxVolume.value
     var currentVolume by remember { mutableStateOf(playerViewModel.currentVolume.value) }
 
-
+    // Logic cập nhật position và volume giữ nguyên...
     LaunchedEffect(isPlaying) {
         while (isPlaying && !isSeeking) {
             playerViewModel.updatePosition()
             currentPosition = playerViewModel.currentPosition.value
-            delay(100) // Update every 100ms for smooth progress
+            delay(100)
         }
-    }
-    // Update duration when song changes
-    LaunchedEffect(song) {
-        playerViewModel.updateDuration()
-    }
-
-    // Update volume
-    LaunchedEffect(Unit) {
-        playerViewModel.updateVolume()
-        currentVolume = playerViewModel.currentVolume.value
     }
 
     if (song == null) {
@@ -98,48 +85,54 @@ fun PlayerScreen(
         }
         return
     }
+
+    // Sử dụng Column với khả năng cuộn dự phòng cho các máy màn hình nhỏ
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // 1. Header Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {
-            IconButton(
-                onClick = onBack
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = null,
-                    tint = Color.White
-                )
+            IconButton(onClick = onBack) {
+                Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
             }
         }
-        Spacer(modifier = Modifier.height(40.dp))
+
+        // 2. Không gian đệm phía trên ảnh
+        Spacer(modifier = Modifier.weight(0.2f))
+
+        // 3. Album Art: Sử dụng tỉ lệ màn hình để tự co giãn
         Image(
             painter = rememberAsyncImagePainter(song.imageUrl),
             contentDescription = null,
             modifier = Modifier
-                .size(350.dp)
-                .clip(RoundedCornerShape(15.dp)),
+                .fillMaxWidth(0.8f) // Chiếm 80% chiều ngang
+                .aspectRatio(1f)     // Luôn là hình vuông
+                .clip(RoundedCornerShape(16.dp)),
             contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(40.dp))
+
+        // 4. Thông tin bài hát
+        Spacer(modifier = Modifier.weight(0.3f))
         Text(
             text = song.name,
             color = Color.White,
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1
         )
-        Spacer(modifier = Modifier.height(60.dp))
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+
+        // 5. Không gian đệm giữa text và slider
+        Spacer(modifier = Modifier.weight(0.4f))
+
+        // 6. Seek Bar (Slider thời gian)
+        Column(modifier = Modifier.fillMaxWidth()) {
             Slider(
                 value = if (duration > 0) currentPosition.toFloat() else 0f,
                 onValueChange = { newValue ->
@@ -151,7 +144,6 @@ fun PlayerScreen(
                     isSeeking = false
                 },
                 valueRange = 0f..duration.toFloat().coerceAtLeast(1f),
-                modifier = Modifier.fillMaxWidth(),
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
                     activeTrackColor = Color(0xFF1DB954),
@@ -159,129 +151,70 @@ fun PlayerScreen(
                 )
             )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = formatTime(currentPosition),
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-                Text(
-                    text = formatTime(duration),
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+                Text(formatTime(currentPosition), color = Color.Gray, fontSize = 12.sp)
+                Text(formatTime(duration), color = Color.Gray, fontSize = 12.sp)
             }
         }
-        Spacer(modifier = Modifier.height(30.dp))
+
+        // 7. Playback Controls
+        Spacer(modifier = Modifier.height(16.dp)) // Khoảng cách nhỏ cố định
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                onClick = {playerViewModel.toggleShuffle()}
-            ) {
+            IconButton(onClick = { playerViewModel.toggleShuffle() }) {
                 Icon(
-                    imageVector = Icons.Default.Shuffle,
-                    contentDescription = null,
+                    Icons.Default.Shuffle, null,
                     tint = if(isShuffleMode) Color(0xFF1DB954) else Color.White,
                     modifier = Modifier.size(28.dp)
                 )
             }
-            IconButton(
-                onClick = { playerViewModel.previous() }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.SkipPrevious,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
-                )
+            IconButton(onClick = { playerViewModel.previous() }) {
+                Icon(Icons.Default.SkipPrevious, null, tint = Color.White, modifier = Modifier.size(32.dp))
             }
             IconButton(
                 onClick = { playerViewModel.togglePlayPause() },
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(Color.White, CircleShape)
+                modifier = Modifier.size(72.dp).background(Color.White, CircleShape)
             ) {
                 Icon(
-                    imageVector = if(isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = null,
-                    tint = Color.Black,
-                    modifier = Modifier.size(48.dp)
+                    if(isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    null, tint = Color.Black, modifier = Modifier.size(40.dp)
                 )
             }
-            IconButton(
-                onClick = { playerViewModel.next() }
-            ) {
+            IconButton(onClick = { playerViewModel.next() }) {
+                Icon(Icons.Default.SkipNext, null, tint = Color.White, modifier = Modifier.size(32.dp))
+            }
+            IconButton(onClick = { playerViewModel.toggleRepeat() }) {
                 Icon(
-                    imageVector = Icons.Default.SkipNext,
-                    contentDescription = null,
-                    tint = Color.White,
+                    if (repeatMode == 2) Icons.Default.RepeatOn else Icons.Default.Repeat, "Repeat",
+                    tint = if (repeatMode > 0) Color(0xFF1DB954) else Color.White,
                     modifier = Modifier.size(28.dp)
-                )
-            }
-            IconButton(
-                onClick = { playerViewModel.toggleRepeat() }
-            ) {
-                Icon(
-                    imageVector = if (repeatMode == 2) Icons.Default.RepeatOn else Icons.Default.Repeat,
-                    contentDescription = "Repeat",
-                    tint = when (repeatMode) {
-                        1, 2 -> Color(0xFF1DB954) // Màu xanh khi bật
-                        else -> Color.White
-                    },
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            IconButton(
-                onClick = {
-                    songViewModel.toggleFavorite(song)
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = null,
-                    tint = if (song.favorite) Color.Red else Color.Gray
                 )
             }
         }
-        Spacer(modifier = Modifier.height(40.dp))
+
+        // 8. Volume Control - Đặt vào weight cuối cùng để tự động đẩy xuống dưới cùng
+        Spacer(modifier = Modifier.weight(0.6f))
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.VolumeDown,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
+            Icon(Icons.Default.VolumeDown, null, tint = Color.White, modifier = Modifier.size(20.dp))
             Slider(
                 value = currentVolume.toFloat(),
-                onValueChange = { newValue ->
-                    currentVolume = newValue.toInt()
-                    playerViewModel.setVolume(newValue.toInt())
-                },
+                onValueChange = { currentVolume = it.toInt(); playerViewModel.setVolume(it.toInt()) },
                 valueRange = 0f..maxVolume.toFloat().coerceAtLeast(1f),
                 modifier = Modifier.weight(1f),
                 colors = SliderDefaults.colors(
                     thumbColor = Color.White,
-                    activeTrackColor = Color(0xFF1DB954),
-                    inactiveTrackColor = Color(0xFF535353)
+                    activeTrackColor = Color(0xFF1DB954)
                 )
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Icon(
-                imageVector = Icons.Default.VolumeUp,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
+            Icon(Icons.Default.VolumeUp, null, tint = Color.White, modifier = Modifier.size(20.dp))
         }
     }
 }

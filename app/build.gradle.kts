@@ -19,7 +19,18 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    packaging {
+        resources {
+            // Loại bỏ file gây xung đột giữa jspecify và bcprov
+            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF"
 
+            // Nếu sau này bạn gặp thêm lỗi trùng file LICENSE hoặc NOTICE,
+            // hãy thêm các dòng dưới đây:
+            // excludes += "/META-INF/LICENSE*"
+            // excludes += "/META-INF/NOTICE*"
+            // excludes += "/META-INF/DEPENDENCIES"
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -52,6 +63,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.androidx.compose.testing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,8 +84,8 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("com.google.android.exoplayer:exoplayer:2.19.1")
     implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
-    implementation ("androidx.media3:media3-exoplayer:1.3.1")
-    implementation ("androidx.media3:media3-session:1.3.1")
-    implementation ("androidx.media3:media3-ui:1.3.1")
-    implementation ("androidx.media3:media3-common:1.3.1")
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-session:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-common:1.3.1")
 }

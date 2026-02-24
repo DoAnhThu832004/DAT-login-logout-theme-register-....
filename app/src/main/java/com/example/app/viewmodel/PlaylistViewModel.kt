@@ -1,16 +1,22 @@
 package com.example.app.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.app.model.ApiService
 import com.example.app.model.response.Playlist
 import androidx.compose.runtime.State
 import androidx.lifecycle.viewModelScope
+import com.example.app.model.FileUtils
 import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 
 class PlaylistViewModel(
     private val apiService: ApiService
@@ -181,6 +187,36 @@ class PlaylistViewModel(
                     isLoading = false,
                     error = "Error: ${e.message}"
                 )
+            }
+        }
+    }
+    fun uploadImage(playlistId: String, imageUri: Uri, context: Context) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
+            try {
+                val imageFile = FileUtils.getFileFromUri(context,imageUri)
+                if(imageFile != null) {
+                    val requestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+                    val part = MultipartBody.Part.createFormData("image",imageFile.name,requestBody)
+                    val response = apiService.uploadPlaylistImage(playlistId,part)
+                    if (response.isSuccessful && response.body()?.code == 1000) {
+                        val updatedPlaylist = response.body()?.result
+                        updatedPlaylist?.let { newPlaylist ->
+                            // Cập nhật danh sách hiện tại với item mới từ Server
+                            val updatedList = _playlistState.value.playlists?.map {
+                                if (it.id == playlistId) newPlaylist else it
+                            }
+                            _playlistState.value = _playlistState.value.copy(
+                                isLoading = false,
+                                playlists = updatedList,
+                                error = null
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _playlistState.value = _playlistState.value.copy(isLoading = false, error = "Error: ${e.message}")
             }
         }
     }

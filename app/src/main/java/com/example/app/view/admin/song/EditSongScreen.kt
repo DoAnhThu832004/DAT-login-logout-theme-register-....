@@ -1,6 +1,7 @@
 package com.example.app.view.admin.song
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.app.R
 import com.example.app.model.response.Song
+import com.example.app.view.general.DateDialog
 import com.example.app.viewmodel.SongViewModel
 
 @Composable
@@ -53,6 +56,15 @@ fun EditSongScreen(
         var releasedDate by remember(songToEdit) { mutableStateOf(songToEdit?.releasedDate ?: "") }
         var status by remember(songToEdit) { mutableStateOf(songToEdit?.status ?: "") }
         var type by remember(songToEdit) { mutableStateOf(songToEdit?.type ?: "") }
+        var showDatePicker by remember { mutableStateOf(false) }
+        if (showDatePicker) {
+            DateDialog(
+                onDateSelected = { formattedDate ->
+                    releasedDate = formattedDate
+                },
+                onDismiss = { showDatePicker = false }
+            )
+        }
         Text(
             text = stringResource(R.string.chinh_sua_bai_hat),
             fontSize = 20.sp,
@@ -156,14 +168,16 @@ fun EditSongScreen(
                 )
             },
             leadingIcon = {
-                Icon(
-                    Icons.Default.DateRange, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+                IconButton(onClick = { showDatePicker = true }) {
+                    Icon(
+                        Icons.Default.DateRange, contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { showDatePicker = true }
                 .padding(bottom = 8.dp),
             shape = RoundedCornerShape(15.dp)
         )

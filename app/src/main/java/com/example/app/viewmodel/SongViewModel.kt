@@ -77,7 +77,6 @@ class SongViewModel(
                     if (body?.code == 1000 && body.result != null) {
                         val currentSongs = _songUiState.value.songs?.toMutableList() ?: mutableListOf()
                         currentSongs.add(body.result)
-
                         _songUiState.value = _songUiState.value.copy(
                             isLoading = false,
                             isCreating = false,
@@ -213,7 +212,6 @@ class SongViewModel(
                             }
                         }
                         _songUiState.value = _songUiState.value.copy(
-
                             isLoading = false,
                             songs = updatedList,
                             error = null

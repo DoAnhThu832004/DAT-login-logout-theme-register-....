@@ -39,7 +39,7 @@ fun MiniPlayer(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(Color(0xFF1E1E1E))
+                .background(Color(0xFF2B2939).copy(alpha = 0.95f))
                 .padding(12.dp)
                 .clickable(enabled = !isOnPlayerScreen) {
                     if(!isOnPlayerScreen) onBack()

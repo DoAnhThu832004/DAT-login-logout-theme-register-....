@@ -7,14 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import com.example.app.model.response.Song
 import android.os.Parcelable
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,10 +26,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -39,12 +45,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
@@ -57,6 +65,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
 import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.SongViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun FavoritePage(
@@ -64,36 +74,67 @@ fun FavoritePage(
     songViewModel: SongViewModel,
     onSongClick: (Song) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(R.string.bai_hat_yeu_thich),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleLarge,
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyColumn(
+    BoxWithConstraints {
+        val startOffset = -maxHeight
+        Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(songs) {
-                    i ->
-                if(i.favorite) {
-                    DetailListSongF(
-                        song = i,
-                        songViewModel = songViewModel,
-                        //artist = artist,
-                        onSongClick = { onSongClick(i)}
-                    )
-                }
+            Text(
+                text = stringResource(R.string.bai_hat_yeu_thich),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                itemsIndexed(songs) {
+                        index,i ->
+                    val alphaAnim = remember { androidx.compose.animation.core.Animatable(0f) }
+                    val slideAnim = remember { androidx.compose.animation.core.Animatable(startOffset.value) }
+                    LaunchedEffect(key1 = i.id) {
+                        delay(index.coerceAtMost(12) * 50L)
+                        launch {
+                            alphaAnim.animateTo(
+                                targetValue = 1f,
+                                animationSpec = tween(durationMillis = 400)
+                            )
+                        }
+                        launch {
+                            slideAnim.animateTo(
+                                targetValue = 0f,
+                                animationSpec = spring(
+                                    dampingRatio = 0.75f, // Độ nảy vừa phải
+                                    stiffness = Spring.StiffnessLow
+                                )
+                            )
+                        }
+
+                    }
+                    Box(
+                        modifier = Modifier
+                            .offset(y = slideAnim.value.dp)
+                            .alpha(alphaAnim.value)
+                            .fillMaxWidth()
+                    ) {
+                        if(i.favorite) {
+                            DetailListSongF(
+                                song = i,
+                                songViewModel = songViewModel,
+                                //artist = artist,
+                                onSongClick = { onSongClick(i)}
+                            )
+                        }
+                    }
 //                val artist = artists.firstOrNull { artist ->
 //                    artist.songs.any { it.id == i.id }
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
+                }
             }
         }
     }

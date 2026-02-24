@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-private const val BASE_URL = "http://10.0.2.2:8080/identity/"
+// Ví dụ IP máy tính của bạn là 192.168.1.15
+private const val BASE_URL = "http://172.19.144.1:8080/identity/"
 
 interface AuthApi {
     @POST("auth/refresh")
