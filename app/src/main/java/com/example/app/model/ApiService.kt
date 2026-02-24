@@ -164,6 +164,7 @@ interface ApiService {
     suspend fun createPlaylist(@Body request: PlaylistCreateRequest): Response<ApiResponse<Playlist>>
     @DELETE("playlists/{id}")
     suspend fun deletePlaylist(@Path("id") id: String): Response<ApiError>
+    @Multipart
     @POST("playlists/{playlistId}/upload")
     suspend fun uploadPlaylistImage(
         @Path("playlistId") playlistId: String,
