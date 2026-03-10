@@ -68,4 +68,13 @@
     <string name="mat_khau_qua_ngan">Mật khẩu quá ngắn</string>
     <string name="sua_playlist">Sửa Playlist</string>
     <string name="xoa_playlist">Xoá Playlist</string>
+    <string name="xin_chao">Xin chào</string>
+    <string name="mat_khau_cu">Mat khẩu cũ</string>
+    <string name="mat_khau_moi">Mat khẩu moi</string>
+    <string name="them_anh_album">Tai ảnh album</string>
+    <string name="chon_anh_bia">Chọn Ảnh</string>
+    <string name="them_anh_tac_gia">Tai ảnh tác giả</string>
+    <string name="them_anh_playlist">Tai ảnh playlist</string>
+    <string name="binh_luan">Bình luận</string>
+    <string name="tra_loi">Trả lời</string>
 </resources>

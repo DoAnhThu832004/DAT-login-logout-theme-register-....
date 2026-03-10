@@ -28,7 +28,8 @@ fun AlbumScreen(
     searchViewModel: SearchViewModel,
 //    onUploadScreen: (Song) -> Unit,
     onUpdateScreen: (Album) -> Unit,
-    albumOnClick: (Album) -> Unit
+    albumOnClick: (Album) -> Unit,
+    onUploadClick: (Album) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.danh_sach_album), Icons.Default.ListAlt),
@@ -56,7 +57,8 @@ fun AlbumScreen(
             albumViewModel = albumViewModel,
 //            onUploadScreen = onUploadScreen,
             onUpdateClick = onUpdateScreen,
-            albumOnClick = albumOnClick
+            albumOnClick = albumOnClick,
+            onUploadClick = onUploadClick
         )
     }
 }
@@ -69,11 +71,12 @@ fun ContentScreenA(
     albumViewModel: AlbumViewModel,
 //    onUploadScreen: (Song) -> Unit,
     onUpdateClick: (Album) -> Unit,
-    albumOnClick: (Album) -> Unit
+    albumOnClick: (Album) -> Unit,
+    onUploadClick: (Album) -> Unit
 ) {
     Box() {
         when(selectedIndex) {
-            0 -> ListAlbumScreen(modifier = modifier,albums = albums,searchViewModel = searchViewModel,albumViewModel = albumViewModel,onUpdateClick = onUpdateClick, albumOnClick = albumOnClick)
+            0 -> ListAlbumScreen(modifier = modifier,albums = albums,searchViewModel = searchViewModel,albumViewModel = albumViewModel,onUpdateClick = onUpdateClick, albumOnClick = albumOnClick, onUploadClick = onUploadClick)
             1 -> AddAlbumScreen(albumViewModel = albumViewModel)
         }
     }

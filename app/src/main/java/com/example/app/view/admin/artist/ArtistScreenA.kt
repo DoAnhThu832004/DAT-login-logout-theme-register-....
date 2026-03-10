@@ -34,7 +34,8 @@ fun ArtistScreenA(
 //    onUploadScreen: (Song) -> Unit,
     onUpdateScreen: (Artist) -> Unit,
 //    albumOnClick: (Album) -> Unit,
-    onArtistClick: (Artist) -> Unit
+    onArtistClick: (Artist) -> Unit,
+    onUploadClick: (Artist) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.danh_sach_tac_gia), Icons.Default.ListAlt),
@@ -64,7 +65,8 @@ fun ArtistScreenA(
 //            onUploadScreen = onUploadScreen,
             onUpdateClick = onUpdateScreen,
 //            albumOnClick = albumOnClick,
-            onArtistClick = onArtistClick
+            onArtistClick = onArtistClick,
+            onUploadClick = onUploadClick
         )
     }
 }
@@ -79,10 +81,11 @@ fun ContentScreenA(
 //    onUploadScreen: (Song) -> Unit,
     onUpdateClick: (Artist) -> Unit,
 //    albumOnClick: (Album) -> Unit,
-    onArtistClick: (Artist) -> Unit
+    onArtistClick: (Artist) -> Unit,
+    onUploadClick: (Artist) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> ListArtistScreen(artists = artists, searchViewModel = searchViewModel, artistViewModel = artistViewModel,onArtistClick = onArtistClick, onUpdateClick = onUpdateClick)
+        0 -> ListArtistScreen(artists = artists, searchViewModel = searchViewModel, artistViewModel = artistViewModel,onArtistClick = onArtistClick, onUpdateClick = onUpdateClick, onUploadClick = onUploadClick)
         1 -> AddArtistScreen(artistViewModel = artistViewModel)
     }
 }

@@ -69,4 +69,13 @@
     <string name="mat_khau_qua_ngan">Mật khẩu quá ngắn</string>
     <string name="sua_playlist">Edit Playlist</string>
     <string name="xoa_playlist">Delete Playlist</string>
+    <string name="xin_chao">Welcome to back</string>
+    <string name="mat_khau_cu">Password old</string>
+    <string name="mat_khau_moi">Password new</string>
+    <string name="them_anh_album">Upload image album</string>
+    <string name="chon_anh_bia">Select image</string>
+    <string name="them_anh_tac_gia">Upload image artist</string>
+    <string name="them_anh_playlist">Upoad image playlist</string>
+    <string name="binh_luan">Comment</string>
+    <string name="tra_loi">reply</string>
 </resources>

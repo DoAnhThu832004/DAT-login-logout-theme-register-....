@@ -228,12 +228,15 @@ class SongViewModel(
             }
         }
     }
-    fun toggleFavorite(song: Song) {
+    fun toggleFavorite(song: Song, playerViewModel: PlayerViewModel) {
         // 1. Xác định trạng thái mới (đảo ngược trạng thái hiện tại)
         val newFavoriteState = !song.favorite
 
         // 2. Optimistic Update: Cập nhật UI ngay lập tức để user thấy phản hồi nhanh
         updateLocalSongFavoriteStatus(song.id, newFavoriteState)
+        if (playerViewModel.currentSong.value?.id == song.id) {
+            playerViewModel.currentSong.value = song.copy(favorite = newFavoriteState)
+        }
 
         viewModelScope.launch {
             try {

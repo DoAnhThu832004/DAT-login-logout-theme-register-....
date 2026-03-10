@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MusicNote
@@ -57,7 +58,8 @@ import kotlin.math.roundToInt
 fun PlaylistItem(
     playlist: Playlist,
     onDeleteClick: (String) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    onUploadClick: () -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
     val density = LocalDensity.current // dùng để chuyển đổi giữa dp/sp -> px vì animation nó chuyển đổi theo px
@@ -183,6 +185,14 @@ fun PlaylistItem(
                             .padding(start = 8.dp)
                             .weight(1f)
                     )
+                    IconButton(
+                        onClick = {onUploadClick()}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CloudUpload,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         }

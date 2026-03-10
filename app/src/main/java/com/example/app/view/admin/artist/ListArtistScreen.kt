@@ -79,7 +79,8 @@ fun ListArtistScreen(
     searchViewModel: SearchViewModel,
     artistViewModel: ArtistViewModel,
     onArtistClick: (Artist) -> Unit,
-    onUpdateClick: (Artist) -> Unit
+    onUpdateClick: (Artist) -> Unit,
+    onUploadClick: (Artist) -> Unit
 ) {
     val shouldAnimated by rememberSaveable { mutableStateOf(true) }
     Column(
@@ -132,6 +133,9 @@ fun ListArtistScreen(
                             },
                             onUpdateClick = {
                                 onUpdateClick(artist)
+                            },
+                            onUploadClick = {
+                                onUploadClick(artist)
                             }
                         )
                     }
@@ -145,7 +149,8 @@ fun ListArtist(
     artist: Artist,
     onArtistClick: () -> Unit,
     onDeleteClick: (String) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    onUploadClick: () -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
     val density = LocalDensity.current // dùng để chuyển đổi giữa dp/sp -> px vì animation nó chuyển đổi theo px
@@ -277,7 +282,7 @@ fun ListArtist(
                         )
                     }
                     IconButton(
-                        onClick = {}
+                        onClick = {onUploadClick()}
                     ) {
                         Icon(
                             imageVector = Icons.Default.CloudUpload,

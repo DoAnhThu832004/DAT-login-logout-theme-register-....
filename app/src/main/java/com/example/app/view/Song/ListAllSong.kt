@@ -132,6 +132,7 @@ fun ListAllSong(
                         DetailListSong(
                             song = i,
                             songViewModel = songViewModel,
+                            playerViewModel = playerViewModel,
                             //artist = artist,
                             onSongClick = { onSongClick(i)}
                         )
@@ -145,6 +146,7 @@ fun ListAllSong(
 fun DetailListSong(
     song: Song,
     songViewModel: SongViewModel,
+    playerViewModel: PlayerViewModel,
     onSongClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -211,7 +213,7 @@ fun DetailListSong(
             }
             IconButton(
                 onClick = {
-                    songViewModel.toggleFavorite(song)
+                    songViewModel.toggleFavorite(song, playerViewModel = playerViewModel)
                 }
             ) {
                 Icon(

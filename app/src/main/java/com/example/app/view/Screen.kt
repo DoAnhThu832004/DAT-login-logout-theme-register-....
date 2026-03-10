@@ -52,4 +52,13 @@ sealed class Screen(val route : String) {
     object UpdatePlaylistScreen : Screen("updatePlaylistScreen?playlistId={playlistId}") {
         fun createRoute(playlistId: String) = "updatePlaylistScreen?playlistId=$playlistId"
     }
+    object UploadFileAlbum : Screen("uploadFileAlbum?albumId={albumId}") {
+        fun createRoute(albumId: String) = "uploadFileAlbum?albumId=$albumId"
+    }
+    object UploadFileArtist : Screen("uploadFileArtist?artistId={artistId}") {
+        fun createRoute(artistId : String) = "uploadFileArtist?artistId=$artistId"
+    }
+    object UploadFilePlaylist : Screen("uploadFilePlaylist?playlistId={playlistId}") {
+        fun createRoute(playlistId : String) = "uploadFilePlaylist?playlistId=$playlistId"
+    }
 }

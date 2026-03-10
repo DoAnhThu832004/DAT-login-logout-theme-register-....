@@ -42,6 +42,8 @@ import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.AlbumViewModelFactory
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.ArtistViewModelFactory
+import com.example.app.viewmodel.CommentViewModel
+import com.example.app.viewmodel.CommentViewModelFactory
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.EditProfileViewModelFactory
 import com.example.app.viewmodel.LoginViewModel
@@ -93,6 +95,9 @@ fun RecipeApp(
     val playlistViewModel : PlaylistViewModel = viewModel(
         factory = PlaylistViewModelFactory(apiService)
     )
+    val commentViewModel : CommentViewModel = viewModel(
+        factory = CommentViewModelFactory(apiService)
+    )
     val artistState by artistViewModel.artistState
     val artists = artistState.artists ?: emptyList()
     val albumState by albumViewModel.albumState
@@ -102,6 +107,8 @@ fun RecipeApp(
     val playerViewModel : PlayerViewModel = viewModel()
     val userState by editProfileViewModel.editUiState
     val users = userState.userResponse
+    val commentState by commentViewModel.commentState
+    val comments = commentState.comments ?: emptyList()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -159,6 +166,7 @@ fun RecipeApp(
                         playlistViewModel = playlistViewModel,
                         searchViewModel = searchViewModel,
                         editProfileViewModel = editProfileViewModel,
+                        playerViewModel = playerViewModel,
                         name = name,
                         user = it,
                         onViewAllSongs = {
@@ -222,6 +230,7 @@ fun RecipeApp(
                 PlayerScreen(
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
+                    commentViewModel = commentViewModel,
                     onBack = {navController.popBackStack()}
                 )
             }

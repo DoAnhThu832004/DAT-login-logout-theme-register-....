@@ -63,7 +63,8 @@ fun AlbumItemA(
     album: Album,
     onClick: () -> Unit = {},
     onDeleteClick: (String) -> Unit,
-    onUpdateClick: () -> Unit
+    onUpdateClick: () -> Unit,
+    onUploadClick: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
     val density = LocalDensity.current
@@ -87,7 +88,7 @@ fun AlbumItemA(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             IconButton(
-                onClick = {},
+                onClick = {onUploadClick()},
                 modifier = Modifier
                     .scale(0.8f + (0.2f * progress)) // Hiệu ứng phóng to nhẹ
                     .clip(RoundedCornerShape(12.dp))

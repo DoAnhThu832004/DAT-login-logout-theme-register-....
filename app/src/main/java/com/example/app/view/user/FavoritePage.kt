@@ -72,6 +72,7 @@ import kotlinx.coroutines.launch
 fun FavoritePage(
     songs: List<Song>,
     songViewModel: SongViewModel,
+    playerViewModel: PlayerViewModel,
     onSongClick: (Song) -> Unit
 ) {
     BoxWithConstraints {
@@ -126,6 +127,7 @@ fun FavoritePage(
                             DetailListSongF(
                                 song = i,
                                 songViewModel = songViewModel,
+                                playerViewModel = playerViewModel,
                                 //artist = artist,
                                 onSongClick = { onSongClick(i)}
                             )
@@ -143,6 +145,7 @@ fun FavoritePage(
 fun DetailListSongF(
     song: Song,
     songViewModel: SongViewModel,
+    playerViewModel: PlayerViewModel,
     onSongClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -210,7 +213,7 @@ fun DetailListSongF(
             }
             IconButton(
                 onClick = {
-                    songViewModel.toggleFavorite(song)
+                    songViewModel.toggleFavorite(song, playerViewModel)
                 }
             ) {
                 Icon(

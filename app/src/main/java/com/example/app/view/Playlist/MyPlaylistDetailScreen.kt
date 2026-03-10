@@ -124,9 +124,9 @@ fun MyPlaylistDetailScreen(
                             .clickable { imagePickerLauncher.launch("image/*") }
                     )
                 }
-                if (playlistState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(40.dp), color = Color.White)
-                }
+//                if (playlistState.isLoading) {
+//                    CircularProgressIndicator(modifier = Modifier.size(40.dp), color = Color.White)
+//                }
             }
             Box {
                 IconButton(

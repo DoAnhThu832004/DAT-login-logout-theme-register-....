@@ -40,6 +40,7 @@ import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
@@ -55,6 +56,7 @@ fun UserHomePage(
     playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
+    playerViewModel: PlayerViewModel,
     name: String,
     user: UserResponse,
     onViewAllSongs: () -> Unit,
@@ -92,6 +94,7 @@ fun UserHomePage(
             playlistViewModel= playlistViewModel,
             searchViewModel = searchViewModel,
             editProfileViewModel = editProfileViewModel,
+            playerViewModel = playerViewModel,
             user = user,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
@@ -114,6 +117,7 @@ fun ContentScreen(
     playlistViewModel: PlaylistViewModel,
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
+    playerViewModel: PlayerViewModel,
     user: UserResponse,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -126,6 +130,7 @@ fun ContentScreen(
         1 -> FavoritePage(
             songs = songViewModel.songState.value.songs ?: emptyList(),
             songViewModel = songViewModel,
+            playerViewModel = playerViewModel,
             onSongClick = {
                 onPlayerScreen(it)
             }

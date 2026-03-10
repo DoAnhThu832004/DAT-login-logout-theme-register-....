@@ -44,7 +44,8 @@ fun ListAlbumScreen(
     searchViewModel: SearchViewModel,
     albumViewModel: AlbumViewModel,
     onUpdateClick: (Album) -> Unit,
-    albumOnClick: (Album) -> Unit
+    albumOnClick: (Album) -> Unit,
+    onUploadClick: (Album) -> Unit
 ) {
     var shouldAnimation by rememberSaveable { mutableStateOf(true) }
     Column(
@@ -105,6 +106,9 @@ fun ListAlbumScreen(
                             },
                             onUpdateClick = {
                                 onUpdateClick(album)
+                            },
+                            onUploadClick = {
+                                onUploadClick(album)
                             }
                         )
                     }

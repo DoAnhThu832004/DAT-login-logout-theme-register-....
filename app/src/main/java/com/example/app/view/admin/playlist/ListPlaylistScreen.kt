@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
+import com.example.app.model.response.Artist
 import com.example.app.model.response.Playlist
 import com.example.app.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.delay
@@ -32,7 +33,8 @@ import kotlinx.coroutines.launch
 fun ListPlaylistScreen(
     playlists: List<Playlist>,
     playlistViewModel: PlaylistViewModel,
-    onUpdateClick : (String) -> Unit
+    onUpdateClick : (String) -> Unit,
+    onUploadClick: (Playlist) -> Unit
 ) {
     val shouldAnimated by rememberSaveable { mutableStateOf(0f) }
     BoxWithConstraints {
@@ -76,6 +78,9 @@ fun ListPlaylistScreen(
                         },
                         onUpdateClick = {
                             onUpdateClick(playlists.id)
+                        },
+                        onUploadClick = {
+                            onUploadClick(playlists)
                         }
                     )
                 }

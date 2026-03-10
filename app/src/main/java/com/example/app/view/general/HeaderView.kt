@@ -126,7 +126,7 @@ fun HeaderView(
         ) {
             if(check) {
                 Text(
-                    text = "Xin chào",
+                    text = stringResource(R.string.xin_chao),
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,

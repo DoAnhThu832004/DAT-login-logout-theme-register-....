@@ -5,6 +5,8 @@ import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.request.AuthenticationRequest
+import com.example.app.model.request.CommentCreationRequest
+import com.example.app.model.request.CommentUpdateRequest
 import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
@@ -18,6 +20,7 @@ import com.example.app.model.response.ApiError
 import com.example.app.model.response.ApiResponse
 import com.example.app.model.response.Artist
 import com.example.app.model.response.AuthenticationResponse
+import com.example.app.model.response.Comment
 import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
@@ -170,4 +173,32 @@ interface ApiService {
         @Path("playlistId") playlistId: String,
         @Part image: MultipartBody.Part
     ): Response<ApiResponse<Playlist>>
+    @Multipart
+    @POST("albums/{albumId}/upload")
+    suspend fun uploadAlbumImage(
+        @Path("albumId") albumId: String,
+        @Part image: MultipartBody.Part
+    ): Response<ApiResponse<Album>>
+    @Multipart
+    @POST("artists/{artistId}/upload")
+    suspend fun uploadArtistImage(
+        @Path("artistId") artistId: String,
+        @Part image: MultipartBody.Part
+    ): Response<ApiResponse<Artist>>
+    @GET("comments/song/{songId}")
+    suspend fun getComments(@Path("songId") songId: String): Response<ApiResponse<List<Comment>>>
+    @POST("comments/song/{songId}/comments")
+    suspend fun createComment(
+        @Path("songId") songId: String,
+        @Body request: CommentCreationRequest
+    ): Response<ApiResponse<Comment>>
+    @DELETE("comments/{songId}")
+    suspend fun deleteComment(
+        @Path("songId") songId: String
+    ): Response<ApiResponse<String>>
+    @PUT("comments/{commentId}")
+    suspend fun updateComment(
+        @Path("commentId") commentId: String,
+        @Body request: CommentUpdateRequest
+    ): Response<ApiResponse<Comment>>
 }

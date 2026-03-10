@@ -8,7 +8,12 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PlaylistPlay
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,14 +37,25 @@ fun PlaylistItem(
             .background(MaterialTheme.colorScheme.background, shape = RoundedCornerShape(12.dp))
             .clickable { }
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(playlist.imageUrlP),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(8.dp))
-        )
+        if(playlist.imageUrlP.isNullOrEmpty()) {
+            Icon(
+                imageVector = Icons.Default.PlaylistPlay,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(playlist.imageUrlP),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        }
         Text(
             text = playlist.title,
             fontSize = 16.sp,

@@ -183,7 +183,7 @@ fun EditProfilePage(
         OutlinedTextField(
             value = passwordOld,
             onValueChange = { passwordOld = it },
-            label = { Text(text = "Nhập mật khẩu cũ", color = MaterialTheme.colorScheme.onBackground) },
+            label = { Text(text = stringResource(R.string.mat_khau_cu), color = MaterialTheme.colorScheme.onBackground) },
             leadingIcon = {
                 Icon(
                     Icons.Default.DateRange, contentDescription = null,
@@ -197,7 +197,7 @@ fun EditProfilePage(
         OutlinedTextField(
             value = passwordNew,
             onValueChange = { passwordNew = it },
-            label = { Text(text = "Nhập mật khẩu mới", color = MaterialTheme.colorScheme.onBackground) },
+            label = { Text(text = stringResource(R.string.mat_khau_moi), color = MaterialTheme.colorScheme.onBackground) },
             leadingIcon = {
                 Icon(
                     Icons.Default.DateRange, contentDescription = null,

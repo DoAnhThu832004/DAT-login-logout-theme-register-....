@@ -66,11 +66,14 @@ import com.example.app.view.Screen
 import com.example.app.view.admin.album.AlbumDetailScreenA
 import com.example.app.view.admin.album.AlbumScreen
 import com.example.app.view.admin.album.UpdateAlbumScreen
+import com.example.app.view.admin.album.UploadFileAlbum
 import com.example.app.view.admin.artist.ArtistScreenA
 import com.example.app.view.admin.artist.DetailArtistScreen
 import com.example.app.view.admin.artist.UpdateArtistScreen
+import com.example.app.view.admin.artist.UploadFileArtist
 import com.example.app.view.admin.playlist.PlaylistScreenA
 import com.example.app.view.admin.playlist.UpdatePlaylistScreen
+import com.example.app.view.admin.playlist.UploadFilePlaylist
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.general.ConfirmDialog
@@ -173,6 +176,9 @@ fun NavigationDraw(
                         },
                         albumOnClick = { album ->
                             adminNavController.navigate(Screen.AlbumScreenDetailA.createRoute(album.id))
+                        },
+                        onUploadClick = {
+                            adminNavController.navigate(Screen.UploadFileAlbum.createRoute(it.id))
                         }
                     )
                 }
@@ -185,6 +191,9 @@ fun NavigationDraw(
                         },
                         onArtistClick = { artist ->
                             adminNavController.navigate(Screen.DetailArtistScreen.createRoute(artist.id))
+                        },
+                        onUploadClick = {
+                            adminNavController.navigate(Screen.UploadFileArtist.createRoute(it.id))
                         }
                     )
                 }
@@ -257,12 +266,45 @@ fun NavigationDraw(
                         playlistViewModel = playlistViewModel,
                         onUpdateScreen = { playlistId ->
                             adminNavController.navigate(Screen.UpdatePlaylistScreen.createRoute(playlistId))
+                        },
+                        onUploadClick = {
+                            adminNavController.navigate(Screen.UploadFilePlaylist.createRoute(it.id))
                         }
                     )
                 }
                 composable(route = Screen.UpdatePlaylistScreen.route) {
                     val playlistId = it.arguments?.getString("playlistId") ?: ""
                     UpdatePlaylistScreen(
+                        playlistId = playlistId,
+                        playlistViewModel = playlistViewModel,
+                        onBack = {
+                            adminNavController.popBackStack()
+                        }
+                    )
+                }
+                composable(route = Screen.UploadFileAlbum.route) {
+                    val albumId = it.arguments?.getString("albumId") ?: ""
+                    UploadFileAlbum(
+                        albumId = albumId,
+                        albumViewModel = albumViewModel,
+                        onBack = {
+                            adminNavController.popBackStack()
+                        }
+                    )
+                }
+                composable(route = Screen.UploadFileArtist.route) {
+                    val artistId = it.arguments?.getString("artistId") ?: ""
+                    UploadFileArtist(
+                        artistId = artistId,
+                        artistViewModel = artistViewModel,
+                        onBack = {
+                            adminNavController.popBackStack()
+                        }
+                    )
+                }
+                composable(route = Screen.UploadFilePlaylist.route) {
+                    val playlistId = it.arguments?.getString("playlistId") ?: ""
+                    UploadFilePlaylist(
                         playlistId = playlistId,
                         playlistViewModel = playlistViewModel,
                         onBack = {

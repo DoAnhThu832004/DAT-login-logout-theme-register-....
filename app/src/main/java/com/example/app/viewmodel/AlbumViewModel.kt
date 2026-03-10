@@ -1,11 +1,14 @@
 package com.example.app.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
 import com.example.app.model.ApiService
+import com.example.app.model.FileUtils
 import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.SongCreationRequest
@@ -13,6 +16,9 @@ import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.response.Album
 import com.example.app.model.response.Song
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.internal.toImmutableList
 
 class AlbumViewModel(
@@ -241,6 +247,37 @@ class AlbumViewModel(
                 }
             } catch (e: Exception) {
                 // Handle exception
+            }
+        }
+    }
+    fun uploadFiles(albumId: String, imageUri: Uri,context: Context) {
+        viewModelScope.launch {
+            _albumUiState.value = _albumUiState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val imageFile = FileUtils.getFileFromUri(context,imageUri)
+                if(imageFile != null) {
+                    val requestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+                    val part = MultipartBody.Part.createFormData("image",imageFile.name,requestBody)
+                    val response = apiService.uploadAlbumImage(albumId,part)
+                    if(response.isSuccessful) {
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            error = null
+                        )
+                    } else {
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            error = "Upload thất bại: ${response.code()}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _albumUiState.value = _albumUiState.value.copy(
+                    isLoading = false
+                )
             }
         }
     }
