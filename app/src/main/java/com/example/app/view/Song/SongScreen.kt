@@ -20,23 +20,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.app.model.response.Song
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import com.example.app.R
 import com.example.app.model.response.Album
 import com.example.app.model.response.Playlist
 import com.example.app.view.Album.AlbumItem
 import com.example.app.view.Playlist.PlaylistItem
+import com.example.app.view.Song.topSong.DetailTopSong
 import com.example.test_ms.view.SongItem
 
 @Composable
 fun SongScreen(
     songs : List<Song>,
+    topSong: List<Song>,
     albums : List<Album>,
     playlists : List<Playlist>,
     onViewAllClick: () -> Unit,
     onSongClick: (Song) -> Unit,
-    onAlbumClick: (Album) -> Unit
+    onAlbumClick: (Album) -> Unit,
+    onClickToTopChart: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -133,6 +146,63 @@ fun SongScreen(
                         PlaylistItem(playlist = it)
                     }
                 }
+            }
+        }
+        item {
+            val zingColors = listOf(
+                Color(0xFF4361EE),
+                Color(0xFF7209B7),
+                Color(0xFFF72585)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(25.dp)
+                    )
+            ) {
+                Column(
+                    modifier = Modifier.padding(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    androidx.compose.material.Text(
+                        text = "#zingchart",
+                        style = TextStyle(
+                            brush = Brush.linearGradient(
+                                colors = zingColors
+                            ),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic
+                        ),
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    topSong.forEachIndexed { index,it ->
+                        DetailTopSong(song = it,index = index,onSongClick = {onSongClick(it)})
+                    }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+                    Text(
+                        text = "Xem tất cả",
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .clickable { onClickToTopChart() }
+                    )
+                }
+            }
+        }
+        item {
+            Column {
+                Text(
+                    text = "thu"
+                )
+                Text(
+                    text = "thu"
+                )
+                Text(
+                    text = "thu"
+                )
             }
         }
     }

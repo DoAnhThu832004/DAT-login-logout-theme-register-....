@@ -37,6 +37,7 @@ import com.example.app.view.admin.NavigationDraw
 import com.example.app.view.user.EditProfilePage
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.view.user.SettingPage
+import com.example.app.view.user.TopChartPage
 import com.example.app.view.user.UserHomePage
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.AlbumViewModelFactory
@@ -184,6 +185,9 @@ fun RecipeApp(
                         },
                         onPlaylistClick = { id ->
                             navController.navigate(Screen.MyPlaylistDetailScreen.createRoute(id))
+                        },
+                        onClickToTopChart = {
+                            navController.navigate(Screen.TopChartPage.route)
                         }
                     )
                 }
@@ -284,6 +288,15 @@ fun RecipeApp(
                         }
                     )
                 }
+            }
+            composable(route = Screen.TopChartPage.route) {
+                TopChartPage(
+                    topSongs = songViewModel.songState.value.topSongs ?: emptyList(),
+                    onSongClick = {
+                        playerViewModel.play(it, songs)
+                        navController.navigate(Screen.PlayerScreen.createRoute())
+                    }
+                )
             }
         }
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()

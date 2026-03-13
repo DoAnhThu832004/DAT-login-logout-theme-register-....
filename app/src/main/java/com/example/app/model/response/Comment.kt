@@ -7,5 +7,7 @@ data class Comment(
     val createAt : String,
     val username : String,
     val songTitle : String,
-    val owner: Boolean
+    val owner: Boolean,
+    val replies: List<Comment>?,
+    val parentId: String?
 )

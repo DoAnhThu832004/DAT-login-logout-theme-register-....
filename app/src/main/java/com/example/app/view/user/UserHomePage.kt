@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.StackedLineChart
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -63,11 +64,13 @@ fun UserHomePage(
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
-    onPlaylistClick: (String) -> Unit
+    onPlaylistClick: (String) -> Unit,
+    onClickToTopChart: () -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
         NavItems(stringResource(R.string.yeu_thich),Icons.Default.Favorite),
+        NavItems(stringResource(R.string.xin_chao), Icons.Filled.StackedLineChart),
         NavItems(stringResource(R.string.ho_so),Icons.Default.Person)
     )
     var selectIndex by rememberSaveable { mutableStateOf(0) }
@@ -100,7 +103,8 @@ fun UserHomePage(
             onPlayerScreen = onPlayerScreen,
             onAlbumScreen = onAlbumScreen,
             onArtistScreen = onArtistScreen,
-            onPlaylistClick = onPlaylistClick
+            onPlaylistClick = onPlaylistClick,
+            onClickToTopChart = { selectIndex = 2 }
         )
     }
 }
@@ -123,10 +127,11 @@ fun ContentScreen(
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
-    onPlaylistClick: (String) -> Unit
+    onPlaylistClick: (String) -> Unit,
+    onClickToTopChart: () -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen)
+        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart)
         1 -> FavoritePage(
             songs = songViewModel.songState.value.songs ?: emptyList(),
             songViewModel = songViewModel,
@@ -135,6 +140,7 @@ fun ContentScreen(
                 onPlayerScreen(it)
             }
         )
-        2 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, editProfileViewModel = editProfileViewModel,name = name, user = user ,onPlaylistClick = onPlaylistClick)
+        2 -> TopChartPage(topSongs = songViewModel.songState.value.topSongs?: emptyList(), onSongClick = {onPlayerScreen(it)})
+        3 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, editProfileViewModel = editProfileViewModel,name = name, user = user ,onPlaylistClick = onPlaylistClick)
     }
 }

@@ -1,7 +1,9 @@
 package com.example.app.viewmodel
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiService
@@ -19,6 +21,14 @@ class CommentViewModel(
     private val _commentUiState = mutableStateOf(CommentState())
     val commentState: State<CommentState> = _commentUiState
 
+    // Biến trạng thái lưu trữ đối tượng bình luận đang được chọn để phản hồi
+    var replyingToComment by mutableStateOf<Comment?>(null)
+        private set
+
+    // Phương thức thiết lập hoặc hủy bỏ trạng thái phản hồi
+    fun setReplyingTo(comment: Comment?) {
+        replyingToComment = comment
+    }
     fun getComment(songId: String) {
         viewModelScope.launch {
             _commentUiState.value = _commentUiState.value.copy(isLoading = true, error = null)
@@ -49,22 +59,33 @@ class CommentViewModel(
                 error = null
             )
             try {
-                val request = CommentCreationRequest(text = text)
-                val response = apiService.createComment(songId,request)
+                // Khởi tạo đối tượng yêu cầu với tham số parentId được trích xuất từ trạng thái hiện tại
+                val request = CommentCreationRequest(
+                    text = text,
+                    parentId = replyingToComment?.id
+                )
+
+                val response = apiService.createComment(songId, request)
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
-                        val currentComments = _commentUiState.value.comments?.toMutableList() ?: mutableListOf()
-                        currentComments.add(body.result)
-                        _commentUiState.value = _commentUiState.value.copy(
-                            isLoading = false,
-                            comments = currentComments,
-                            error = null
-                        )
+                        // Gọi lại phương thức lấy dữ liệu để đồng bộ hóa cấu trúc cây phân cấp từ máy chủ
+                        getComment(songId)
+
+                        // Đặt lại trạng thái phản hồi về mặc định sau khi thao tác thành công
+                        setReplyingTo(null)
+                    } else {
+                        _commentUiState.value = _commentUiState.value.copy(isLoading = false)
                     }
+                } else {
+                    _commentUiState.value = _commentUiState.value.copy(isLoading = false)
                 }
-            } catch (e : Exception) {
-                _commentUiState.value = _commentUiState.value.copy(isLoading = false)
+            } catch (e: Exception) {
+                _commentUiState.value = _commentUiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
             }
         }
     }

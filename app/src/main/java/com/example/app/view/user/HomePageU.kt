@@ -39,13 +39,15 @@ fun HomePageU(
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
-    onArtistScreen: (Artist) -> Unit
+    onArtistScreen: (Artist) -> Unit,
+    onClickToTopChart: () -> Unit
 ) {
     val songState by songViewModel.songState
     val albumState by albumViewModel.albumState
     val playlistState by playlistViewModel.playlistState
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
+        songViewModel.getTopSongs()
         albumViewModel.getAlbums()
         artistViewModel.getArtists()
         playlistViewModel.getPlaylists()
@@ -72,6 +74,7 @@ fun HomePageU(
                 else -> {
                     SongScreen(
                         songs = songState.songs ?: emptyList(),
+                        topSong = songState.topSongs?.take(5) ?: emptyList(),
                         albums = albumState.albums ?: emptyList(),
                         playlists = playlistState.playlists ?: emptyList(),
                         onViewAllClick = onViewAllSongs,
@@ -80,7 +83,8 @@ fun HomePageU(
                         },
                         onAlbumClick = { album ->
                             onAlbumScreen(album)
-                        }
+                        },
+                        onClickToTopChart = onClickToTopChart
                     )
                 }
             }

@@ -23,6 +23,37 @@ class SongViewModel(
     private val _songUiState = mutableStateOf(SongState())
     val songState: State<SongState> = _songUiState
 
+    fun getTopSongs() {
+        viewModelScope.launch {
+            _songUiState.value = _songUiState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val response = apiService.getTopSongs()
+                if(response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            topSongs = body.result,
+                            error = null
+                        )
+                    } else {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            error = "Failed to load songs"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _songUiState.value = _songUiState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
     fun getSongs() {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(isLoading = true, error = null)
@@ -290,6 +321,7 @@ class SongViewModel(
     }
     data class SongState(
         val songs: List<Song>? = null,
+        val topSongs : List<Song>? = null,
         val isLoading: Boolean = false,
         val isCreating: Boolean = false,
         val isSuccessful: Boolean = false,

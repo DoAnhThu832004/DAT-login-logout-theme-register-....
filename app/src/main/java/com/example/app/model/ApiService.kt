@@ -62,6 +62,8 @@ interface ApiService {
     ): Response<UserResponse>
     @GET("songs")
     suspend fun getSongs(): Response<ApiResponse<List<Song>>>
+    @GET("songs/top-charts")
+    suspend fun getTopSongs(): Response<ApiResponse<List<Song>>>
     @POST("songs")
     suspend fun createSong(@Body request: SongCreationRequest): Response<ApiResponse<Song>>
     @GET("songs/searchKey")

@@ -61,4 +61,5 @@ sealed class Screen(val route : String) {
     object UploadFilePlaylist : Screen("uploadFilePlaylist?playlistId={playlistId}") {
         fun createRoute(playlistId : String) = "uploadFilePlaylist?playlistId=$playlistId"
     }
+    object TopChartPage: Screen("topChartPage")
 }
