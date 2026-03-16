@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Repeat
@@ -32,6 +33,8 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.VolumeDown
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -79,6 +82,7 @@ fun PlayerScreen(
     var isSeeking by remember { mutableStateOf(false) }
     val maxVolume = playerViewModel.maxVolume.value
     var currentVolume by remember { mutableStateOf(playerViewModel.currentVolume.value) }
+    var expanded by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     val scope = rememberCoroutineScope()
@@ -121,6 +125,38 @@ fun PlayerScreen(
         ) {
             IconButton(onClick = onBack) {
                 Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Box {
+                IconButton(
+                    onClick = {expanded = true}
+                ) {
+                    Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = null
+                    )
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = {expanded = false}
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Tải xuống")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text("Báo lỗi")
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
 

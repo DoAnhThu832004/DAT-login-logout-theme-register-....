@@ -22,6 +22,7 @@ import com.example.app.model.response.Artist
 import com.example.app.model.response.AuthenticationResponse
 import com.example.app.model.response.Comment
 import com.example.app.model.response.Playlist
+import com.example.app.model.response.Report
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.viewmodel.SessionManager
@@ -203,4 +204,6 @@ interface ApiService {
         @Path("commentId") commentId: String,
         @Body request: CommentUpdateRequest
     ): Response<ApiResponse<Comment>>
+    @GET("reports/my-reports")
+    suspend fun getReport(): Response<ApiResponse<List<Report>>>
 }

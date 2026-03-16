@@ -2,6 +2,7 @@ package com.example.app.view
 
 sealed class Screen(val route : String) {
     object LoginScreen : Screen("login_screen")
+    object SplashScreen : Screen("splash_screen")
     object HomeScreen : Screen("home_screen")
     object UserHomePage : Screen("user_home_page/{name}") {
         fun createRoute(name: String) = "user_home_page/$name"
@@ -62,4 +63,5 @@ sealed class Screen(val route : String) {
         fun createRoute(playlistId : String) = "uploadFilePlaylist?playlistId=$playlistId"
     }
     object TopChartPage: Screen("topChartPage")
+    object AllReportScreen: Screen("allReportScreen")
 }

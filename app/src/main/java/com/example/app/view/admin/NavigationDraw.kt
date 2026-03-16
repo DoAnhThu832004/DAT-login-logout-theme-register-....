@@ -102,7 +102,8 @@ fun NavigationDraw(
     navController: NavHostController,
     darkTheme: Boolean,
     onThemeUpdated: () -> Unit,
-    name : String
+    name : String,
+    onToReport: () -> Unit
 ) {
     val drawerState = rememberDrawerState(
         initialValue = DrawerValue.Closed
@@ -139,7 +140,8 @@ fun NavigationDraw(
                                 if(isClosed) open() else close()
                             }
                         }
-                    }
+                    },
+                    onToReport = onToReport
                 )
             }
         ) { innerPadding ->
@@ -441,7 +443,8 @@ fun DrawerContent(
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
-    onOpenDrawer: () -> Unit
+    onOpenDrawer: () -> Unit,
+    onToReport: () -> Unit
 ) {
     TopAppBar(
         navigationIcon = {
@@ -469,7 +472,8 @@ fun TopBar(
                 contentDescription = null,
                 modifier = Modifier
                     .padding()
-                    .size(30.dp),
+                    .size(30.dp)
+                    .clickable { onToReport() },
                 tint = MaterialTheme.colorScheme.onPrimary
             )
             Icon(
@@ -477,7 +481,8 @@ fun TopBar(
                 contentDescription = null,
                 modifier = Modifier
                     .padding(start = 8.dp, end = 16.dp)
-                    .size(30.dp),
+                    .size(30.dp)
+                    .clickable {  },
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         },

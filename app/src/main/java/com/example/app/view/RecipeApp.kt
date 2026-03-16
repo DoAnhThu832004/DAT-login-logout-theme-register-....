@@ -34,6 +34,7 @@ import com.example.app.view.Player.PlayerScreen
 import com.example.app.view.Playlist.MyPlaylistDetailScreen
 import com.example.app.view.Song.ListAllSong
 import com.example.app.view.admin.NavigationDraw
+import com.example.app.view.admin.report.AllReportScreen
 import com.example.app.view.user.EditProfilePage
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.view.user.SettingPage
@@ -54,6 +55,8 @@ import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.PlaylistViewModelFactory
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
+import com.example.app.viewmodel.ReportViewModel
+import com.example.app.viewmodel.ReportViewModelFactory
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SearchViewModelFactory
 import com.example.app.viewmodel.SessionManager
@@ -99,6 +102,9 @@ fun RecipeApp(
     val commentViewModel : CommentViewModel = viewModel(
         factory = CommentViewModelFactory(apiService)
     )
+    val reportViewModel : ReportViewModel = viewModel(
+        factory = ReportViewModelFactory(apiService)
+    )
     val artistState by artistViewModel.artistState
     val artists = artistState.artists ?: emptyList()
     val albumState by albumViewModel.albumState
@@ -110,6 +116,8 @@ fun RecipeApp(
     val users = userState.userResponse
     val commentState by commentViewModel.commentState
     val comments = commentState.comments ?: emptyList()
+    val reportState by reportViewModel.reportState
+    val reports = reportState.reports ?: emptyList()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -118,7 +126,7 @@ fun RecipeApp(
     ) {
         NavHost(
             navController = navController,
-            startDestination = Screen.LoginScreen.route,
+            startDestination = Screen.SplashScreen.route,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
@@ -136,6 +144,9 @@ fun RecipeApp(
                     }
                 )
             }
+            composable(route = Screen.SplashScreen.route) {
+                com.example.app.view.general.SplashScreen(navController)
+            }
 //        composable(route = Screen.HomeScreen.route) {
 //            HomePage()
 //        }
@@ -152,7 +163,10 @@ fun RecipeApp(
                     playlistViewModel = playlistViewModel,
                     darkTheme = darkTheme,
                     onThemeUpdated = onThemeUpdated,
-                    name = name
+                    name = name,
+                    onToReport = {
+                        navController.navigate(Screen.AllReportScreen.route)
+                    }
                 )
             }
             composable(route = Screen.UserHomePage.route) { backStackEntry ->
@@ -295,6 +309,16 @@ fun RecipeApp(
                     onSongClick = {
                         playerViewModel.play(it, songs)
                         navController.navigate(Screen.PlayerScreen.createRoute())
+                    }
+                )
+            }
+            composable(route = Screen.AllReportScreen.route) {
+                AllReportScreen(
+                    reports = reportViewModel.reportState.value.reports ?: emptyList(),
+                    songViewModel = songViewModel,
+                    reportViewModel = reportViewModel,
+                    onBack = {
+                        navController.popBackStack()
                     }
                 )
             }
