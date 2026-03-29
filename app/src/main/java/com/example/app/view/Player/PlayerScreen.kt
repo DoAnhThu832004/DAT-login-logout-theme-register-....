@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,7 +62,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
+import com.example.app.view.general.SelectReportBottomSheet
 import com.example.app.viewmodel.CommentViewModel
+import com.example.app.viewmodel.ReportViewModel
 import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
 
@@ -70,6 +73,7 @@ import kotlinx.coroutines.delay
 fun PlayerScreen(
     playerViewModel: PlayerViewModel,
     songViewModel: SongViewModel,
+    reportViewModel: ReportViewModel,
     commentViewModel: CommentViewModel,
     onBack: () -> Unit
 ) {
@@ -87,6 +91,9 @@ fun PlayerScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    var showPlaylistSheet by remember { mutableStateOf(false) }
+    val sheetStatePlaylist = rememberModalBottomSheetState()
 
     // Logic cập nhật position và volume giữ nguyên...
     LaunchedEffect(isPlaying) {
@@ -110,21 +117,26 @@ fun PlayerScreen(
         return
     }
 
-    // Sử dụng Column với khả năng cuộn dự phòng cho các máy màn hình nhỏ
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 1. Header Row
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding(),
             horizontalArrangement = Arrangement.Start
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             Box {
@@ -133,7 +145,8 @@ fun PlayerScreen(
                 ) {
                     Icon(
                         Icons.Default.MoreVert,
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
                 DropdownMenu(
@@ -154,6 +167,7 @@ fun PlayerScreen(
                         },
                         onClick = {
                             expanded = false
+                            showPlaylistSheet = true
                         }
                     )
                 }
@@ -178,7 +192,7 @@ fun PlayerScreen(
         Spacer(modifier = Modifier.weight(0.3f))
         Text(
             text = song.name,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1
@@ -201,7 +215,7 @@ fun PlayerScreen(
                 },
                 valueRange = 0f..duration.toFloat().coerceAtLeast(1f),
                 colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
+                    thumbColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     activeTrackColor = Color(0xFF1DB954),
                     inactiveTrackColor = Color(0xFF535353)
                 )
@@ -225,29 +239,29 @@ fun PlayerScreen(
             IconButton(onClick = { playerViewModel.toggleShuffle() }) {
                 Icon(
                     Icons.Default.Shuffle, null,
-                    tint = if(isShuffleMode) Color(0xFF1DB954) else Color.White,
+                    tint = if(isShuffleMode) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp)
                 )
             }
             IconButton(onClick = { playerViewModel.previous() }) {
-                Icon(Icons.Default.SkipPrevious, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.SkipPrevious, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(32.dp))
             }
             IconButton(
                 onClick = { playerViewModel.togglePlayPause() },
-                modifier = Modifier.size(72.dp).background(Color.White, CircleShape)
+                modifier = Modifier.size(72.dp).background(MaterialTheme.colorScheme.onPrimaryContainer, CircleShape)
             ) {
                 Icon(
                     if(isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    null, tint = Color.Black, modifier = Modifier.size(40.dp)
+                    null, tint = Color.White, modifier = Modifier.size(40.dp)
                 )
             }
             IconButton(onClick = { playerViewModel.next() }) {
-                Icon(Icons.Default.SkipNext, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.SkipNext, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(32.dp))
             }
             IconButton(onClick = { playerViewModel.toggleRepeat() }) {
                 Icon(
                     if (repeatMode == 2) Icons.Default.RepeatOn else Icons.Default.Repeat, "Repeat",
-                    tint = if (repeatMode > 0) Color(0xFF1DB954) else Color.White,
+                    tint = if (repeatMode > 0) Color.White else MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -259,7 +273,7 @@ fun PlayerScreen(
             modifier = Modifier.fillMaxWidth().padding(bottom = 120.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.VolumeDown, null, tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(Icons.Default.VolumeDown, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(20.dp))
             Slider(
                 value = currentVolume.toFloat(),
                 onValueChange = { currentVolume = it.toInt(); playerViewModel.setVolume(it.toInt()) },
@@ -270,7 +284,7 @@ fun PlayerScreen(
                     activeTrackColor = Color(0xFF1DB954)
                 )
             )
-            Icon(Icons.Default.VolumeUp, null, tint = Color.White, modifier = Modifier.size(20.dp))
+            Icon(Icons.Default.VolumeUp, null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(20.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Column(
@@ -278,14 +292,18 @@ fun PlayerScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(Color.White.copy(alpha = 0.05f))
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
                 .padding(vertical = 8.dp)
         ) {
             Box(
                 modifier = Modifier
                     .width(40.dp)
                     .height(4.dp)
-                    .background(Color.Gray, CircleShape)
+                    .background(
+                        MaterialTheme.colorScheme.onPrimaryContainer, CircleShape
+                    )
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -305,14 +323,27 @@ fun PlayerScreen(
                     )
                 }
                 IconButton(onClick = { showBottomSheet = true }) {
-                    Icon(Icons.Default.ChatBubble, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                    Icon(Icons.Default.ChatBubble, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                 }
                 IconButton(onClick = { }) {
-                    Icon(Icons.Default.Share, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                    Icon(Icons.Default.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                 }
             }
         }
 
+    }
+    if(showPlaylistSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showPlaylistSheet = false },
+            sheetState = sheetStatePlaylist
+        ) {
+            SelectReportBottomSheet(
+                reportViewModel = reportViewModel,
+                albumId = song.id,
+                title = "Test",
+                check = false
+            )
+        }
     }
     if (showBottomSheet) {
         ModalBottomSheet(

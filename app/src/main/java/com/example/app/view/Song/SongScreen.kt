@@ -63,16 +63,25 @@ fun SongScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(R.string.goi_y_bai_hat),
-                    modifier = Modifier.weight(1f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp,vertical = 4.dp)
+                        .weight(1f)
                 )
                 Text(
                     text = stringResource(R.string.tat_ca) + " >",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
+                        .padding(end = 8.dp)
                         .clickable {
                             onViewAllClick()
                         }
@@ -105,11 +114,22 @@ fun SongScreen(
             }
         }
         item {
-            Text(
-                text = "Album Hot",
+            Row(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Text(
+                    text = "Album Hot",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,11 +147,22 @@ fun SongScreen(
             }
         }
         item {
-            Text(
-                text = "Playlist",
+            Row(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp, vertical = 8.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Text(
+                    text = "Playlist",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -182,9 +213,14 @@ fun SongScreen(
                     topSong.forEachIndexed { index,it ->
                         DetailTopSong(song = it,index = index,onSongClick = {onSongClick(it)})
                     }
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    )
                     Text(
-                        text = "Xem tất cả",
+                        text = stringResource(R.string.xem_them_tat_ca),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                             .clickable { onClickToTopChart() }

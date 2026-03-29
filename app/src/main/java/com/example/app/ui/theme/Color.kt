@@ -3,23 +3,23 @@ package com.example.app.ui.theme
 import androidx.compose.ui.graphics.Color
 
 
-val primaryLight = Color(0xFF4E7743) // màu của nút chính, thanh toolbars
+val primaryLight = Color(0xFF58CC02) // màu của nút chính, thanh toolbars
     // primaryLight: nền của các thành phần chính.
 val onPrimaryLight = Color(0xFF000000)
 // onPrimaryLight: màu chữ/icon hiển thị trên nền primaryLight.
-val primaryContainerLight = Color(0xFF295020) // Phiên bản nhạt hơn của primary, thường dùng cho container (ví dụ Card, Chip).
-val onPrimaryContainerLight = Color(0xFFC1EFAF) // onPrimaryContainerLight: màu chữ trên container.
-val secondaryLight = Color(0xFF406835)
+val primaryContainerLight = Color(0xFF1FC2FF) // Phiên bản nhạt hơn của primary, thường dùng cho container (ví dụ Card, Chip).
+val onPrimaryContainerLight = Color(0xFF58CC02) // onPrimaryContainerLight: màu chữ trên container.
+val secondaryLight = Color(0xFF58CC02)
 // Các màu phụ để phối với primary, giúp tạo chiều sâu giao diện.
 //
 //Ví dụ secondary có thể dùng cho nút phụ, tertiary cho highlights.
 val onSecondaryLight = Color(0xFFFFFFFF)
 val secondaryContainerLight = Color(0xFFC1EFAF)
-val onSecondaryContainerLight = Color(0xFF295020)
-val tertiaryLight = Color(0xFF3A693B)
+val onSecondaryContainerLight = Color(0xFF58CC02)
+val tertiaryLight = Color(0xFF58CC02)
 val onTertiaryLight = Color(0xFFFFFFFF)
 val tertiaryContainerLight = Color(0xFFBBF0B5)
-val onTertiaryContainerLight = Color(0xFF225025)
+val onTertiaryContainerLight = Color(0xFF58CC02)
 val errorLight = Color(0xFF416835)
 // 👉 Màu cảnh báo lỗi (vd: nút xoá, cảnh báo form sai).
 //
@@ -37,7 +37,7 @@ val onBackgroundLight = Color(0xFF191D17)
 val surfaceLight = Color(0xFFF8FBF1)
 val onSurfaceLight = Color(0xFF191D17)
 val surfaceVariantLight = Color(0xFFDFE4D7)
-val onSurfaceVariantLight = Color(0xFF43483F)
+val onSurfaceVariantLight = Color(0xFFFFFFFF)
 val outlineLight = Color(0xFF73796E) // Màu đường viền (border, divider).
 val outlineVariantLight = Color(0xFFC3C8BC)
 val scrimLight = Color(0xFF000000) //Màu mờ overlay (vd: khi mở dialog, scrim che phía sau).
@@ -145,7 +145,7 @@ val onBackgroundDark = Color(0xFFFFFFFF)
 val surfaceDark = Color(0xFF11140F)
 val onSurfaceDark = Color(0xFFE1E4DA)
 val surfaceVariantDark = Color(0xFF43483F)
-val onSurfaceVariantDark = Color(0xFFC3C8BC)
+val onSurfaceVariantDark = Color(0xFFFFFFFF)
 val outlineDark = Color(0xFF8D9387)
 val outlineVariantDark = Color(0xFF43483F)
 val scrimDark = Color(0xFF000000)

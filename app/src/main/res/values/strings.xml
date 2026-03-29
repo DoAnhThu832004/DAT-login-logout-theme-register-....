@@ -77,4 +77,16 @@
     <string name="them_anh_playlist">Tai ảnh playlist</string>
     <string name="binh_luan">Bình luận</string>
     <string name="tra_loi">Trả lời</string>
+    <string name="danh_sach_tat_ca_bai_hat">Danh sách tất cả bài hát</string>
+    <string name="xem_them">Xem thêm</string>
+    <string name="tim_nghe_si_bai_hat">Tìm nghệ sĩ, bài hát...</string>
+    <string name="xem_them_tat_ca">Xem thêm tất cả</string>
+    <string name="tim_nghe_si">Tìm nghệ sĩ ...</string>
+    <string name="tim_bai_hat">Tìm bài hát ...</string>
+    <string name="tim_album">Tìm album ...</string>
+    <string name="tim_playlist">Tìm playlist ...</string>
+    <string name="chua_gia_quyet">Chưa giải quyết</string>
+    <string name="dang_cho">Đang chờ</string>
+    <string name="da_gia_quyet">Đã giải quyết</string>
+    <string name="phan_hoi_cua_nguoi_dung">Phản hồi của người dùng</string>
 </resources>

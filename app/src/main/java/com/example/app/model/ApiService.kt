@@ -11,6 +11,8 @@ import com.example.app.model.request.LogoutRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
 import com.example.app.model.request.RefreshRequest
+import com.example.app.model.request.ReportCreationRequest
+import com.example.app.model.request.ReportUpdateRequest
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.request.UserCreationRequest
@@ -204,6 +206,15 @@ interface ApiService {
         @Path("commentId") commentId: String,
         @Body request: CommentUpdateRequest
     ): Response<ApiResponse<Comment>>
-    @GET("reports/my-reports")
+    @GET("reports")
     suspend fun getReport(): Response<ApiResponse<List<Report>>>
+    @POST("reports")
+    suspend fun createReport(
+        @Body request: ReportCreationRequest
+    ): Response<ApiResponse<Report>>
+    @PUT("reports/{reportId}/status")
+    suspend fun updateReport(
+        @Path("reportId") reportId: String,
+        @Body request: ReportUpdateRequest
+    ): Response<ApiResponse<Report>>
 }

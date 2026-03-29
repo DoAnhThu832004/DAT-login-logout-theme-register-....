@@ -161,6 +161,7 @@ fun RecipeApp(
                     artistViewModel = artistViewModel,
                     searchViewModel = searchViewModel,
                     playlistViewModel = playlistViewModel,
+                    reports = reports,
                     darkTheme = darkTheme,
                     onThemeUpdated = onThemeUpdated,
                     name = name,
@@ -248,6 +249,7 @@ fun RecipeApp(
                 PlayerScreen(
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
+                    reportViewModel = reportViewModel,
                     commentViewModel = commentViewModel,
                     onBack = {navController.popBackStack()}
                 )
@@ -258,6 +260,7 @@ fun RecipeApp(
                 if (album != null) {
                     AlbumDetailScreen(
                         album = album,
+                        reportViewModel = reportViewModel,
                         onSongClick = { song ->
                             playerViewModel.play(song, songs)
                             navController.navigate(Screen.PlayerScreen.createRoute())
@@ -317,6 +320,9 @@ fun RecipeApp(
                     reports = reportViewModel.reportState.value.reports ?: emptyList(),
                     songViewModel = songViewModel,
                     reportViewModel = reportViewModel,
+                    albumViewModel = albumViewModel,
+                    playlistViewModel = playlistViewModel,
+                    artistViewModel = artistViewModel,
                     onBack = {
                         navController.popBackStack()
                     }

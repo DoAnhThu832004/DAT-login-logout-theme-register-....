@@ -78,4 +78,16 @@
     <string name="them_anh_playlist">Upoad image playlist</string>
     <string name="binh_luan">Comment</string>
     <string name="tra_loi">reply</string>
+    <string name="danh_sach_tat_ca_bai_hat">List all song</string>
+    <string name="tim_nghe_si_bai_hat">Search artist, song ... </string>
+    <string name="xem_them">See more</string>
+    <string name="xem_them_tat_ca">See more all</string>
+    <string name="tim_nghe_si">Search artist ...</string>
+    <string name="tim_bai_hat">Search song ...</string>
+    <string name="tim_album">Search album ...</string>
+    <string name="tim_playlist">Search playlist ...</string>
+    <string name="chua_gia_quyet">Pending</string>
+    <string name="dang_cho">In progress</string>
+    <string name="da_gia_quyet">Resolved</string>
+    <string name="phan_hoi_cua_nguoi_dung">Report from user</string>
 </resources>

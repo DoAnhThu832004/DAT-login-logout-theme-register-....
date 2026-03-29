@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -80,15 +81,28 @@ fun FavoritePage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = stringResource(R.string.bai_hat_yeu_thich),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Text(
+                    text = stringResource(R.string.bai_hat_yeu_thich),
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .align(Alignment.Center)
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -156,7 +170,6 @@ fun DetailListSongF(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.background)
             .animateContentSize(
@@ -197,7 +210,6 @@ fun DetailListSongF(
                     Text(
                         text = it,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -233,10 +245,14 @@ fun DetailContentF(song: Song) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 16.dp, top = 0.dp)
+            .background(
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                shape = RoundedCornerShape(12.dp)
+            )
     ) {
         Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-        Spacer(modifier = Modifier.height(8.dp))
+        //Spacer(modifier = Modifier.height(8.dp))
 
         InfoRowF(label = stringResource(R.string.mo_ta), value = song.description) // Ví dụ giả định
         InfoRowF(label = stringResource(R.string.ngay_phat_hanh), value = song.releasedDate)
@@ -253,15 +269,22 @@ fun DetailContentF(song: Song) {
 }
 @Composable
 fun InfoRowF(label: String, value: String) {
-    Row(modifier = Modifier.padding(vertical = 2.dp)) {
+    Row(
+        modifier = Modifier.padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(100.dp)
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .width(100.dp)
         )
         Text(
             text = value,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall
         )
     }

@@ -101,11 +101,13 @@ fun DetailTopSong(
             }
         }
         IconButton(
-            onClick = {}
+            onClick = {},
+
         ) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
                 contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

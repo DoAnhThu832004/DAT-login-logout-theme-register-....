@@ -96,7 +96,8 @@ fun ArtistScreen(
                         .constrainAs(backBtn) {
                             top.linkTo(parent.top)
                             start.linkTo(parent.start)
-                        }
+                        },
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 HeaderView(name = artist.name, image = artist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, id = artist.id, editProfileViewModel = editProfileViewModel, artist = artist)
                 Column(
@@ -121,18 +122,31 @@ fun ArtistScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 24.dp)
+                    .padding(start = 8.dp, end = 8.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
             ) {
                 Text(
                     text = "Gợi ý bài hát",
-                    modifier = Modifier.weight(1f)
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Text(
                     text = "Tất cả >",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .clickable {
 
                         }
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
 
             }
@@ -148,14 +162,28 @@ fun ArtistScreen(
         }
         item {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             ) {
-                Text(
-                    text = "Album",
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 24.dp)
-                )
+                        .background(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Text(
+                        text = "Album",
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -174,12 +202,25 @@ fun ArtistScreen(
             }
         }
         item {
-            Text(
-                text = "Về ${artist.name}",
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, top = 8.dp)
-            )
+                    .padding(horizontal = 8.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+            ) {
+                Text(
+                    text = "Về ${artist.name}",
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
