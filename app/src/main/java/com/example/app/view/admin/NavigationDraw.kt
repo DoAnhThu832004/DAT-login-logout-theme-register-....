@@ -81,6 +81,7 @@ import com.example.app.view.admin.artist.ArtistScreenA
 import com.example.app.view.admin.artist.DetailArtistScreen
 import com.example.app.view.admin.artist.UpdateArtistScreen
 import com.example.app.view.admin.artist.UploadFileArtist
+import com.example.app.view.admin.playlist.DetailPlaylistScreenA
 import com.example.app.view.admin.playlist.PlaylistScreenA
 import com.example.app.view.admin.playlist.UpdatePlaylistScreen
 import com.example.app.view.admin.playlist.UploadFilePlaylist
@@ -278,6 +279,9 @@ fun NavigationDraw(
                 composable(route = Screen.PlaylistScreenA.route) {
                     PlaylistScreenA(
                         playlistViewModel = playlistViewModel,
+                        onClickDetail = { playlistId ->
+                            adminNavController.navigate(Screen.DetailPlaylistScreenA.createRoute(playlistId))
+                        },
                         onUpdateScreen = { playlistId ->
                             adminNavController.navigate(Screen.UpdatePlaylistScreen.createRoute(playlistId))
                         },
@@ -319,6 +323,16 @@ fun NavigationDraw(
                 composable(route = Screen.UploadFilePlaylist.route) {
                     val playlistId = it.arguments?.getString("playlistId") ?: ""
                     UploadFilePlaylist(
+                        playlistId = playlistId,
+                        playlistViewModel = playlistViewModel,
+                        onBack = {
+                            adminNavController.popBackStack()
+                        }
+                    )
+                }
+                composable(route = Screen.DetailPlaylistScreenA.route) {
+                    val playlistId = it.arguments?.getString("playlistId") ?: ""
+                    DetailPlaylistScreenA(
                         playlistId = playlistId,
                         playlistViewModel = playlistViewModel,
                         onBack = {

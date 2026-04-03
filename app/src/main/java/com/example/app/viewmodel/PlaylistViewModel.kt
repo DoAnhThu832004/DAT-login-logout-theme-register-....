@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel
 import com.example.app.model.ApiService
 import com.example.app.model.response.Playlist
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.FileUtils
 import com.example.app.model.request.AlbumCreationRequest
 import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
+import com.example.app.model.response.Song
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -23,6 +25,15 @@ class PlaylistViewModel(
 ):ViewModel() {
     private val _playlistState = mutableStateOf(PlaylistState())
     val playlistState: State<PlaylistState> = _playlistState
+
+    val songs = mutableStateListOf<Song>()
+
+    private val _allSongsState = mutableStateOf<List<Song>>(emptyList())
+    val allSongsState: State<List<Song>> = _allSongsState
+
+    private var currentPage = 1
+    private var totalPages = 1
+    var isLastPage = false
 
     fun getMyPlaylists() {
         viewModelScope.launch {
@@ -217,6 +228,116 @@ class PlaylistViewModel(
             } catch (e: Exception) {
                 e.printStackTrace()
                 _playlistState.value = _playlistState.value.copy(isLoading = false, error = "Error: ${e.message}")
+            }
+        }
+    }
+    fun getSongsInPlaylist(playlistId: String, isFirstLoad: Boolean = false) {
+        if (_playlistState.value.isLoading || (isLastPage && !isFirstLoad)) return
+        if (isFirstLoad) {
+            currentPage = 1
+            songs.clear()
+            isLastPage = false
+        }
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val response = apiService.getSongsInPlaylist(playlistId,currentPage,10)
+                val body = response.body()
+                if (response.isSuccessful && body != null && body.result != null) {
+                    val pageData = body.result // Đây là đối tượng PageResponse
+
+                    // Cộng dồn dữ liệu mới vào danh sách hiện tại
+                    songs.addAll(pageData.data)
+
+                    // Cập nhật thông tin phân trang
+                    totalPages = pageData.totalPages
+                    if (currentPage >= totalPages) {
+                        isLastPage = true
+                    } else {
+                        currentPage++
+                    }
+
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+    fun addSongInPlaylist(playlistId: String, song: Song) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
+            try {
+                // Gọi API thêm bài hát
+                val response = apiService.addSongToPlaylist(playlistId, song.id)
+
+                if (response.isSuccessful && response.body()?.code == 1000) {
+                    // Logic giống AlbumViewModel: Cập nhật UI local ngay lập tức
+                    if (songs.none { it.id == song.id }) {
+                        songs.add(song)
+                    }
+
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                } else {
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = "Không thể thêm bài hát vào playlist"
+                    )
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi: ${e.message}"
+                )
+            }
+        }
+    }
+    fun deleteSongInPlaylist(playlistId: String, songId: String) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
+            try {
+                // Gọi API xóa bài hát
+                val response = apiService.deleteSongFromPlaylist(playlistId, songId)
+
+                if (response.isSuccessful) {
+                    // Logic giống AlbumViewModel: Sử dụng filter/remove để cập nhật UI ngay
+                    songs.removeAll { it.id == songId }
+
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
+                } else {
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = "Xóa bài hát thất bại"
+                    )
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
+    }
+    fun getAllSongs() {
+        viewModelScope.launch {
+            val response = apiService.getSongs()
+            if (response.isSuccessful && response.body()?.result != null) {
+                _allSongsState.value = response.body()!!.result
             }
         }
     }

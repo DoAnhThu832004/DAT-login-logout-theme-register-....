@@ -35,6 +35,7 @@ import com.example.app.viewmodel.SearchViewModel
 @Composable
 fun PlaylistScreenA(
     playlistViewModel: PlaylistViewModel,
+    onClickDetail: (String) -> Unit,
     onUpdateScreen: (String) -> Unit,
     onUploadClick: (Playlist) -> Unit
 ) {
@@ -65,7 +66,7 @@ fun PlaylistScreenA(
 //            albumViewModel = albumViewModel,
 //            onUploadScreen = onUploadScreen,
             onUpdateClick = onUpdateScreen,
-//            albumOnClick = albumOnClick,
+            onClickDetail = onClickDetail,
             onUploadClick = onUploadClick
         )
     }
@@ -80,12 +81,12 @@ fun ContentScreenA(
 //    artistViewModel: ArtistViewModel,
 //    onUploadScreen: (Song) -> Unit,
     onUpdateClick: (String) -> Unit,
-//    albumOnClick: (Album) -> Unit,
+    onClickDetail: (String) -> Unit,
     onUploadClick: (Playlist) -> Unit
 ) {
     Box() {
         when(selectedIndex) {
-            0 -> ListPlaylistScreen(playlists = playlists,playlistViewModel = playlistViewModel,onUpdateClick = onUpdateClick,onUploadClick = onUploadClick)
+            0 -> ListPlaylistScreen(playlists = playlists,playlistViewModel = playlistViewModel, onClickDetail = onClickDetail,onUpdateClick = onUpdateClick,onUploadClick = onUploadClick)
             1 -> AddPlaylistScreen(playlistViewModel = playlistViewModel)
         }
     }

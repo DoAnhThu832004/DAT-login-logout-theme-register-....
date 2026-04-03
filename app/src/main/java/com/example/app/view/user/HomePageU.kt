@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.unit.dp
 import com.example.app.model.response.Album
 import com.example.app.model.response.Artist
+import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.view.Song.SongScreen
 import com.example.app.view.general.SearchBar
@@ -41,7 +42,8 @@ fun HomePageU(
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
-    onClickToTopChart: () -> Unit
+    onClickToTopChart: () -> Unit,
+    onToDetailClick: (Playlist) -> Unit
 ) {
     val songState by songViewModel.songState
     val albumState by albumViewModel.albumState
@@ -85,7 +87,10 @@ fun HomePageU(
                         onAlbumClick = { album ->
                             onAlbumScreen(album)
                         },
-                        onClickToTopChart = onClickToTopChart
+                        onClickToTopChart = onClickToTopChart,
+                        onToDetailClick = {
+                            onToDetailClick(it)
+                        }
                     )
                 }
             }

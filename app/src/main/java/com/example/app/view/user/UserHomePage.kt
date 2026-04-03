@@ -65,7 +65,8 @@ fun UserHomePage(
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
     onPlaylistClick: (String) -> Unit,
-    onClickToTopChart: () -> Unit
+    onClickToTopChart: () -> Unit,
+    onToDetailClick: (Playlist) -> Unit
 ) {
     val navItemsList = listOf(
         NavItems(stringResource(R.string.trang_chu),Icons.Default.Home),
@@ -104,7 +105,8 @@ fun UserHomePage(
             onAlbumScreen = onAlbumScreen,
             onArtistScreen = onArtistScreen,
             onPlaylistClick = onPlaylistClick,
-            onClickToTopChart = { selectIndex = 2 }
+            onClickToTopChart = { selectIndex = 2 },
+            onToDetailClick = onToDetailClick
         )
     }
 }
@@ -128,10 +130,11 @@ fun ContentScreen(
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
     onPlaylistClick: (String) -> Unit,
-    onClickToTopChart: () -> Unit
+    onClickToTopChart: () -> Unit,
+    onToDetailClick: (Playlist) -> Unit
 ) {
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart)
+        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart,onToDetailClick = onToDetailClick)
         1 -> FavoritePage(
             songs = songViewModel.songState.value.songs ?: emptyList(),
             songViewModel = songViewModel,

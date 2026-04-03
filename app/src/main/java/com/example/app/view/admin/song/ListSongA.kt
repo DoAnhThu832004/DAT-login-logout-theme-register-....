@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,9 +51,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +66,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -99,6 +103,28 @@ fun ListSongA(
     onUpdateClick: (Song) -> Unit
 ) {
     var shouldAnimate by rememberSaveable { mutableStateOf(true) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val songState = songViewModel.songState.value
+    val listState = rememberLazyListState()
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleIndex ->
+                if (lastVisibleIndex != null) {
+                    // Kích hoạt khi cuộn đến phần tử cuối cùng (hoặc cách phần tử cuối 1-2 vị trí để load mượt hơn)
+                    val isAtBottom = lastVisibleIndex >= songs.size - 1
+
+                    if (isAtBottom &&
+                        searchQuery.isNotEmpty() && // Chỉ kích hoạt load more khi đang ở chế độ tìm kiếm
+                        !songState.isLoading &&
+                        !songState.isLoadingMore &&
+                        !songState.isLastPage
+                    ) {
+                        // Gọi hàm tìm kiếm với cờ isLoadMore = true
+                        songViewModel.searchAdminSongs(searchQuery, isLoadMore = true)
+                    }
+                }
+            }
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -107,14 +133,37 @@ fun ListSongA(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        SearchBar(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            searchViewModel = searchViewModel
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { newQuery ->
+                searchQuery = newQuery
+                songViewModel.searchAdminSongs(newQuery) // Tìm kiếm mới (isLoadMore = false)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            placeholder = { Text("Tìm kiếm bài hát...") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = {
+                        searchQuery = ""
+                        songViewModel.getSongs() // Tải lại toàn bộ dữ liệu mặc định
+                    }) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear")
+                    }
+                }
+            },
+            shape = RoundedCornerShape(24.dp),
+            singleLine = true
         )
         BoxWithConstraints {
             val startOffset = -maxWidth
 
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 4.dp),
@@ -170,6 +219,21 @@ fun ListSongA(
                             onUploadClick = { onUploadClick(song) },
                             onUpdateClick = { onUpdateClick(song) }
                         )
+                    }
+                }
+                if (songState.isLoadingMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }

@@ -31,6 +31,7 @@ import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
 import com.example.app.view.Player.MiniPlayer
 import com.example.app.view.Player.PlayerScreen
+import com.example.app.view.Playlist.DetailPlaylistScreen
 import com.example.app.view.Playlist.MyPlaylistDetailScreen
 import com.example.app.view.Song.ListAllSong
 import com.example.app.view.admin.NavigationDraw
@@ -203,6 +204,9 @@ fun RecipeApp(
                         },
                         onClickToTopChart = {
                             navController.navigate(Screen.TopChartPage.route)
+                        },
+                        onToDetailClick = {
+                            navController.navigate(Screen.DetailPlaylistScreen.createRoute(it.id))
                         }
                     )
                 }
@@ -327,6 +331,19 @@ fun RecipeApp(
                         navController.popBackStack()
                     }
                 )
+            }
+            composable(route = Screen.DetailPlaylistScreen.route) {
+                val playlistId = it.arguments?.getString("playlistId")
+                val playlist = playlists.find { it.id == playlistId }
+                if (playlist != null) {
+                    DetailPlaylistScreen(
+                        playlist = playlist,
+                        playlistViewModel = playlistViewModel,
+                        onBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
             }
         }
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()

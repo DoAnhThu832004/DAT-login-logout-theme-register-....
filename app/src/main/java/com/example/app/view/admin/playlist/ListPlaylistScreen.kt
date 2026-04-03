@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 fun ListPlaylistScreen(
     playlists: List<Playlist>,
     playlistViewModel: PlaylistViewModel,
+    onClickDetail: (String) -> Unit,
     onUpdateClick : (String) -> Unit,
     onUploadClick: (Playlist) -> Unit
 ) {
@@ -73,6 +74,9 @@ fun ListPlaylistScreen(
                 ) {
                     PlaylistItem(
                         playlist = playlists,
+                        onClickDetail = {
+                            onClickDetail(playlists.id)
+                        },
                         onDeleteClick = {
                             playlistViewModel.deletePlaylist(playlists.id)
                         },

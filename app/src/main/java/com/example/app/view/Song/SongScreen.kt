@@ -49,7 +49,8 @@ fun SongScreen(
     onViewAllClick: () -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
-    onClickToTopChart: () -> Unit
+    onClickToTopChart: () -> Unit,
+    onToDetailClick: (Playlist) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -174,7 +175,10 @@ fun SongScreen(
                         modifier = Modifier
                             .width(140.dp)
                     ) {
-                        PlaylistItem(playlist = it)
+                        PlaylistItem(
+                            playlist = it,
+                            onToDetailClick = { onToDetailClick(it) }
+                        )
                     }
                 }
             }

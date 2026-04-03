@@ -28,14 +28,15 @@ import com.example.app.model.response.Playlist
 
 @Composable
 fun PlaylistItem(
-    playlist: Playlist
+    playlist: Playlist,
+    onToDetailClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.background, shape = RoundedCornerShape(12.dp))
-            .clickable { }
+            .clickable { onToDetailClick() }
     ) {
         if(playlist.imageUrlP.isNullOrEmpty()) {
             Icon(

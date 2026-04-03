@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -57,6 +58,7 @@ import kotlin.math.roundToInt
 @Composable
 fun PlaylistItem(
     playlist: Playlist,
+    onClickDetail: () -> Unit,
     onDeleteClick: (String) -> Unit,
     onUpdateClick: () -> Unit,
     onUploadClick: () -> Unit
@@ -147,7 +149,10 @@ fun PlaylistItem(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(),
+                    .padding()
+                    .clickable {
+                        onClickDetail()
+                    },
             ) {
                 Row(
                     modifier = Modifier

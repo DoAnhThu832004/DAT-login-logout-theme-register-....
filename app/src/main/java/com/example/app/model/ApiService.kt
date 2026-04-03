@@ -23,6 +23,7 @@ import com.example.app.model.response.ApiResponse
 import com.example.app.model.response.Artist
 import com.example.app.model.response.AuthenticationResponse
 import com.example.app.model.response.Comment
+import com.example.app.model.response.PageResponse
 import com.example.app.model.response.Playlist
 import com.example.app.model.response.Report
 import com.example.app.model.response.Song
@@ -73,6 +74,12 @@ interface ApiService {
     suspend fun searchSongs(
         @Query("name") name: String
     ): Response<ApiResponse<List<Song>>>
+    @GET("songs/admin/searchKey")
+    suspend fun searchSongsForAdmin(
+        @Query("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): Response<ApiResponse<PageResponse<Song>>>
     @DELETE("songs/{id}")
     suspend fun deleteSong(@Path("id") id: String): Response<ApiError>
     @Multipart
@@ -156,6 +163,12 @@ interface ApiService {
     ): Response<ApiResponse<Playlist>>
     @GET("playlists/myList")
     suspend fun getMyPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @GET("playlists/{playlistId}/songs")
+    suspend fun getSongsInPlaylist(
+        @Path("playlistId") playlistId: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<ApiResponse<PageResponse<Song>>>
     @POST("favorites/{songId}")
     suspend fun addSongToFavorite(@Path("songId") songId: String): Response<ApiError>
     @DELETE("favorites/{songId}")
@@ -177,6 +190,16 @@ interface ApiService {
     suspend fun uploadPlaylistImage(
         @Path("playlistId") playlistId: String,
         @Part image: MultipartBody.Part
+    ): Response<ApiResponse<Playlist>>
+    @POST("playlists/{playlistId}/songs/{songId}")
+    suspend fun addSongToPlaylist(
+        @Path("playlistId") playlistId: String,
+        @Path("songId") songId: String
+    ): Response<ApiResponse<Playlist>>
+    @DELETE("playlists/{playlistId}/songs/{songId}")
+    suspend fun deleteSongFromPlaylist(
+        @Path("playlistId") playlistId: String,
+        @Path("songId") songId: String
     ): Response<ApiResponse<Playlist>>
     @Multipart
     @POST("albums/{albumId}/upload")
