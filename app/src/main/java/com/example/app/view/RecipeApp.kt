@@ -146,7 +146,11 @@ fun RecipeApp(
                 )
             }
             composable(route = Screen.SplashScreen.route) {
-                com.example.app.view.general.SplashScreen(navController)
+                com.example.app.view.general.SplashScreen(
+                    navController,
+                    sessionManager,
+                    loginViewModel
+                )
             }
 //        composable(route = Screen.HomeScreen.route) {
 //            HomePage()

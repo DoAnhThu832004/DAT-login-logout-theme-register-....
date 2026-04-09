@@ -38,11 +38,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.app.view.Screen
+import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.SessionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
+fun SplashScreen(
+    navController: NavHostController,
+    sessionManager: SessionManager, // Thêm tham số
+    loginViewModel: LoginViewModel
+) {
     val texts = listOf(
         "Xin chào",
         "Chào mừng",
@@ -53,12 +59,31 @@ fun SplashScreen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         // Thiết lập độ trễ 3500 mili-giây để chờ toàn bộ chuỗi hoạt ảnh kết thúc
         delay(4500L)
+        val token = sessionManager.getAccessToken()
+        if (token.isNullOrEmpty()) {
+            navController.navigate(Screen.LoginScreen.route) {
+                popUpTo(Screen.SplashScreen.route) { inclusive = true }
+            }
+        } else {
+            val role = loginViewModel.getRoleFromToken(token)
+            val name = "User" // Bạn có thể parse thêm tên từ JWT claim nếu cần
 
-        // Kích hoạt điều hướng sang màn hình đăng nhập và hủy bỏ màn hình hiện tại
-        navController.navigate(Screen.LoginScreen.route) {
-            // Lưu ý: Cần đảm bảo Screen.SplashScreen.route đã được định nghĩa trong sealed class
-            popUpTo(Screen.SplashScreen.route) {
-                inclusive = true
+            when (role) {
+                "ROLE_ADMIN" -> {
+                    navController.navigate(Screen.NavigationDraw.createRoute(name)) {
+                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                    }
+                }
+                "ROLE_USER" -> {
+                    navController.navigate(Screen.UserHomePage.createRoute(name)) {
+                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                    }
+                }
+                else -> {
+                    navController.navigate(Screen.LoginScreen.route) {
+                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                    }
+                }
             }
         }
     }

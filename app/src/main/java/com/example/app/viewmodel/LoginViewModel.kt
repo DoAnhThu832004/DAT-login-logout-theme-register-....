@@ -43,6 +43,7 @@ class LoginViewModel(
                         val userId = getUserIdFromToken(token)
                         val role = getRoleFromToken(token)
                         sessionManager.saveSession(token)
+                        sessionManager.saveUsername(username)
 
                         _loginUiState.value = _loginUiState.value.copy(
                             isLoading = false,
@@ -97,6 +98,20 @@ class LoginViewModel(
         viewModelScope.launch {
             logout()  // suspend fun
             onComplete() // callback khi xong
+        }
+    }
+    fun checkExistingSession(onLoggedIn: (String, String) -> Unit, onNotLoggedIn: () -> Unit) {
+        viewModelScope.launch {
+            val token = sessionManager.getAccessToken()
+            if (!token.isNullOrEmpty()) {
+                val role = getRoleFromToken(token)
+                val name = "User" // Hoặc lấy từ token/API
+                if (role != null) {
+                    onLoggedIn(name, role)
+                } else onNotLoggedIn()
+            } else {
+                onNotLoggedIn()
+            }
         }
     }
     data class LoginUiState(

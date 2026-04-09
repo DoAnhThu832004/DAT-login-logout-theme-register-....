@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -59,8 +60,10 @@ import androidx.navigation.NavHostController
 import com.example.app.R
 import com.example.app.view.Screen
 import com.example.app.view.general.JetpackRoundedProgressBar
+import com.example.app.viewmodel.DataStoreUtils
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.viewmodel.SessionManager
 import kotlinx.coroutines.delay
 
 @Composable
@@ -71,14 +74,26 @@ fun LoginScreen(
     navigateToRegister: () -> Unit,
     navigateToUserHomePage: (String,String) -> Unit
 ) {
+    val context = LocalContext.current
     val loginUiState by loginViewModel.loginUiState.collectAsState()
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+    val savedUsername by DataStoreUtils.getSavedUsername(context).collectAsState(initial = "")
 
     // Biến trạng thái lưu trữ giá trị tiến trình giả lập
     var simulatedProgress by remember { mutableFloatStateOf(0f) }
-
+    LaunchedEffect(savedUsername) {
+        if (username.isEmpty() && !savedUsername.isNullOrEmpty()) {
+            username = savedUsername!!
+        }
+    }
+    LaunchedEffect(Unit) {
+        val currentToken = SessionManager(context).getAccessToken()
+        if (!currentToken.isNullOrEmpty()) {
+            // Thực hiện điều hướng trực tiếp đến Home tương ứng với Role
+        }
+    }
     LaunchedEffect(loginUiState.isSuccessful) {
         if (loginUiState.isSuccessful) {
             // Đẩy tiến trình lên mức tối đa trước khi điều hướng

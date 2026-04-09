@@ -39,4 +39,14 @@ class SessionManager(private val context: Context) {
     } catch (e : Exception) {
         null
     }
+    // Kiểm tra xem có Token hợp lệ hay không
+    suspend fun isLoggedIn(): Boolean {
+        val tokens = DataStoreUtils.getTokensSuspend(context)
+        return !tokens.accessToken.isNullOrEmpty()
+    }
+
+    // Lưu tên đăng nhập khi cần thiết
+    suspend fun saveUsername(username: String) {
+        DataStoreUtils.saveUsername(context, username)
+    }
 }
