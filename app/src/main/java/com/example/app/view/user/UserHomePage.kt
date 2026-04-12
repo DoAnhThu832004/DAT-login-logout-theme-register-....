@@ -17,8 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -133,8 +136,24 @@ fun ContentScreen(
     onClickToTopChart: () -> Unit,
     onToDetailClick: (Playlist) -> Unit
 ) {
+    val songState by songViewModel.songState.collectAsState()
+    val albumState by albumViewModel.albumState.collectAsState()
+    val playlistState by playlistViewModel.playlistState.collectAsState()
+    val artistState by artistViewModel.artistState.collectAsState()
+    LaunchedEffect(Unit) {
+        songViewModel.getSongs()
+        songViewModel.getTopSongs()
+        albumViewModel.getAlbums()
+        artistViewModel.getArtists()
+        playlistViewModel.getPlaylists()
+    }
     when(selectedIndex) {
-        0 -> HomePageU(songViewModel = songViewModel,albumViewModel = albumViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart,onToDetailClick = onToDetailClick)
+        0 -> {
+            val isScreenLoading = songState.isLoading || albumState.isLoading || playlistState.isLoading || artistState.isLoadingA
+            val screenError = playlistState.error ?: songState.error ?: albumState.error
+            val currentTopSongs = remember(songState.topSongs) { songState.topSongs?.take(5) ?: emptyList() }
+            HomePageU(isLoading = isScreenLoading, errorMessage = screenError, songs = songState.songs ?: emptyList(), topSongs = currentTopSongs, albums = albumState.albums ?: emptyList(), playlists = playlistState.playlists ?: emptyList(),searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart,onToDetailClick = onToDetailClick)
+        }
         1 -> FavoritePage(
             songs = songViewModel.songState.value.songs ?: emptyList(),
             songViewModel = songViewModel,

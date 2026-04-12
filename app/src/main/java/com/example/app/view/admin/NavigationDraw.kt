@@ -1,7 +1,6 @@
 package com.example.app.view.admin
 
 
-import UploadFileSong
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -87,6 +86,7 @@ import com.example.app.view.admin.playlist.UpdatePlaylistScreen
 import com.example.app.view.admin.playlist.UploadFilePlaylist
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
+import com.example.app.view.admin.song.UploadFileSong
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.view.user.InformationProfilePage
@@ -392,7 +392,12 @@ fun DrawerContent(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name=name, image = "",top = 24,check = true, artistViewModel = artistViewModel, id = "", editProfileViewModel = editProfileViewModel)
+            HeaderView(
+                name=name,
+                image = "",
+                top = 24,
+                check = true,
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

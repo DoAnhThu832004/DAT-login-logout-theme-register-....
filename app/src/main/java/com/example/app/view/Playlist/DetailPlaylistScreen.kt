@@ -112,7 +112,6 @@ fun DetailPlaylistScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-
                     IconButton(
                         onClick = {}
                     ) {
@@ -132,7 +131,7 @@ fun DetailPlaylistScreen(
                 }
             }
         }
-        items(songs) {
+        items(songs, key = { it.id }) {
             SongListInAlbum(
                 song = it,
                 onSongClick = {}

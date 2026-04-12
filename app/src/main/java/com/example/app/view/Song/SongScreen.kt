@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -52,14 +54,14 @@ fun SongScreen(
     onClickToTopChart: () -> Unit,
     onToDetailClick: (Playlist) -> Unit
 ) {
+    val validAlbums = remember(albums) { albums.filter { it.status == "PUBLISHED" } }
+    val validSongs = remember(songs) { songs.filter { it.status == "PUBLISHED" } }
+    val previewSongs = remember(validSongs) { validSongs.take(4) }
+    val previewAlbums = remember(validAlbums) { validAlbums.take(4) }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val validAlbums = albums.filter { it.status == "PUBLISHED" }
-        val validSongs = songs.filter { it.status == "PUBLISHED" }
-        val previewSongs = validSongs.take(4)
-        val previewAlbums = validAlbums.take(4)
         item {
             Row(
                 modifier = Modifier
@@ -233,17 +235,7 @@ fun SongScreen(
             }
         }
         item {
-            Column {
-                Text(
-                    text = "thu"
-                )
-                Text(
-                    text = "thu"
-                )
-                Text(
-                    text = "thu"
-                )
-            }
+            Spacer(modifier = Modifier.padding(bottom = 64.dp))
         }
     }
 }

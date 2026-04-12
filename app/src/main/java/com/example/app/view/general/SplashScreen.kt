@@ -57,33 +57,42 @@ fun SplashScreen(
 
     // Luồng đếm thời gian độc lập để điều hướng tự động
     LaunchedEffect(Unit) {
-        // Thiết lập độ trễ 3500 mili-giây để chờ toàn bộ chuỗi hoạt ảnh kết thúc
+        // Duy trì thời gian chờ theo đúng kịch bản
         delay(4500L)
-        val token = sessionManager.getAccessToken()
-        if (token.isNullOrEmpty()) {
+
+        // Thiết lập cơ chế kiểm soát rủi ro
+        try {
+            val token = sessionManager.getAccessToken()
+            if (token.isNullOrEmpty()) {
+                navController.navigate(Screen.LoginScreen.route) {
+                    popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                }
+            } else {
+                val role = loginViewModel.getRoleFromToken(token)
+                val name = "User"
+                when (role) {
+                    "ROLE_ADMIN" -> {
+                        navController.navigate(Screen.NavigationDraw.createRoute(name)) {
+                            popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                        }
+                    }
+                    "ROLE_USER" -> {
+                        navController.navigate(Screen.UserHomePage.createRoute(name)) {
+                            popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                        }
+                    }
+                    else -> {
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(Screen.SplashScreen.route) { inclusive = true }
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Kích hoạt cơ chế thoát hiểm khi ngoại lệ xảy ra
             navController.navigate(Screen.LoginScreen.route) {
                 popUpTo(Screen.SplashScreen.route) { inclusive = true }
-            }
-        } else {
-            val role = loginViewModel.getRoleFromToken(token)
-            val name = "User" // Bạn có thể parse thêm tên từ JWT claim nếu cần
-
-            when (role) {
-                "ROLE_ADMIN" -> {
-                    navController.navigate(Screen.NavigationDraw.createRoute(name)) {
-                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
-                    }
-                }
-                "ROLE_USER" -> {
-                    navController.navigate(Screen.UserHomePage.createRoute(name)) {
-                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
-                    }
-                }
-                else -> {
-                    navController.navigate(Screen.LoginScreen.route) {
-                        popUpTo(Screen.SplashScreen.route) { inclusive = true }
-                    }
-                }
             }
         }
     }

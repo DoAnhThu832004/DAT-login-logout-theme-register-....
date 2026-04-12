@@ -20,7 +20,38 @@ class RegisterViewModel(
     private val _registerUiState = MutableStateFlow(RegisterUiState())
     val registerUiState: StateFlow<RegisterUiState> = _registerUiState.asStateFlow()
 
-    fun register(username: String, password: String,firstName: String, lastName: String, dob: String) {
+    fun updateUsernameInput(input: String) {
+       _registerUiState.value = _registerUiState.value.copy(
+            usernameInput = input
+        )
+    }
+    fun updatePasswordInput(input: String) {
+        _registerUiState.value = _registerUiState.value.copy(
+            passwordInput = input
+        )
+    }
+    fun updateFirstNameInput(input: String) {
+        _registerUiState.value = _registerUiState.value.copy(
+            firstNameInput = input
+        )
+    }
+    fun updateLastNameInput(input: String) {
+        _registerUiState.value = _registerUiState.value.copy(
+            lastNameInput = input
+        )
+    }
+    fun updateDobInput(input: String) {
+        _registerUiState.value = _registerUiState.value.copy(
+            dobInput = input
+        )
+    }
+
+    fun register() {
+        val username = _registerUiState.value.usernameInput
+        val password = _registerUiState.value.passwordInput
+        val firstName = _registerUiState.value.firstNameInput
+        val lastName = _registerUiState.value.lastNameInput
+        val dob = _registerUiState.value.dobInput
         viewModelScope.launch {
             _registerUiState.value = _registerUiState.value.copy(isLoading = true, error = null)
             try {
@@ -63,6 +94,11 @@ class RegisterViewModel(
     data class RegisterUiState(
         val isLoading: Boolean = false,
         val isSuccessful: Boolean = false,
+        var usernameInput: String = "",
+        val passwordInput: String = "",
+        val firstNameInput: String = "",
+        val lastNameInput: String = "",
+        val dobInput: String = "",
         val error: String? = null
     )
 }

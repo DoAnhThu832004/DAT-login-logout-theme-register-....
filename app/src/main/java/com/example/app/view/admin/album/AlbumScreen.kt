@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,7 +36,7 @@ fun AlbumScreen(
         NavItems(stringResource(R.string.danh_sach_album), Icons.Default.ListAlt),
         NavItems(stringResource(R.string.them_album), Icons.Default.AddCircleOutline),
     )
-    val albumState by albumViewModel.albumState
+    val albumState by albumViewModel.albumState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         albumViewModel.getAlbums()

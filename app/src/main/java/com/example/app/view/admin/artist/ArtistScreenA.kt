@@ -12,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,7 +42,7 @@ fun ArtistScreenA(
         NavItems(stringResource(R.string.danh_sach_tac_gia), Icons.Default.ListAlt),
         NavItems(stringResource(R.string.tao_tac_gia), Icons.Default.AddCircleOutline),
     )
-    val aritstState by artistViewModel.artistState
+    val aritstState by artistViewModel.artistState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         artistViewModel.getArtists()

@@ -53,9 +53,6 @@ fun HeaderView(
     image: String?,
     top : Int,
     check: Boolean,
-    artistViewModel: ArtistViewModel,
-    id: String,
-    editProfileViewModel: EditProfileViewModel,
     artist: Artist = Artist(
         id = "",
         name = "",
@@ -65,25 +62,21 @@ fun HeaderView(
         albums = emptyList(),
         totalFollowers = 0,
         followed = false
-    )
+    ),
+    onImageSelected: (Uri) -> Unit = {},
+    onToggleFollowClick: (Artist) -> Unit = {}
 ) {
-    val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        imageUri = uri
+        uri?.let {onImageSelected(it)}
     }
 
     val painter = when {
         imageUri != null -> rememberAsyncImagePainter(imageUri)
         !image.isNullOrEmpty() -> rememberAsyncImagePainter(image)
         else -> null
-    }
-    LaunchedEffect(imageUri) {
-        imageUri?.let {
-            editProfileViewModel.uploadImage(id,imageUri!!,context)
-        }
     }
     Row(
         modifier = Modifier
@@ -152,7 +145,7 @@ fun HeaderView(
                     )
                     IconButton(
                         onClick = {
-                            artistViewModel.toggleFollow(artist)
+                            onToggleFollowClick(artist)
                         }
                     ) {
                         Icon(

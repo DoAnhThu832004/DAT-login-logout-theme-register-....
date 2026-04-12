@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,7 +68,7 @@ fun CommentScreen(
     songId: String,
     commentViewModel: CommentViewModel
 ) {
-    val commentState by commentViewModel.commentState
+    val commentState by commentViewModel.commentState.collectAsState()
     val comments = commentState.comments ?: emptyList()
     var replyComment by remember { mutableStateOf<Comment?>(null) }
     Column(
@@ -136,7 +137,7 @@ fun DetailCommentScreen(
     commentViewModel: CommentViewModel,
     onReplyClick: (Comment) -> Unit
 ) {
-    val commentState by commentViewModel.commentState
+    val commentState by commentViewModel.commentState.collectAsState()
     var showCommentSheet by remember { mutableStateOf(false) }
     val sheetStateComment = rememberModalBottomSheetState()
     var showReplies by remember { mutableStateOf(false) }

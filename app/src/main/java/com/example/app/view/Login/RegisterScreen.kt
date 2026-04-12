@@ -43,11 +43,6 @@ fun RegisterScreen(
     navigateToLogin: () -> Unit
 ) {
     val registerUiState by registerViewModel.registerUiState.collectAsState()
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var dob by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,8 +57,8 @@ fun RegisterScreen(
             fontWeight = FontWeight.Bold
         )
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it},
+            value = registerUiState.usernameInput,
+            onValueChange = { username -> registerViewModel.updateUsernameInput(username)},
             label = {
                 Text(
                     text = stringResource(R.string.ten_dang_nhap),
@@ -83,8 +78,8 @@ fun RegisterScreen(
             shape = RoundedCornerShape(15.dp)
         )
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it},
+            value = registerUiState.passwordInput,
+            onValueChange = { password -> registerViewModel.updatePasswordInput(password)},
             label = {
                 Text(
                     text = stringResource(R.string.mat_khau),
@@ -104,8 +99,8 @@ fun RegisterScreen(
             shape = RoundedCornerShape(15.dp)
         )
         OutlinedTextField(
-            value = firstName,
-            onValueChange = { firstName = it},
+            value = registerUiState.firstNameInput,
+            onValueChange = { firstName -> registerViewModel.updateFirstNameInput(firstName)},
             label = {
                 Text(
                     text = stringResource(R.string.ho),
@@ -125,8 +120,8 @@ fun RegisterScreen(
             shape = RoundedCornerShape(15.dp)
         )
         OutlinedTextField(
-            value = lastName,
-            onValueChange = { lastName = it},
+            value = registerUiState.lastNameInput,
+            onValueChange = { lastName -> registerViewModel.updateLastNameInput(lastName)},
             label = {
                 Text(
                     text = stringResource(R.string.ten),
@@ -146,8 +141,8 @@ fun RegisterScreen(
             shape = RoundedCornerShape(15.dp)
         )
         OutlinedTextField(
-            value = dob,
-            onValueChange = { dob = it},
+            value = registerUiState.dobInput,
+            onValueChange = { dob -> registerViewModel.updateDobInput(dob)},
             label = {
                 Text(
                     text = stringResource(R.string.ngay_sinh),
@@ -166,7 +161,7 @@ fun RegisterScreen(
                 .padding(bottom = 8.dp),
             shape = RoundedCornerShape(15.dp)
         )
-        if(username.isEmpty() || password.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || dob.isEmpty()) {
+        if(registerUiState.usernameInput.isEmpty() || registerUiState.passwordInput.isEmpty() || registerUiState.firstNameInput.isEmpty() || registerUiState.lastNameInput.isEmpty() || registerUiState.dobInput.isEmpty()) {
             Text(
                 text = stringResource(R.string.thong_bao_khong_de_trong),
                 color = Color.Red,
@@ -182,7 +177,7 @@ fun RegisterScreen(
             }
         }
         androidx.compose.material3.Button(
-            onClick = { registerViewModel.register(username, password, firstName, lastName, dob) },
+            onClick = { registerViewModel.register() },
             enabled = !registerUiState.isLoading
         ) {
             if (registerUiState.isLoading) {

@@ -10,20 +10,25 @@ import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
 import com.example.app.model.ApiService
 import com.example.app.model.FileUtils
+import com.example.app.model.repository.SongRepository
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
 class SongViewModel(
-    private val apiService: ApiService,
+    private val repository: SongRepository,
 ): ViewModel() {
-    private val _songUiState = mutableStateOf(SongState())
-    val songState: State<SongState> = _songUiState
+    private val _songUiState = MutableStateFlow(SongState())
+    val songState: StateFlow<SongState> = _songUiState.asStateFlow()
 
     private var searchJob: Job? = null
     private var currentSearchQuery: String = ""
@@ -36,7 +41,7 @@ class SongViewModel(
                 error = null
             )
             try {
-                val response = apiService.getTopSongs()
+                val response = repository.getTopSongs()
                 if(response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -64,7 +69,7 @@ class SongViewModel(
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(isLoading = true, error = null)
             try {
-                val response = apiService.getSongs()
+                val response = repository.getSongs()
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -108,7 +113,7 @@ class SongViewModel(
                     duration = duration,
                     releasedDate = releasedDate
                 )
-                val response = apiService.createSong(request)
+                val response = repository.createSong(request)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -152,7 +157,7 @@ class SongViewModel(
                 error = null
             )
             try {
-                val response = apiService.deleteSong(id)
+                val response = repository.deleteSong(id)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -178,42 +183,24 @@ class SongViewModel(
             }
         }
     }
-    fun uploadFiles(songId: String, imageUri: Uri, audioUri: Uri, context: Context) {
+    fun uploadFiles(songId: String, imageFile: File, audioFile: File) {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(
                 isLoading = true,
                 error = null
             )
             try {
-                val imageFile = FileUtils.getFileFromUri(context, imageUri)
-                val audioFile = FileUtils.getFileFromUri(context, audioUri)
-                if (imageFile != null && audioFile != null) {
-                    // 2. Tạo RequestBody cho Image
-                    val imageRequestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
-                    // createFormData tham số 1 là "key" trong Postman ("image")
-                    val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, imageRequestBody)
-
-                    // 3. Tạo RequestBody cho Audio
-                    val audioRequestBody = audioFile.asRequestBody("audio/*".toMediaTypeOrNull())
-                    // createFormData tham số 1 là "key" trong Postman ("audio")
-                    val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, audioRequestBody)
-
-                    // 4. Gọi API
-                    val response = apiService.uploadSongFiles(songId, imagePart, audioPart)
-
-                    if (response.isSuccessful) {
-                        _songUiState.value = _songUiState.value.copy(
-                            isLoading = false,
-                            error = null
-                        )
-                    } else {
-                        _songUiState.value = _songUiState.value.copy(
-                            isLoading = false,
-                            error = "Upload thất bại: ${response.code()}"
-                        )
-                    }
+                val response = repository.uploadSongFiles(songId, imageFile, audioFile)
+                if(response.isSuccessful) {
+                    _songUiState.value = _songUiState.value.copy(
+                        isLoading = false,
+                        error = null
+                    )
                 } else {
-                    _songUiState.value = _songUiState.value.copy(isLoading = false, error = "Không tìm thấy file")
+                    _songUiState.value = _songUiState.value.copy(
+                        isLoading = false,
+                        error = "Failed to upload files"
+                    )
                 }
             } catch (e : Exception) {
                 _songUiState.value = _songUiState.value.copy(isLoading = false)
@@ -235,7 +222,7 @@ class SongViewModel(
                     releasedDate = releasedDate,
                     type = type
                 )
-                val response = apiService.updateSong(id, request)
+                val response = repository.updateSong(id, request)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -279,9 +266,9 @@ class SongViewModel(
             try {
                 // 3. Gọi API tương ứng dựa trên trạng thái mới
                 val response = if (newFavoriteState) {
-                    apiService.addSongToFavorite(song.id)
+                    repository.addSongToFavorite(song.id)
                 } else {
-                    apiService.deleteSongFromFavorite(song.id)
+                    repository.deleteSongFromFavorite(song.id)
                 }
 
                 // 4. Kiểm tra kết quả từ Server
@@ -355,7 +342,7 @@ class SongViewModel(
 
             try {
                 // Truyền biến currentPage vào lời gọi API
-                val response = apiService.searchSongsForAdmin(query, page = currentPage, size = 20)
+                val response = repository.searchSongsForAdmin(query, page = currentPage, size = 20)
 
                 if (response.isSuccessful) {
                     val body = response.body()

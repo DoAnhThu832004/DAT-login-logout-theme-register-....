@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +61,8 @@ fun ArtistScreen(
     editProfileViewModel: EditProfileViewModel,
     onAlbumClick: (Album) -> Unit
 ) {
-    val albumState by albumViewModel.albumState
+    val context = LocalContext.current
+    val albumState by albumViewModel.albumState.collectAsState()
     LaunchedEffect(artist.id) {
         //albumViewModel.getAlbumByArtist(artist.id)
     }
@@ -99,7 +102,19 @@ fun ArtistScreen(
                         },
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                HeaderView(name = artist.name, image = artist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, id = artist.id, editProfileViewModel = editProfileViewModel, artist = artist)
+                HeaderView(
+                    name = artist.name,
+                    image = artist.imageUrlAr,
+                    top = 48,
+                    check = false,
+                    artist = artist,
+                    onImageSelected = {
+                        editProfileViewModel.uploadImage(artist.id,it,context)
+                    },
+                    onToggleFollowClick = {
+                        artistViewModel.toggleFollow(artist)
+                    }
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

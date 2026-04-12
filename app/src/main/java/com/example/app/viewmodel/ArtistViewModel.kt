@@ -11,21 +11,51 @@ import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.response.Album
 import com.example.app.model.response.Artist
+import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ArtistViewModel(
     private val apiService: ApiService
 ): ViewModel() {
-    private val _artistState = mutableStateOf(ArtistState())
-    val artistState: State<ArtistState> = _artistState
+    private val _artistState = MutableStateFlow(ArtistState())
+    val artistState: StateFlow<ArtistState> = _artistState.asStateFlow()
 
-    private val _allSongsState = mutableStateOf<List<Song>>(emptyList())
-    val allSongsState: State<List<Song>> = _allSongsState
+    private val _allSongsState = MutableStateFlow<List<Song>>(emptyList())
+    val allSongsState: StateFlow<List<Song>> = _allSongsState.asStateFlow()
 
-    private val _allAlbumsState = mutableStateOf<List<Album>>(emptyList())
-    val allAlbumsState: State<List<Album>> = _allAlbumsState
+    private val _allAlbumsState = MutableStateFlow<List<Album>>(emptyList())
+    val allAlbumsState: StateFlow<List<Album>> = _allAlbumsState.asStateFlow()
 
+    private val _currentArtist = MutableStateFlow<Artist?>(null)
+    val currentArtist: StateFlow<Artist?> = _currentArtist.asStateFlow()
+
+    fun getArtistById(id: String) {
+        viewModelScope.launch {
+            _artistState.value = _artistState.value.copy(isLoadingA = true, errorA = null)
+            try {
+                val response = apiService.getArtistById(id)
+                val body = response.body()
+                if (response.isSuccessful && body?.result != null) {
+                    _currentArtist.value = body.result
+                    _artistState.value = _artistState.value.copy(isLoadingA = false, errorA = null)
+                } else {
+                    _artistState.value = _artistState.value.copy(
+                        isLoadingA = false,
+                        errorA = "Không tìm thấy chi tiết Artist"
+                    )
+                }
+            } catch (e: Exception) {
+                _artistState.value = _artistState.value.copy(
+                    isLoadingA = false,
+                    errorA = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
+    }
     fun getArtists() {
         viewModelScope.launch {
             _artistState.value = _artistState.value.copy(isLoadingA = true, errorA = null)

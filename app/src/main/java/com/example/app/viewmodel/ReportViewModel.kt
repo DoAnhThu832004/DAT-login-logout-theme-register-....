@@ -8,13 +8,16 @@ import com.example.app.model.ApiService
 import com.example.app.model.request.ReportCreationRequest
 import com.example.app.model.request.ReportUpdateRequest
 import com.example.app.model.response.Report
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ReportViewModel (
     private val apiService: ApiService
 ):ViewModel() {
-    private val _reportState = mutableStateOf(ReportState())
-    val reportState : State<ReportState> = _reportState
+    private val _reportState = MutableStateFlow(ReportState())
+    val reportState : StateFlow<ReportState> = _reportState.asStateFlow()
 
     fun getReport() {
         viewModelScope.launch {

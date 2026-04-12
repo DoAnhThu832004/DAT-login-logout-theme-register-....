@@ -13,13 +13,16 @@ import com.example.app.model.request.CommentUpdateRequest
 import com.example.app.model.response.Comment
 import com.example.app.model.response.Song
 import com.example.app.viewmodel.AlbumViewModel.AlbumState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CommentViewModel(
     private val apiService: ApiService
 ): ViewModel() {
-    private val _commentUiState = mutableStateOf(CommentState())
-    val commentState: State<CommentState> = _commentUiState
+    private val _commentUiState = MutableStateFlow(CommentState())
+    val commentState: StateFlow<CommentState> = _commentUiState.asStateFlow()
 
     // Biến trạng thái lưu trữ đối tượng bình luận đang được chọn để phản hồi
     var replyingToComment by mutableStateOf<Comment?>(null)

@@ -1,11 +1,11 @@
+package com.example.app.view.admin.song
+
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,29 +21,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter // Cần thư viện Coil để load ảnh từ Uri
+import coil.compose.rememberAsyncImagePainter
+import com.example.app.model.FileUtils
 import com.example.app.viewmodel.SongViewModel
 
 @Composable
 fun UploadFileSong(
-    songId: String, // ID của bài hát cần upload (lấy từ màn hình trước hoặc API tạo bài hát)
+    songId: String,
     viewModel: SongViewModel,
-    //onUploadSuccess: () -> Unit
 ) {
     val context = LocalContext.current
 
-    // 1. Khởi tạo State để lưu trữ URI tạm thời
+    // Thu thập dữ liệu từ StateFlow theo thời gian thực
+    val uiState by viewModel.songState.collectAsState()
+
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var audioUri by remember { mutableStateOf<Uri?>(null) }
 
-    // 2. Định nghĩa Launcher cho Ảnh (MIME type: image/*)
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         imageUri = uri
     }
 
-    // 3. Định nghĩa Launcher cho Audio (MIME type: audio/*)
     val audioPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -59,7 +59,6 @@ fun UploadFileSong(
     ) {
         Text(text = "Upload File cho Bài hát", style = MaterialTheme.typography.headlineSmall)
 
-        // --- KHU VỰC CHỌN ẢNH (IMAGE PICKER) ---
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -70,7 +69,6 @@ fun UploadFileSong(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 if (imageUri != null) {
-                    // Hiển thị Preview ảnh đã chọn
                     Image(
                         painter = rememberAsyncImagePainter(imageUri),
                         contentDescription = "Selected Image",
@@ -86,7 +84,6 @@ fun UploadFileSong(
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 } else {
-                    // Placeholder khi chưa chọn
                     Icon(
                         imageVector = Icons.Default.Image,
                         contentDescription = null,
@@ -103,7 +100,6 @@ fun UploadFileSong(
             }
         }
 
-        // --- KHU VỰC CHỌN NHẠC (AUDIO PICKER) ---
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -120,7 +116,6 @@ fun UploadFileSong(
                     tint = if (audioUri != null) MaterialTheme.colorScheme.primary else Color.Gray
                 )
 
-                // Hiển thị đường dẫn (hoặc tên file)
                 Text(
                     text = if (audioUri != null) "Đã chọn file nhạc" else "Chưa chọn file nhạc",
                     style = MaterialTheme.typography.bodyMedium,
@@ -135,16 +130,21 @@ fun UploadFileSong(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // --- NÚT UPLOAD CUỐI CÙNG ---
         Button(
             onClick = {
                 if (imageUri != null && audioUri != null) {
-                    // Gọi hàm trong ViewModel (đã viết ở bước trước)
-                    // Lưu ý: Cần viết hàm uploadFiles trong ViewModel nhận vào context
-                    viewModel.uploadFiles(songId, imageUri!!, audioUri!!, context)
-                    Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
-                    imageUri = null
-                    audioUri = null
+                    // Logic xử lý tệp tin được thực hiện ở tầng giao diện người dùng
+                    val imageFile = FileUtils.getFileFromUri(context, imageUri!!)
+                    val audioFile = FileUtils.getFileFromUri(context, audioUri!!)
+
+                    if (imageFile != null && audioFile != null) {
+                        viewModel.uploadFiles(songId, imageFile, audioFile)
+                        Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
+                        imageUri = null
+                        audioUri = null
+                    } else {
+                        Toast.makeText(context, "Lỗi quá trình khởi tạo tệp tin", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(context, "Vui lòng chọn đủ cả ảnh và nhạc", Toast.LENGTH_SHORT).show()
                 }
@@ -152,12 +152,20 @@ fun UploadFileSong(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            enabled = imageUri != null && audioUri != null, // Chỉ enable khi đã chọn đủ
+            enabled = imageUri != null && audioUri != null && !uiState.isLoading,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         ) {
-            Icon(Icons.Default.CloudUpload, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Tiến hành Upload")
+            if (uiState.isLoading) {
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+            } else {
+                Icon(Icons.Default.CloudUpload, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Tiến hành Upload")
+            }
+        }
+
+        if (uiState.error != null) {
+            Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
         }
     }
 }

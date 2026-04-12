@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +60,7 @@ fun AlbumDetailScreen(
 ) {
     var showPlaylistSheet by remember { mutableStateOf(false) }
     val sheetStatePlaylist = rememberModalBottomSheetState()
-    val reportState by reportViewModel.reportState
+    val reportState by reportViewModel.reportState.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier

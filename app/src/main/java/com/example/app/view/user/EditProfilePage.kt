@@ -26,6 +26,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,11 +54,11 @@ fun EditProfilePage(
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     // Lấy state từ ViewModel
-    val editUiState by editProfileViewModel.editUiState
+    val editUiState by editProfileViewModel.editUiState.collectAsState()
 
     // Lấy thông tin username hiện tại từ LoginViewModel
     val currentUsername = loginViewModel.loginUiState.value.name ?: ""
-    var password = loginViewModel.loginUiState.value.password ?: ""
+    var password = loginViewModel.loginUiState.value.passwordInput ?: ""
     var passwordOld by remember { mutableStateOf("") }
     var passwordNew by remember { mutableStateOf("") }
 

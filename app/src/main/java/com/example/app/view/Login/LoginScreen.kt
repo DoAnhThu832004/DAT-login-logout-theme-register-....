@@ -76,24 +76,21 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val loginUiState by loginViewModel.loginUiState.collectAsState()
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
     val savedUsername by DataStoreUtils.getSavedUsername(context).collectAsState(initial = "")
 
     // Biến trạng thái lưu trữ giá trị tiến trình giả lập
     var simulatedProgress by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(savedUsername) {
-        if (username.isEmpty() && !savedUsername.isNullOrEmpty()) {
-            username = savedUsername!!
+        if (loginUiState.usernameInput.isEmpty() && !savedUsername.isNullOrEmpty()) {
+            loginUiState.usernameInput = savedUsername!!
         }
     }
-    LaunchedEffect(Unit) {
-        val currentToken = SessionManager(context).getAccessToken()
-        if (!currentToken.isNullOrEmpty()) {
-            // Thực hiện điều hướng trực tiếp đến Home tương ứng với Role
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        val currentToken = SessionManager(context).getAccessToken()
+//        if (!currentToken.isNullOrEmpty()) {
+//            // Thực hiện điều hướng trực tiếp đến Home tương ứng với Role
+//        }
+//    }
     LaunchedEffect(loginUiState.isSuccessful) {
         if (loginUiState.isSuccessful) {
             // Đẩy tiến trình lên mức tối đa trước khi điều hướng
@@ -150,8 +147,8 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.padding(top = 8.dp))
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
+                value = loginUiState.usernameInput,
+                onValueChange = { newValue -> loginViewModel.updateUsernameInput(newValue) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Email, contentDescription = null,
@@ -171,8 +168,8 @@ fun LoginScreen(
                     .padding(bottom = 8.dp)
             )
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it},
+                value = loginUiState.passwordInput,
+                onValueChange = { password -> loginViewModel.updatePassWordInput(password) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Password, contentDescription = null,
@@ -182,9 +179,9 @@ fun LoginScreen(
                 },
                 trailingIcon = {
                     IconButton(
-                        onClick = { showPassword = !showPassword },
+                        onClick = { loginViewModel.togglePasswordVisibility() },
                     ) {
-                        Icon(imageVector = if(showPassword)
+                        Icon(imageVector = if(loginUiState.isPasswordVisible)
                             Icons.Default.Visibility
                         else Icons.Default.VisibilityOff,
                             contentDescription = null,
@@ -202,10 +199,10 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                visualTransformation = if(showPassword) VisualTransformation.None else PasswordVisualTransformation()
+                visualTransformation = if(loginUiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
             )
 
-            if(username.isEmpty() || password.isEmpty()) {
+            if(loginUiState.usernameInput.isEmpty() || loginUiState.passwordInput.isEmpty()) {
                 Text(
                     text = stringResource(R.string.thong_bao_khong_de_trong),
                     color = Color.Red,
@@ -223,7 +220,7 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    loginViewModel.login(username, password)
+                    loginViewModel.login()
                     loginUiState.token?.let { token ->
                         loginUiState.name?.let { name ->
                             navigateToUserHomePage(token, name)
@@ -251,45 +248,32 @@ fun LoginScreen(
             )
         }
 
-        if (loginUiState.isLoading || (simulatedProgress == 100f && loginUiState.isSuccessful)) {
+        if (loginUiState.isLoading || (loginUiState.progress == 100f && loginUiState.isSuccessful)) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {}
-                    ),
+                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {}),
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 8.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         JetpackRoundedProgressBar(
-                            progressPercentage = simulatedProgress,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(20.dp),
+                            progressPercentage = loginUiState.progress,
+                            modifier = Modifier.fillMaxWidth().height(20.dp),
                             progressColor = MaterialTheme.colorScheme.primary,
                             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                            text = "${simulatedProgress.toInt()}%",
-                            cornerRadiusTopLeft = 25.dp,
-                            cornerRadiusTopRight = 25.dp,
-                            cornerRadiusBottomRight = 25.dp,
-                            cornerRadiusBottomLeft = 25.dp
+                            text = "${loginUiState.progress.toInt()}%",
+                            cornerRadiusTopLeft = 25.dp, cornerRadiusTopRight = 25.dp,
+                            cornerRadiusBottomRight = 25.dp, cornerRadiusBottomLeft = 25.dp
                         )
                     }
                 }

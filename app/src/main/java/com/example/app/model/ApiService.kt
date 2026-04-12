@@ -96,6 +96,8 @@ interface ApiService {
     ): Response<ApiResponse<Song>>
     @GET("albums")
     suspend fun getAlbums(): Response<ApiResponse<List<Album>>>
+    @GET("albums/{albumId}")
+    suspend fun getAlbumById(@Path("albumId") albumId: String): Response<ApiResponse<Album>>
     @GET("albums/searchKey")
     suspend fun searchAlbums(
         @Query("name") name: String
@@ -121,6 +123,8 @@ interface ApiService {
     ): Response<ApiResponse<String>>
     @GET("artists")
     suspend fun getArtists(): Response<ApiResponse<List<Artist>>>
+    @GET("artists/{artistId}")
+    suspend fun getArtistById(@Path("artistId") artistId: String): Response<ApiResponse<Artist>>
     @GET("artists/searchKey")
     suspend fun searchArtists(
         @Query("name") name: String
@@ -156,6 +160,8 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @GET("playlists/{playlistId}")
+    suspend fun getPlaylistById(@Path("playlistId") playlistId: String): Response<ApiResponse<Playlist>>
     @PUT("playlists/{id}")
     suspend fun updatePlaylist(
         @Path("id") id: String,

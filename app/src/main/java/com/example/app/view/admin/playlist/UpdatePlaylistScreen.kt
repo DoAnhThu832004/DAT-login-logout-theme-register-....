@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +43,7 @@ fun UpdatePlaylistScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val playlistState by playlistViewModel.playlistState
+    val playlistState by playlistViewModel.playlistState.collectAsState()
     val playlists = playlistState.playlists ?: emptyList()
     val currentPlaylist = remember(playlists,playlistId) {
         playlists.find { it.id == playlistId }

@@ -26,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +50,7 @@ fun DetailPlaylistScreenA(
     playlistViewModel: PlaylistViewModel,
     onBack: () -> Unit
 ) {
-    val playlistState by playlistViewModel.playlistState
+    val playlistState by playlistViewModel.playlistState.collectAsState()
     val playlists = playlistState.playlists ?: emptyList()
     val currentPlaylist = remember(playlists, playlistId) {
         playlists.find { it.id == playlistId }

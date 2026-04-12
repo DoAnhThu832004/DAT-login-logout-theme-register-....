@@ -15,6 +15,9 @@ import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
 import com.example.app.model.response.Album
 import com.example.app.model.response.Song
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -24,11 +27,40 @@ import okhttp3.internal.toImmutableList
 class AlbumViewModel(
     private val apiService: ApiService
 ) : ViewModel() {
-    private val _albumUiState = mutableStateOf(AlbumState())
-    val albumState: State<AlbumState> = _albumUiState
+    private val _albumUiState = MutableStateFlow(AlbumState())
+    val albumState: StateFlow<AlbumState> = _albumUiState.asStateFlow()
 
-    private val _allSongsState = mutableStateOf<List<Song>>(emptyList())
-    val allSongsState: State<List<Song>> = _allSongsState
+    private val _allSongsState = MutableStateFlow<List<Song>>(emptyList())
+    val allSongsState: StateFlow<List<Song>> = _allSongsState.asStateFlow()
+
+    private val _currentAlbumDetail = MutableStateFlow<Album?>(null)
+    val currentAlbumDetail: StateFlow<Album?> = _currentAlbumDetail.asStateFlow()
+
+    fun getAlbumById(id: String) {
+        viewModelScope.launch {
+            // Tận dụng biến isLoading có sẵn trong AlbumState để bật hiệu ứng tải
+            _albumUiState.value = _albumUiState.value.copy(isLoading = true, error = null)
+            try {
+                val response = apiService.getAlbumById(id)
+                val body = response.body()
+                if (response.isSuccessful && body?.result != null) {
+                    // Cập nhật dữ liệu vào biến currentAlbumDetail
+                    _currentAlbumDetail.value = body.result
+                    _albumUiState.value = _albumUiState.value.copy(isLoading = false, error = null)
+                } else {
+                    _albumUiState.value = _albumUiState.value.copy(
+                        isLoading = false,
+                        error = "Không tìm thấy chi tiết Album"
+                    )
+                }
+            } catch (e: Exception) {
+                _albumUiState.value = _albumUiState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
+    }
 
     fun getAlbums() {
         viewModelScope.launch {

@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,7 +44,7 @@ fun PlaylistScreenA(
         NavItems(stringResource(R.string.danh_sach_playlist), Icons.Default.ListAlt),
         NavItems(stringResource(R.string.tao_playlist), Icons.Default.AddCircleOutline),
     )
-    val playlistState by playlistViewModel.playlistState
+    val playlistState by playlistViewModel.playlistState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         playlistViewModel.getPlaylists()

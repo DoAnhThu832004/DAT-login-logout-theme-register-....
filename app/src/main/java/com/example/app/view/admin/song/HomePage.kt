@@ -1,6 +1,5 @@
 package com.example.app.view.admin.song
 
-import UploadFileSong
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -55,7 +55,7 @@ fun HomePage(
         NavItems(stringResource(R.string.danh_sach_bai_hat),Icons.Default.ListAlt),
         NavItems(stringResource(R.string.tao_bai_hat),Icons.Default.AddCircleOutline),
     )
-    val songState by songViewModel.songState
+    val songState by songViewModel.songState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         songViewModel.getSongs()

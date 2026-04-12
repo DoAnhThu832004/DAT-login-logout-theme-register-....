@@ -15,6 +15,9 @@ import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
 import com.example.app.model.response.Song
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -23,8 +26,8 @@ import okhttp3.RequestBody.Companion.asRequestBody
 class PlaylistViewModel(
     private val apiService: ApiService
 ):ViewModel() {
-    private val _playlistState = mutableStateOf(PlaylistState())
-    val playlistState: State<PlaylistState> = _playlistState
+    private val _playlistState = MutableStateFlow(PlaylistState())
+    val playlistState: StateFlow<PlaylistState> = _playlistState.asStateFlow()
 
     val songs = mutableStateListOf<Song>()
 
@@ -35,6 +38,32 @@ class PlaylistViewModel(
     private var totalPages = 1
     var isLastPage = false
 
+    private val _currentPlaylistDetail = MutableStateFlow<Playlist?>(null)
+    val currentPlaylistDetail: StateFlow<Playlist?> = _currentPlaylistDetail.asStateFlow()
+
+    fun getPlaylistById(id: String) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
+            try {
+                val response = apiService.getPlaylistById(id)
+                val body = response.body()
+                if (response.isSuccessful && body?.result != null) {
+                    _currentPlaylistDetail.value = body.result
+                    _playlistState.value = _playlistState.value.copy(isLoading = false, error = null)
+                } else {
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = "Lỗi trích xuất dữ liệu danh sách phát"
+                    )
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
+    }
     fun getMyPlaylists() {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(

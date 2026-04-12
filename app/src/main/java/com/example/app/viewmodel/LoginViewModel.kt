@@ -11,6 +11,7 @@ import com.example.app.model.ApiService
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.response.ApiError
 import com.google.gson.Gson
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,10 +26,28 @@ class LoginViewModel(
     private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState: StateFlow<LoginUiState> = _loginUiState
 
+    private var progressJob: Job? = null
 
-    fun login(username: String, password: String) {
+    fun updateUsernameInput(input: String) {
+        _loginUiState.value = _loginUiState.value.copy(
+            usernameInput = input
+        )
+    }
+    fun updatePassWordInput(input: String) {
+        _loginUiState.value = _loginUiState.value.copy(
+            passwordInput = input
+        )
+    }
+    fun togglePasswordVisibility() {
+        val currentState = _loginUiState.value
+        _loginUiState.value = currentState.copy(isPasswordVisible = !currentState.isPasswordVisible)
+    }
+    fun login() {
+        val username = _loginUiState.value.usernameInput
+        val password = _loginUiState.value.passwordInput
         viewModelScope.launch {
             _loginUiState.value = _loginUiState.value.copy(isLoading = true, error = null)
+            startSimulatedProgress()
             try {
                 val response = apiService.authenticate(
                     AuthenticationRequest(
@@ -45,6 +64,10 @@ class LoginViewModel(
                         sessionManager.saveSession(token)
                         sessionManager.saveUsername(username)
 
+                        progressJob?.cancel()
+                        _loginUiState.value = _loginUiState.value.copy(progress = 100f)
+                        delay(300)
+
                         _loginUiState.value = _loginUiState.value.copy(
                             isLoading = false,
                             isSuccessful = true,
@@ -55,16 +78,32 @@ class LoginViewModel(
                             error = "Login successfully"
                         )
                     } else {
-                        resetLoginUiState(body?.message ?: "Login failed")
+                        handleLoginFailure(body?.message ?: "Login failed")
                     }
                 } else {
                     val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
-                    resetLoginUiState(apiErr?.message ?: "Registration failed")
+                    handleLoginFailure(apiErr?.message ?: "Registration failed")
                 }
             } catch (e : Exception) {
-                resetLoginUiState("Error: ${e.message}")
+                handleLoginFailure("Error: ${e.message}")
             }
         }
+    }
+    private fun startSimulatedProgress() {
+        progressJob?.cancel()
+        progressJob = viewModelScope.launch {
+            var currentProgress = 0f
+            while (currentProgress < 95f) {
+                delay(100)
+                currentProgress += (95f - currentProgress) * 0.15f
+                _loginUiState.value = _loginUiState.value.copy(progress = currentProgress)
+            }
+        }
+    }
+    private suspend fun handleLoginFailure(message: String) {
+        progressJob?.cancel()
+        _loginUiState.value = _loginUiState.value.copy(progress = 0f)
+        resetLoginUiState(message)
     }
     fun resetLoginUiState(message : String) {
         viewModelScope.launch {
@@ -117,8 +156,13 @@ class LoginViewModel(
     data class LoginUiState(
         val isLoading: Boolean = false,
         val isSuccessful: Boolean = false,
+        val progress: Float = 0f,
+
+        var usernameInput: String = "",
+        val passwordInput: String = "",
+        val isPasswordVisible: Boolean = false,
+
         val name : String? = null,
-        val password : String? = null,
         val token: String? = null,
         val userId : String? = null,
         val role: String? = null,

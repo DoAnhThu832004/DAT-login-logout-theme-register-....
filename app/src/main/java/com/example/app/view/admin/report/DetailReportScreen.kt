@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,10 +75,10 @@ fun DetailReportScreen(
     artistViewModel: ArtistViewModel
 ) {
     // Trích xuất trạng thái dữ liệu hiện thời
-    val songState by songViewModel.songState
-    val albumState by albumViewModel.albumState
-    val playlistState by playlistViewModel.playlistState
-    val artistState by artistViewModel.artistState
+    val songState by songViewModel.songState.collectAsState()
+    val albumState by albumViewModel.albumState.collectAsState()
+    val playlistState by playlistViewModel.playlistState.collectAsState()
+    val artistState by artistViewModel.artistState.collectAsState()
 
     var show by remember { mutableStateOf(false) }
     val density = LocalDensity.current // dùng để chuyển đổi giữa dp/sp -> px vì animation nó chuyển đổi theo px

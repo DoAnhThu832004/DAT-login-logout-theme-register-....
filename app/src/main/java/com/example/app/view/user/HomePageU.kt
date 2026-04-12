@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,10 +34,12 @@ import com.example.app.viewmodel.SongViewModel
 @Composable
 fun HomePageU(
     modifier: Modifier = Modifier,
-    songViewModel: SongViewModel,
-    albumViewModel: AlbumViewModel,
-    artistViewModel: ArtistViewModel,
-    playlistViewModel: PlaylistViewModel,
+    isLoading: Boolean,
+    errorMessage: String?,
+    songs: List<Song>,
+    topSongs: List<Song>,
+    albums: List<Album>,
+    playlists: List<Playlist>,
     searchViewModel: SearchViewModel,
     onViewAllSongs: () -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -45,16 +48,6 @@ fun HomePageU(
     onClickToTopChart: () -> Unit,
     onToDetailClick: (Playlist) -> Unit
 ) {
-    val songState by songViewModel.songState
-    val albumState by albumViewModel.albumState
-    val playlistState by playlistViewModel.playlistState
-    LaunchedEffect(Unit) {
-        songViewModel.getSongs()
-        songViewModel.getTopSongs()
-        albumViewModel.getAlbums()
-        artistViewModel.getArtists()
-        playlistViewModel.getPlaylists()
-    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,18 +61,18 @@ fun HomePageU(
                 //.background(MaterialTheme.colorScheme.background)
         ) {
             when {
-                songState.isLoading -> {
+                isLoading -> {
                     CircularProgressIndicator(modifier.align(Alignment.Center))
                 }
-                playlistState.error != null -> {
-                    Text(text = "error: ${playlistState.error}")
+                errorMessage != null -> {
+                    Text(text = "error: ${errorMessage}")
                 }
                 else -> {
                     SongScreen(
-                        songs = songState.songs ?: emptyList(),
-                        topSong = songState.topSongs?.take(5) ?: emptyList(),
-                        albums = albumState.albums ?: emptyList(),
-                        playlists = playlistState.playlists ?: emptyList(),
+                        songs = songs,
+                        topSong = topSongs,
+                        albums = albums,
+                        playlists = playlists,
                         onViewAllClick = onViewAllSongs,
                         onSongClick = { song ->
                             onPlayerScreen(song)

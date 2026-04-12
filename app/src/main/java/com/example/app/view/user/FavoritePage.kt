@@ -76,100 +76,108 @@ fun FavoritePage(
     playerViewModel: PlayerViewModel,
     onSongClick: (Song) -> Unit
 ) {
-    BoxWithConstraints {
-        val startOffset = -maxHeight
-        Column(
+    val favoriteSongs = remember(songs) {
+        songs.filter { it.favorite }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            Text(
+                text = stringResource(R.string.bai_hat_yeu_thich),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .align(Alignment.Center)
+            )
+        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        shape = RoundedCornerShape(12.dp)
-                    )
+            itemsIndexed(
+                items = favoriteSongs,
+                key = {_, song -> song.id}
             ) {
-                Text(
-                    text = stringResource(R.string.bai_hat_yeu_thich),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .align(Alignment.Center)
-                )
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                itemsIndexed(songs) {
-                        index,i ->
-                    val alphaAnim = remember { androidx.compose.animation.core.Animatable(0f) }
-                    val slideAnim = remember { androidx.compose.animation.core.Animatable(startOffset.value) }
-                    LaunchedEffect(key1 = i.id) {
-                        delay(index.coerceAtMost(12) * 50L)
-                        launch {
-                            alphaAnim.animateTo(
-                                targetValue = 1f,
-                                animationSpec = tween(durationMillis = 400)
-                            )
-                        }
-                        launch {
-                            slideAnim.animateTo(
-                                targetValue = 0f,
-                                animationSpec = spring(
-                                    dampingRatio = 0.75f, // Độ nảy vừa phải
-                                    stiffness = Spring.StiffnessLow
-                                )
-                            )
-                        }
+                    index,song ->
+                // 3. TỐI ƯU: Sử dụng biến State đơn giản thay vì khởi tạo Animatable thủ công
+                var isVisible by remember { mutableStateOf(false) }
 
-                    }
-                    Box(
-                        modifier = Modifier
-                            .offset(y = slideAnim.value.dp)
-                            .alpha(alphaAnim.value)
-                            .fillMaxWidth()
-                    ) {
-                        if(i.favorite) {
-                            DetailListSongF(
-                                song = i,
-                                songViewModel = songViewModel,
-                                playerViewModel = playerViewModel,
-                                //artist = artist,
-                                onSongClick = { onSongClick(i)}
-                            )
-                        }
-                    }
+                LaunchedEffect(song.id) {
+                    // Giới hạn delay tối đa để khi cuộn nhanh không bị chờ quá lâu
+                    delay(index.coerceAtMost(10) * 50L)
+                    isVisible = true
+                }
+
+                val alpha by animateFloatAsState(
+                    targetValue = if (isVisible) 1f else 0f,
+                    animationSpec = tween(durationMillis = 400),
+                    label = "alpha"
+                )
+
+                // Trượt từ trên xuống (-100dp) thay vì dùng maxHeight gây lỗi UI
+                val offsetY by animateFloatAsState(
+                    targetValue = if (isVisible) 0f else -100f,
+                    animationSpec = spring(
+                        dampingRatio = 0.75f,
+                        stiffness = Spring.StiffnessLow
+                    ),
+                    label = "offsetY"
+                )
+                DetailListSongF(
+                    song = song,
+                    // 4. TỐI ƯU: State Hoisting - Truyền sự kiện ra ngoài thay vì truyền ViewModel vào trong
+                    onToggleFavorite = {
+                        songViewModel.toggleFavorite(song, playerViewModel)
+                    },
+                    onSongClick = { onSongClick(song) },
+                    modifier = Modifier
+                        .offset(y = offsetY.dp)
+                        .alpha(alpha)
+                        .animateItem() // 5. SUPER TỐI ƯU: Tự động trượt mượt mà khi xóa bài hát khỏi mục yêu thích
+                )
 //                val artist = artists.firstOrNull { artist ->
 //                    artist.songs.any { it.id == i.id }
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
-                }
             }
         }
     }
+//    BoxWithConstraints {
+//        val startOffset = -maxHeight
+//
+//    }
 }
 @Composable
 fun DetailListSongF(
     song: Song,
-    songViewModel: SongViewModel,
-    playerViewModel: PlayerViewModel,
-    onSongClick: () -> Unit
+    onSongClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    modifier: Modifier = Modifier // Nhận modifier từ lớp cha để kế trúc Animation
 ) {
     var expanded by remember { mutableStateOf(false) }
     val rotationState by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
-        label = "Rotation" // Label cho Android Studio Animation Preview
+        label = "Rotation"
     )
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp) // Thêm padding ngoài cho gọn
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.background)
             .animateContentSize(
@@ -180,7 +188,6 @@ fun DetailListSongF(
             )
             .clickable { onSongClick() },
     ) {
-        Spacer(modifier = Modifier.width(16.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -215,19 +222,15 @@ fun DetailListSongF(
                 }
             }
             IconButton(
-                onClick = { expanded = !expanded }, // Đảo ngược trạng thái
-                modifier = Modifier.rotate(rotationState) // Áp dụng góc xoay
+                onClick = { expanded = !expanded },
+                modifier = Modifier.rotate(rotationState)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown, // Dùng 1 icon và xoay nó
+                    imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = if (expanded) "Collapse" else "Expand"
                 )
             }
-            IconButton(
-                onClick = {
-                    songViewModel.toggleFavorite(song, playerViewModel)
-                }
-            ) {
+            IconButton(onClick = onToggleFavorite) { // Sử dụng Callback
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,

@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,14 +63,14 @@ fun AlbumDetailScreenA(
     onSongClick: (Song) -> Unit,
     onBack: ()-> Unit
 ) {
-    val albumState by albumViewModel.albumState
+    val albumState by albumViewModel.albumState.collectAsState()
     val albums = albumState.albums ?: emptyList()
     val currentAlbum = remember(albums,albumId) {
         albums.find { it.id == albumId }
     }
     var showAddSongSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    val allSongs by albumViewModel.allSongsState
+    val allSongs by albumViewModel.allSongsState.collectAsState()
     if(currentAlbum != null) {
         Column(
             modifier = Modifier

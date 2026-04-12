@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,7 +92,7 @@ fun ProfilePage(
         NavItemsDrawer(stringResource(R.string.cai_dat),Icons.Default.Settings,Screen.SettingPage.route),
         NavItemsDrawer(stringResource(R.string.dang_xuat),Icons.Default.Logout,Screen.LoginScreen.route)
     )
-    val playlistState by playlistViewModel.playlistState
+    val playlistState by playlistViewModel.playlistState.collectAsState()
     var showPlaylistSheet by remember { mutableStateOf(false) }
     val sheetStatePlaylist = rememberModalBottomSheetState()
     LaunchedEffect(Unit) {
@@ -122,7 +123,18 @@ fun ProfilePage(
                         ), shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
                     )
             )
-            HeaderView(name = name, image = user.result.imageUrl ,top = 48,check = true, id = user.result.id, editProfileViewModel = editProfileViewModel, artistViewModel = artistViewModel)
+            HeaderView(
+                name = name,
+                image = user.result.imageUrl ,
+                top = 48,
+                check = true,
+                onImageSelected = {
+                    editProfileViewModel.uploadImage(user.result.id,it,context)
+                },
+                onToggleFollowClick = {
+                    artistViewModel.toggleFollow(it)
+                }
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

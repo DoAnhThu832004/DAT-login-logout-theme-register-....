@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +70,7 @@ fun MyPlaylistDetailScreen(
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var show by remember { mutableStateOf(false) }
-    val playlistState by playlistViewModel.playlistState
+    val playlistState by playlistViewModel.playlistState.collectAsState()
     var showPlaylistSheet by remember { mutableStateOf(false) }
     val sheetStatePlaylist = rememberModalBottomSheetState()
 

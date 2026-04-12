@@ -17,6 +17,7 @@ import com.example.app.viewmodel.ArtistViewModel.ArtistState
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -28,8 +29,8 @@ class EditProfileViewModel(
     private val loginViewModel: LoginViewModel,
     private val sessionManager: SessionManager
 ): ViewModel() {
-    private val _editUiState = mutableStateOf(EditUiState())
-    val editUiState: State<EditUiState> = _editUiState
+    private val _editUiState = MutableStateFlow(EditUiState())
+    val editUiState: StateFlow<EditUiState> = _editUiState.asStateFlow()
     init {
         getMyInfo()
     }

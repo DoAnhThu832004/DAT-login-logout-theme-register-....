@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,7 +71,8 @@ fun DetailArtistScreen(
     editProfileViewModel: EditProfileViewModel,
     //onAlbumClick: (Album) -> Unit
 ) {
-    val artistState by artistViewModel.artistState
+    val artistState by artistViewModel.artistState.collectAsState()
+    val context = LocalContext.current
     val artists = artistState.artists ?: emptyList()
     val currentArtist = remember(artists,artistId) {
         artists.find { it.id == artistId }
@@ -78,8 +81,8 @@ fun DetailArtistScreen(
     val sheetState = rememberModalBottomSheetState()
     var showAddAlbumSheet by remember { mutableStateOf(false) }
     val sheetStateAlbum = rememberModalBottomSheetState()
-    val allAlbums by artistViewModel.allAlbumsState
-    val allSongs by artistViewModel.allSongsState
+    val allAlbums by artistViewModel.allAlbumsState.collectAsState()
+    val allSongs by artistViewModel.allSongsState.collectAsState()
     if(currentArtist != null) {
         LazyColumn(
             modifier = Modifier
@@ -116,7 +119,19 @@ fun DetailArtistScreen(
                                 start.linkTo(parent.start)
                             }
                     )
-                    HeaderView(name = currentArtist.name, image = currentArtist.imageUrlAr, top = 48, check = false, artistViewModel = artistViewModel, id = currentArtist.id, editProfileViewModel = editProfileViewModel, artist = currentArtist)
+                    HeaderView(
+                        name = currentArtist.name,
+                        image = currentArtist.imageUrlAr,
+                        top = 48,
+                        check = false,
+                        artist = currentArtist,
+                        onImageSelected = {
+                            editProfileViewModel.uploadImage(currentArtist.id,it,context)
+                        },
+                        onToggleFollowClick = {
+                            artistViewModel.toggleFollow(currentArtist)
+                        }
+                    )
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()

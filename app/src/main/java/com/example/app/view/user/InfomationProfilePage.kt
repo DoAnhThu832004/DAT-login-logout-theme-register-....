@@ -49,7 +49,7 @@ fun InformationProfilePage(
     navController: NavHostController,
     editProfileViewModel: EditProfileViewModel
 ) {
-    val editUiState by editProfileViewModel.editUiState
+    val editUiState by editProfileViewModel.editUiState.collectAsState()
     val user = editUiState.userResponse?.result
 
     LaunchedEffect(Unit) {
