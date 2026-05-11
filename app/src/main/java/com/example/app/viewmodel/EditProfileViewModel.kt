@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
-import com.example.app.model.ApiService
+import com.example.app.model.repository.UserRepository
 import com.example.app.model.FileUtils
 import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.ApiError
@@ -25,7 +25,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 
 class EditProfileViewModel(
-    private val apiService: ApiService,
+    private val repository: UserRepository,
     private val loginViewModel: LoginViewModel,
     private val sessionManager: SessionManager
 ): ViewModel() {
@@ -39,7 +39,7 @@ class EditProfileViewModel(
         viewModelScope.launch {
             _editUiState.value = _editUiState.value.copy(isLoadingE = true, errorE = null)
             try {
-                val response = apiService.getUserInfo()
+                val response = repository.getUserInfo()
                 if (response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000 && body != null) {
@@ -69,7 +69,7 @@ class EditProfileViewModel(
                 return@launch
             }
             try {
-                val response = apiService.updateUser(
+                val response = repository.updateUser(
                     id = userId,
                     UserUpdateRequest(
                         username = username,
@@ -123,7 +123,7 @@ class EditProfileViewModel(
                     val requestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
                     val part = MultipartBody.Part.createFormData("image", imageFile.name, requestBody)
 
-                    val response = apiService.uploadUserImage(userId, part)
+                    val response = repository.uploadUserImage(userId, part)
 
                     if (response.isSuccessful) {
                         val body = response.body()

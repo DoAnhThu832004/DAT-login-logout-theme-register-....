@@ -1,5 +1,6 @@
 package com.example.app.view.admin.artist
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Spring
@@ -40,6 +41,7 @@ import com.example.app.R
 import com.example.app.viewmodel.ArtistViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun AddArtistScreen(
     artistViewModel: ArtistViewModel

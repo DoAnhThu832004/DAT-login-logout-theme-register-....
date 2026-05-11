@@ -1,5 +1,6 @@
 package com.example.app.view.admin.artist
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -72,6 +73,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.math.truncate
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ListArtistScreen(
     modifier: Modifier = Modifier,

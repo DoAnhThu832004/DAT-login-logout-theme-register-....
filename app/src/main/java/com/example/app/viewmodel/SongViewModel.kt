@@ -2,10 +2,12 @@ package com.example.app.viewmodel
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.app.model.response.Song
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
 import com.example.app.model.ApiService
@@ -13,16 +15,24 @@ import com.example.app.model.FileUtils
 import com.example.app.model.repository.SongRepository
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 
 class SongViewModel(
     private val repository: SongRepository,
@@ -34,6 +44,23 @@ class SongViewModel(
     private var currentSearchQuery: String = ""
     private var currentPage: Int = 1
 
+    var downloadProgress = mutableStateMapOf<String, Float>()
+    var isDownloading = mutableStateMapOf<String, Boolean>()
+
+    private val _searchQuery = MutableStateFlow("")
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val songsPaging: Flow<PagingData<Song>> = _searchQuery
+        .debounce(500L)
+        .flatMapLatest { query ->
+            repository.getSongsPaging(query)
+        }
+        .cachedIn(viewModelScope)
+
+    fun searchAdminSongsPaging(query: String) {
+        _searchQuery.value = query
+    }
+    // ===============================
     fun getTopSongs() {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(
@@ -75,7 +102,7 @@ class SongViewModel(
                     if (body?.code == 1000 && body.result != null) {
                         _songUiState.value = _songUiState.value.copy(
                             isLoading = false,
-                            songs = body.result,
+                            songs = body.result.result,
                             error = null
                         )
                     } else {
@@ -348,7 +375,7 @@ class SongViewModel(
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
                         val pageData = body.result
-                        val newSongs = pageData.data
+                        val newSongs = pageData.result
 
                         // Nếu là tải thêm (Load More), nối mảng mới vào mảng cũ
                         // Nếu là tìm kiếm mới, ghi đè mảng mới
@@ -386,6 +413,39 @@ class SongViewModel(
                 )
                 // Lùi lại trang nếu tải lỗi để người dùng có thể thử cuộn lại
                 if (isLoadMore) currentPage--
+            }
+        }
+    }
+    fun downloadSong(context: Context, song: Song) {
+        viewModelScope.launch(Dispatchers.IO) {
+            isDownloading[song.id] = true
+            downloadProgress[song.id] = 0f
+
+            try {
+                val response = repository.downloadSong(song.id)
+                if (response.isSuccessful && response.body() != null) {
+                    val file = FileUtils.saveSongToStorage(
+                        context,
+                        response.body()!!,
+                        song.name
+                    ) { progress ->
+                        downloadProgress[song.id] = progress
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        if (file != null) {
+                            Toast.makeText(context, "Tải xong: ${song.name}", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Lỗi khi lưu file", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Lỗi kết nối", Toast.LENGTH_SHORT).show()
+                }
+            } finally {
+                isDownloading[song.id] = false
             }
         }
     }

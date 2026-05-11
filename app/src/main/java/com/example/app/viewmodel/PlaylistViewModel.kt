@@ -4,14 +4,12 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.app.model.ApiService
+import com.example.app.model.repository.PlaylistRepository
 import com.example.app.model.response.Playlist
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.FileUtils
-import com.example.app.model.request.AlbumCreationRequest
-import com.example.app.model.request.AlbumUpdateRequest
 import com.example.app.model.request.PlaylistCreateRequest
 import com.example.app.model.request.PlaylistUpdateRequest
 import com.example.app.model.response.Song
@@ -24,7 +22,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 
 class PlaylistViewModel(
-    private val apiService: ApiService
+    private val repository: PlaylistRepository
 ):ViewModel() {
     private val _playlistState = MutableStateFlow(PlaylistState())
     val playlistState: StateFlow<PlaylistState> = _playlistState.asStateFlow()
@@ -45,7 +43,7 @@ class PlaylistViewModel(
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
             try {
-                val response = apiService.getPlaylistById(id)
+                val response = repository.getPlaylistById(id)
                 val body = response.body()
                 if (response.isSuccessful && body?.result != null) {
                     _currentPlaylistDetail.value = body.result
@@ -71,7 +69,7 @@ class PlaylistViewModel(
                 error = null
             )
             try {
-                val response =  apiService.getMyPlaylists()
+                val response =  repository.getMyPlaylists()
                 val body = response.body()
                 if(response.isSuccessful && body != null) {
                     _playlistState.value = _playlistState.value.copy(
@@ -100,7 +98,7 @@ class PlaylistViewModel(
                 error = null
             )
             try {
-                val response = apiService.getPlaylists()
+                val response = repository.getPlaylists()
                 val body = response.body()
                 if(response.isSuccessful && body != null) {
                     _playlistState.value = _playlistState.value.copy(
@@ -134,7 +132,7 @@ class PlaylistViewModel(
                     title = name,
                     description = description
                 )
-                val response = apiService.createPlaylist(request)
+                val response = repository.createPlaylist(request)
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000 && body.result != null) {
@@ -164,7 +162,7 @@ class PlaylistViewModel(
                 error = null
             )
             try {
-                val response = apiService.deletePlaylist(id)
+                val response = repository.deletePlaylist(id)
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000) {
@@ -202,7 +200,7 @@ class PlaylistViewModel(
                     title = title,
                     description = description
                 )
-                val response = apiService.updatePlaylist(id,request)
+                val response = repository.updatePlaylist(id,request)
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000 && body.result != null) {
@@ -238,7 +236,7 @@ class PlaylistViewModel(
                 if(imageFile != null) {
                     val requestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
                     val part = MultipartBody.Part.createFormData("image",imageFile.name,requestBody)
-                    val response = apiService.uploadPlaylistImage(playlistId,part)
+                    val response = repository.uploadPlaylistImage(playlistId,part)
                     if (response.isSuccessful && response.body()?.code == 1000) {
                         val updatedPlaylist = response.body()?.result
                         updatedPlaylist?.let { newPlaylist ->
@@ -273,13 +271,13 @@ class PlaylistViewModel(
                 error = null
             )
             try {
-                val response = apiService.getSongsInPlaylist(playlistId,currentPage,10)
+                val response = repository.getSongsInPlaylist(playlistId,currentPage,10)
                 val body = response.body()
                 if (response.isSuccessful && body != null && body.result != null) {
                     val pageData = body.result // Đây là đối tượng PageResponse
 
                     // Cộng dồn dữ liệu mới vào danh sách hiện tại
-                    songs.addAll(pageData.data)
+                    songs.addAll(pageData.result)
 
                     // Cập nhật thông tin phân trang
                     totalPages = pageData.totalPages
@@ -307,7 +305,7 @@ class PlaylistViewModel(
             _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
             try {
                 // Gọi API thêm bài hát
-                val response = apiService.addSongToPlaylist(playlistId, song.id)
+                val response = repository.addSongToPlaylist(playlistId, song.id)
 
                 if (response.isSuccessful && response.body()?.code == 1000) {
                     // Logic giống AlbumViewModel: Cập nhật UI local ngay lập tức
@@ -333,12 +331,13 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun deleteSongInPlaylist(playlistId: String, songId: String) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
             try {
                 // Gọi API xóa bài hát
-                val response = apiService.deleteSongFromPlaylist(playlistId, songId)
+                val response = repository.deleteSongFromPlaylist(playlistId, songId)
 
                 if (response.isSuccessful) {
                     // Logic giống AlbumViewModel: Sử dụng filter/remove để cập nhật UI ngay
@@ -364,9 +363,9 @@ class PlaylistViewModel(
     }
     fun getAllSongs() {
         viewModelScope.launch {
-            val response = apiService.getSongs()
+            val response = repository.getSongs()
             if (response.isSuccessful && response.body()?.result != null) {
-                _allSongsState.value = response.body()!!.result
+                _allSongsState.value = response.body()!!.result.result
             }
         }
     }

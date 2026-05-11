@@ -1,5 +1,7 @@
 package com.example.app.view.Song
 
+import androidx.paging.compose.LazyPagingItems
+import android.annotation.SuppressLint
 import com.example.app.model.response.Song
 import android.os.Parcelable
 import androidx.compose.animation.animateContentSize
@@ -37,6 +39,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,6 +61,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.itemKey
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
 import com.example.app.viewmodel.PlayerViewModel
@@ -65,9 +70,11 @@ import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ListAllSong(
-    songs: List<Song>,
+    //songs: List<Song>,
+    songs: LazyPagingItems<Song>,
     songViewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
     onSongClick: (Song) -> Unit,
@@ -119,44 +126,69 @@ fun ListAllSong(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                itemsIndexed(songs) {
-                        index,i ->
-                    val alphaAnim = remember { Animatable(0f) }
-                    val slideAnim = remember { Animatable(startOffset.value) }
-                    LaunchedEffect(key1 = i.id) {
-                        delay(index.coerceAtMost(12) * 50L)
-                        launch {
-                            alphaAnim.animateTo(
-                                targetValue = 1f,
-                                animationSpec = tween(durationMillis = 400)
-                            )
-                        }
-                        launch {
-                            slideAnim.animateTo(
-                                targetValue = 0f,
-                                animationSpec = spring(
-                                    dampingRatio = 0.75f, // Độ nảy vừa phải
-                                    stiffness = Spring.StiffnessLow
+                items(
+                    songs.itemCount,
+                    songs.itemKey { it.id }
+                ) { index ->
+                    val i = songs[index]
+                    if(i!= null) {
+                        val alphaAnim = remember { Animatable(0f) }
+                        val slideAnim = remember { Animatable(startOffset.value) }
+                        LaunchedEffect(key1 = i.id) {
+                            delay(index.coerceAtMost(12) * 50L)
+                            launch {
+                                alphaAnim.animateTo(
+                                    targetValue = 1f,
+                                    animationSpec = tween(durationMillis = 400)
                                 )
-                            )
+                            }
+                            launch {
+                                slideAnim.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = spring(
+                                        dampingRatio = 0.75f, // Độ nảy vừa phải
+                                        stiffness = Spring.StiffnessLow
+                                    )
+                                )
+                            }
                         }
-                    }
 //                val artist = artists.firstOrNull { artist ->
 //                    artist.songs.any { it.id == i.id }
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
-                    Box(
-                        modifier = Modifier
-                            .offset(y = slideAnim.value.dp)
-                            .alpha(alphaAnim.value)
-                            .fillMaxWidth()
-                    ) {
-                        DetailListSong(
-                            song = i,
-                            songViewModel = songViewModel,
-                            playerViewModel = playerViewModel,
-                            //artist = artist,
-                            onSongClick = { onSongClick(i)}
-                        )
+                        Box(
+                            modifier = Modifier
+                                .offset(y = slideAnim.value.dp)
+                                .alpha(alphaAnim.value)
+                                .fillMaxWidth()
+                        ) {
+                            DetailListSong(
+                                song = i,
+                                songViewModel = songViewModel,
+                                playerViewModel = playerViewModel,
+                                //artist = artist,
+                                onSongClick = { onSongClick(i)}
+                            )
+                        }
+                    }
+                }
+                when(songs.loadState.append) {
+                    is LoadState.Loading -> {
+                        item {
+                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                        }
+                    }
+                    is LoadState.Error -> {
+                        item {
+                            Text(text = "Lỗi tải dữ liệu", modifier = Modifier.clickable{songs.retry()})
+                        }
+                    }
+                    else -> {}
+                }
+                if(songs.loadState.refresh is LoadState.Loading) {
+                    item {
+                        Box(modifier = Modifier.fillParentMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }

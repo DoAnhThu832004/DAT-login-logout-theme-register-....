@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app.model.ApiService
+import com.example.app.model.repository.ReportRepository
 import com.example.app.model.request.ReportCreationRequest
 import com.example.app.model.request.ReportUpdateRequest
 import com.example.app.model.response.Report
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ReportViewModel (
-    private val apiService: ApiService
+    private val repository: ReportRepository
 ):ViewModel() {
     private val _reportState = MutableStateFlow(ReportState())
     val reportState : StateFlow<ReportState> = _reportState.asStateFlow()
@@ -26,7 +26,7 @@ class ReportViewModel (
                 error = null
             )
             try {
-                val response = apiService.getReport()
+                val response = repository.getReport()
                 println("thuthu")
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -59,7 +59,7 @@ class ReportViewModel (
                     issueType = issueType,
                     description = description
                 )
-                val response = apiService.createReport(request)
+                val response = repository.createReport(request)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -87,7 +87,7 @@ class ReportViewModel (
                 val request = ReportUpdateRequest(
                     status = status
                 )
-                val response = apiService.updateReport(
+                val response = repository.updateReport(
                     reportId = reportId,
                     request = request
                 )

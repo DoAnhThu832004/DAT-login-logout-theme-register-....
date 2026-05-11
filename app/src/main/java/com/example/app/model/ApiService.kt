@@ -32,6 +32,7 @@ import com.example.app.viewmodel.SessionManager
 import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -44,6 +45,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import retrofit2.http.Streaming
 
 interface ApiService {
     @POST("auth/token")
@@ -65,7 +67,10 @@ interface ApiService {
         @Part image: MultipartBody.Part
     ): Response<UserResponse>
     @GET("songs")
-    suspend fun getSongs(): Response<ApiResponse<List<Song>>>
+    suspend fun getSongs(
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Song>>>
     @GET("songs/top-charts")
     suspend fun getTopSongs(): Response<ApiResponse<List<Song>>>
     @POST("songs")
@@ -95,13 +100,18 @@ interface ApiService {
         @Body request: SongUpdateRequest
     ): Response<ApiResponse<Song>>
     @GET("albums")
-    suspend fun getAlbums(): Response<ApiResponse<List<Album>>>
+    suspend fun getAlbums(
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Album>>>
     @GET("albums/{albumId}")
     suspend fun getAlbumById(@Path("albumId") albumId: String): Response<ApiResponse<Album>>
     @GET("albums/searchKey")
     suspend fun searchAlbums(
-        @Query("name") name: String
-    ): Response<ApiResponse<List<Album>>>
+        @Query("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Album>>>
     @POST("albums")
     suspend fun createAlbum(@Body request: AlbumCreationRequest): Response<ApiResponse<Album>>
     @DELETE("albums/{id}")
@@ -172,8 +182,8 @@ interface ApiService {
     @GET("playlists/{playlistId}/songs")
     suspend fun getSongsInPlaylist(
         @Path("playlistId") playlistId: String,
-        @Query("page") page: Int,
-        @Query("size") size: Int
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
     ): Response<ApiResponse<PageResponse<Song>>>
     @POST("favorites/{songId}")
     suspend fun addSongToFavorite(@Path("songId") songId: String): Response<ApiError>
@@ -187,6 +197,8 @@ interface ApiService {
     suspend fun followArtist(@Path("artistId") artistId: String): Response<ApiResponse<String>>
     @DELETE("followers/{artistId}")
     suspend fun unfollowArtist(@Path("artistId") artistId: String) : Response<ApiResponse<String>>
+    @GET("followers/my-artists")
+    suspend fun getMyFollowers(): Response<ApiResponse<List<Artist>>>
     @POST("playlists")
     suspend fun createPlaylist(@Body request: PlaylistCreateRequest): Response<ApiResponse<Playlist>>
     @DELETE("playlists/{id}")
@@ -220,7 +232,11 @@ interface ApiService {
         @Part image: MultipartBody.Part
     ): Response<ApiResponse<Artist>>
     @GET("comments/song/{songId}")
-    suspend fun getComments(@Path("songId") songId: String): Response<ApiResponse<List<Comment>>>
+    suspend fun getComments(
+        @Path("songId") songId: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Comment>>>
     @POST("comments/song/{songId}/comments")
     suspend fun createComment(
         @Path("songId") songId: String,
@@ -246,4 +262,10 @@ interface ApiService {
         @Path("reportId") reportId: String,
         @Body request: ReportUpdateRequest
     ): Response<ApiResponse<Report>>
+    @Streaming
+    @GET("songs/{songId}/download")
+    suspend fun downloadSong(@Path("songId") id: String): Response<ResponseBody>
+
+    @GET("songs/{songId}/check-downloaded")
+    suspend fun checkDownloaded(@Path("songId") id: String): Response<ApiResponse<Boolean>>
 }

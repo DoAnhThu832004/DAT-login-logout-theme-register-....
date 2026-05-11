@@ -3,7 +3,7 @@ package com.example.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
-import com.example.app.model.ApiService
+import com.example.app.model.repository.UserRepository
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.response.ApiError
 import com.example.app.viewmodel.LoginViewModel.LoginUiState
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
-    private val apiService: ApiService
+    private val repository: UserRepository
 ) : ViewModel() {
     private val _registerUiState = MutableStateFlow(RegisterUiState())
     val registerUiState: StateFlow<RegisterUiState> = _registerUiState.asStateFlow()
@@ -55,7 +55,7 @@ class RegisterViewModel(
         viewModelScope.launch {
             _registerUiState.value = _registerUiState.value.copy(isLoading = true, error = null)
             try {
-                val response = apiService.createUser(
+                val response = repository.createUser(
                     UserCreationRequest(
                         username = username,
                         password = password,

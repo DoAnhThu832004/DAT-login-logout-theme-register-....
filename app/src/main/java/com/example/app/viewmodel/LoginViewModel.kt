@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.auth0.android.jwt.JWT
 import com.example.app.model.ApiErrorUtils
-import com.example.app.model.ApiService
+import com.example.app.model.repository.UserRepository
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.response.ApiError
 import com.google.gson.Gson
@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val apiService: ApiService,
+    private val repository: UserRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -49,7 +49,7 @@ class LoginViewModel(
             _loginUiState.value = _loginUiState.value.copy(isLoading = true, error = null)
             startSimulatedProgress()
             try {
-                val response = apiService.authenticate(
+                val response = repository.authenticate(
                     AuthenticationRequest(
                         username = username,
                         password = password

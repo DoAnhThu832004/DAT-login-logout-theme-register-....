@@ -2,14 +2,15 @@ package com.example.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.example.app.model.ApiService
-import kotlin.reflect.KClass
+import com.example.app.model.repository.UserRepository
 
-class RegisterViewModelFactory(private val apiService: ApiService) : ViewModelProvider.Factory {
+class RegisterViewModelFactory(
+    private val repository: UserRepository
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
-            return RegisterViewModel(apiService) as T
+            @Suppress("UNCHECKED_CAST")
+            return RegisterViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

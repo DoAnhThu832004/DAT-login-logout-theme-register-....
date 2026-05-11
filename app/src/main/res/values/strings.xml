@@ -89,4 +89,6 @@
     <string name="dang_cho">Đang chờ</string>
     <string name="da_gia_quyet">Đã giải quyết</string>
     <string name="phan_hoi_cua_nguoi_dung">Phản hồi của người dùng</string>
+    <string name="tai_xuong">Tải xuống</string>
+    <string name="danh_sach_quan_tam">Danh sách quan tâm</string>
 </resources>

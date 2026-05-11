@@ -1,12 +1,18 @@
 package com.example.app.model.repository
 
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.example.app.model.ApiService
+import com.example.app.model.paging.SongPagingSource
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
+import com.example.app.model.response.Song
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import androidx.paging.Pager
+import kotlinx.coroutines.flow.Flow
 
 class SongRepository(
     private val apiService: ApiService
@@ -27,5 +33,12 @@ class SongRepository(
         val audioPart = MultipartBody.Part.createFormData("audio", audioFile.name, audioRequestBody)
 
         return apiService.uploadSongFiles(songId, imagePart, audioPart)
+    }
+    suspend fun downloadSong(songId: String) = apiService.downloadSong(songId)
+    fun getSongsPaging(query: String? = null): Flow<PagingData<Song>> {
+        return Pager(
+            config = PagingConfig(pageSize = 10),
+            pagingSourceFactory = { SongPagingSource(apiService, query) }
+        ).flow
     }
 }

@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,6 +78,7 @@ fun PlayerScreen(
     commentViewModel: CommentViewModel,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val song = playerViewModel.currentSong.value
     val isPlaying = playerViewModel.isPlaying.value
     val repeatMode = playerViewModel.repeatMode.value
@@ -159,6 +161,7 @@ fun PlayerScreen(
                         },
                         onClick = {
                             expanded = false
+                            songViewModel.downloadSong(context, song)
                         }
                     )
                     DropdownMenuItem(

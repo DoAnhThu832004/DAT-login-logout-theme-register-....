@@ -6,20 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app.model.ApiService
-import com.example.app.model.request.AlbumCreationRequest
+import com.example.app.model.repository.CommentRepository
 import com.example.app.model.request.CommentCreationRequest
 import com.example.app.model.request.CommentUpdateRequest
 import com.example.app.model.response.Comment
 import com.example.app.model.response.Song
-import com.example.app.viewmodel.AlbumViewModel.AlbumState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CommentViewModel(
-    private val apiService: ApiService
+    private val repository: CommentRepository
 ): ViewModel() {
     private val _commentUiState = MutableStateFlow(CommentState())
     val commentState: StateFlow<CommentState> = _commentUiState.asStateFlow()
@@ -36,12 +34,12 @@ class CommentViewModel(
         viewModelScope.launch {
             _commentUiState.value = _commentUiState.value.copy(isLoading = true, error = null)
             try {
-                val response = apiService.getComments(songId)
+                val response = repository.getComments(songId)
                 val body = response.body()
                 if (response.isSuccessful && body != null) {
                     _commentUiState.value = _commentUiState.value.copy(
                         isLoading = false,
-                        comments = body.result,
+                        comments = body.result.result,
                         error = null
                     )
                 } else {
@@ -68,7 +66,7 @@ class CommentViewModel(
                     parentId = replyingToComment?.id
                 )
 
-                val response = apiService.createComment(songId, request)
+                val response = repository.createComment(songId, request)
 
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -99,7 +97,7 @@ class CommentViewModel(
                 error = null
             )
             try {
-                val response = apiService.deleteComment(commentId)
+                val response = repository.deleteComment(commentId)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -128,7 +126,7 @@ class CommentViewModel(
             )
             try {
                 val request = CommentUpdateRequest(text = text)
-                val response =  apiService.updateComment(commentId,request)
+                val response =  repository.updateComment(commentId,request)
                 if(response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {

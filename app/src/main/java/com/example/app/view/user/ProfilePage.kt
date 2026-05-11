@@ -16,19 +16,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -95,6 +99,10 @@ fun ProfilePage(
     val playlistState by playlistViewModel.playlistState.collectAsState()
     var showPlaylistSheet by remember { mutableStateOf(false) }
     val sheetStatePlaylist = rememberModalBottomSheetState()
+    val items = listOf(
+        NavItemsDrawer(stringResource(R.string.tai_xuong), Icons.Default.ArrowCircleDown, Screen.DownloadScreen.route),
+        NavItemsDrawer(stringResource(R.string.tac_gia), Icons.Default.Person, Screen.FollowerArtstScreen.route),
+    )
     LaunchedEffect(Unit) {
         playlistViewModel.getMyPlaylists()
     }
@@ -225,6 +233,46 @@ fun ProfilePage(
                                 onPlaylistClick(it.id)
                             }
                         )
+                    }
+                }
+            }
+            item {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    items(items,key = {it.label}) { it ->
+                        Box(
+                            modifier = Modifier
+                                .width(120.dp)
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
+                            Card(
+                                onClick = {
+                                    navController.navigate(it.route)
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        imageVector = it.icon,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = it.label,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }

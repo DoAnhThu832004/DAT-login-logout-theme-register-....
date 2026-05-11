@@ -5,5 +5,5 @@ data class PageResponse<T>(
     val totalPages: Int,
     val pageSize: Int,
     val totalElements: Long,
-    val data: List<T>
+    val result: List<T>
 )

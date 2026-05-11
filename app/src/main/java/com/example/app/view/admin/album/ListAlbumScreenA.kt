@@ -1,5 +1,6 @@
 package com.example.app.view.admin.album
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -37,6 +38,7 @@ import com.example.app.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ListAlbumScreen(
     modifier: Modifier = Modifier,

@@ -1,5 +1,6 @@
 package com.example.app.view.admin.playlist
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -29,6 +30,7 @@ import com.example.app.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun ListPlaylistScreen(
     playlists: List<Playlist>,

@@ -2,6 +2,7 @@ package com.example.app.model
 
 import android.content.Context
 import android.net.Uri
+import okhttp3.ResponseBody
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -33,5 +34,33 @@ object FileUtils {
     private fun getFileName(context: Context, uri: Uri): String? {
         // Logic lấy tên file từ ContentResolver (lược giản để tập trung vào logic chính)
         return "upload_temp_${System.currentTimeMillis()}"
+    }
+    fun saveSongToStorage(
+        context: Context,
+        body: ResponseBody,
+        fileName: String,
+        onProgress: (Float) -> Unit
+    ): File? {
+        try {
+            val file = File(context.getExternalFilesDir(null), "$fileName.mp3")
+            val inputStream = body.byteStream()
+            val outputStream = FileOutputStream(file)
+            val totalBytes = body.contentLength()
+            val data = ByteArray(4096)
+            var bytesRead: Int
+            var downloadedBytes: Long = 0
+
+            while (inputStream.read(data).also { bytesRead = it } != -1) {
+                outputStream.write(data, 0, bytesRead)
+                downloadedBytes += bytesRead
+                if (totalBytes > 0) {
+                    onProgress(downloadedBytes.toFloat() / totalBytes)
+                }
+            }
+            outputStream.flush()
+            return file
+        } catch (e: Exception) {
+            return null
+        }
     }
 }

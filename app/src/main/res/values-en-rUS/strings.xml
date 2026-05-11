@@ -90,4 +90,6 @@
     <string name="dang_cho">In progress</string>
     <string name="da_gia_quyet">Resolved</string>
     <string name="phan_hoi_cua_nguoi_dung">Report from user</string>
+    <string name="tai_xuong">Download</string>
+    <string name="danh_sach_quan_tam">List Follower</string>
 </resources>

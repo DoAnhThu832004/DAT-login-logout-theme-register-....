@@ -2,7 +2,7 @@ package com.example.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.app.model.ApiService
+import com.example.app.model.repository.SearchRepository
 import com.example.app.model.response.Album
 import com.example.app.model.response.Artist
 import com.example.app.model.response.Song
@@ -17,7 +17,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 
 class SearchViewModel(
-    private val retrofitService: ApiService
+    private val repository: SearchRepository
 ):ViewModel() {
     private val _sSong = MutableStateFlow<List<Song>>(emptyList())
     val sSong = _sSong.asStateFlow()
@@ -43,7 +43,7 @@ class SearchViewModel(
         supervisorScope {
             val songDeferred = async {
                 try {
-                    val response = retrofitService.searchSongs(name)
+                    val response = repository.searchSongs(name)
                     if (response.isSuccessful) {
                         response.body()?.result ?: emptyList()
                     } else {
@@ -56,9 +56,9 @@ class SearchViewModel(
             }
             val albumDeferred = async {
                 try {
-                    val response = retrofitService.searchAlbums(name)
+                    val response = repository.searchAlbums(name)
                     if (response.isSuccessful) {
-                        response.body()?.result ?: emptyList()
+                        response.body()?.result?.result ?: emptyList()
                     } else {
                         emptyList()
                     }
@@ -69,7 +69,7 @@ class SearchViewModel(
             }
             val artistDeferred = async {
                 try {
-                    val response = retrofitService.searchArtists(name)
+                    val response = repository.searchArtists(name)
                     if (response.isSuccessful) {
                         response.body()?.result ?: emptyList()
                     } else {

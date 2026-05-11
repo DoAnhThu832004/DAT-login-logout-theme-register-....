@@ -1,5 +1,6 @@
 package com.example.app.view.admin.album
 
+import android.annotation.SuppressLint
 import android.view.animation.Animation
 import android.widget.Toast
 import androidx.compose.animation.Animatable
@@ -42,6 +43,7 @@ import com.example.app.R
 import com.example.app.viewmodel.AlbumViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun AddAlbumScreen(
     albumViewModel: AlbumViewModel

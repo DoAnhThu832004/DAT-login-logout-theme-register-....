@@ -5,9 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
-import com.example.app.model.ApiService
-import com.example.app.model.request.AlbumCreationRequest
-import com.example.app.model.request.AlbumUpdateRequest
+import com.example.app.model.repository.ArtistRepository
 import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.response.Album
 import com.example.app.model.response.Artist
@@ -19,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ArtistViewModel(
-    private val apiService: ApiService
+    private val repository: ArtistRepository
 ): ViewModel() {
     private val _artistState = MutableStateFlow(ArtistState())
     val artistState: StateFlow<ArtistState> = _artistState.asStateFlow()
@@ -32,12 +30,14 @@ class ArtistViewModel(
 
     private val _currentArtist = MutableStateFlow<Artist?>(null)
     val currentArtist: StateFlow<Artist?> = _currentArtist.asStateFlow()
-
+    fun initCurrentArtist(artist: Artist) {
+        _currentArtist.value = artist
+    }
     fun getArtistById(id: String) {
         viewModelScope.launch {
             _artistState.value = _artistState.value.copy(isLoadingA = true, errorA = null)
             try {
-                val response = apiService.getArtistById(id)
+                val response = repository.getArtistById(id)
                 val body = response.body()
                 if (response.isSuccessful && body?.result != null) {
                     _currentArtist.value = body.result
@@ -60,7 +60,7 @@ class ArtistViewModel(
         viewModelScope.launch {
             _artistState.value = _artistState.value.copy(isLoadingA = true, errorA = null)
             try {
-                val response = apiService.getArtists()
+                val response = repository.getArtists()
                 val body = response.body()
                 if (response.isSuccessful && body != null) {
                     _artistState.value = _artistState.value.copy(
@@ -94,7 +94,7 @@ class ArtistViewModel(
                     name = name,
                     description = description
                 )
-                val response = apiService.createArtist(request)
+                val response = repository.createArtist(request)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -130,7 +130,7 @@ class ArtistViewModel(
                 errorA = null
             )
             try {
-                val response = apiService.deleteArtist(id)
+                val response = repository.deleteArtist(id)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -167,7 +167,7 @@ class ArtistViewModel(
                     name = name,
                     description = description
                 )
-                val response = apiService.updateArtist(id, request)
+                val response = repository.updateArtist(id, request)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -200,23 +200,23 @@ class ArtistViewModel(
     }
     fun getAllSongs() {
         viewModelScope.launch {
-            val response = apiService.getSongs()
+            val response = repository.getSongs()
             if (response.isSuccessful && response.body()?.result != null) {
-                _allSongsState.value = response.body()!!.result
+                _allSongsState.value = response.body()!!.result.result
             }
         }
     }
     fun getAllAlbums() {
         viewModelScope.launch {
-            val response = apiService.getAlbums()
+            val response = repository.getAlbums()
             if (response.isSuccessful && response.body()?.result != null) {
-                _allAlbumsState.value = response.body()!!.result
+                _allAlbumsState.value = response.body()!!.result.result
             }
         }
     }
     fun addAlbumToArtist(artistId: String, album: Album) {
         viewModelScope.launch {
-            val response = apiService.addAlbumToArtist(artistId,album.id)
+            val response = repository.addAlbumToArtist(artistId,album.id)
             if (response.isSuccessful && response.body()?.code == 1000) {
                 val currentArtists = _artistState.value.artists ?: emptyList()
                 val updatedArtists = currentArtists.map { artist ->
@@ -240,7 +240,7 @@ class ArtistViewModel(
     }
     fun addSongToArtist(artistId: String, song: Song) {
         viewModelScope.launch {
-            val response = apiService.addSongToArtist(artistId,song.id)
+            val response = repository.addSongToArtist(artistId,song.id)
             if (response.isSuccessful && response.body()?.code == 1000) {
                 val currentArtists = _artistState.value.artists ?: emptyList()
                 val updatedArtists = currentArtists.map { artist ->
@@ -269,7 +269,7 @@ class ArtistViewModel(
                 errorA = null
             )
             try {
-                val response = apiService.deleteSongFromArtist(artistId,songId)
+                val response = repository.deleteSongFromArtist(artistId,songId)
                 if(response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -304,7 +304,7 @@ class ArtistViewModel(
                 errorA = null
             )
             try {
-                val response = apiService.deleteAlbumFromArtist(artistId,albumId)
+                val response = repository.deleteAlbumFromArtist(artistId,albumId)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000) {
@@ -339,9 +339,9 @@ class ArtistViewModel(
         viewModelScope.launch {
             try {
                 val response = if (newFollowerState) {
-                    apiService.followArtist(artist.id)
+                    repository.followArtist(artist.id)
                 } else {
-                    apiService.unfollowArtist(artist.id)
+                    repository.unfollowArtist(artist.id)
                 }
                 if (!response.isSuccessful) {
                     updateLocalArtistFollowerStatus(artist.id, !newFollowerState)
@@ -352,26 +352,59 @@ class ArtistViewModel(
         }
     }
     private fun updateLocalArtistFollowerStatus(artistId: String, isFollowing: Boolean) {
-        val currentList = _artistState.value.artists ?: return
-        val updatedList = currentList.map { artist ->
-            if (artist.id == artistId) {
-                val newCount = if (isFollowing) {
-                    artist.totalFollowers + 1
-                } else {
-                    maxOf(0, artist.totalFollowers - 1)
-                }
-
-                artist.copy(
-                    followed = isFollowing,
-                    totalFollowers = newCount
-                )
+        // Ưu tiên 1: Cập nhật biến currentArtist (cho màn hình chi tiết)
+        val current = _currentArtist.value
+        if (current != null && current.id == artistId) {
+            val newCount = if (isFollowing) {
+                current.totalFollowers + 1
             } else {
-                artist
+                maxOf(0, current.totalFollowers - 1)
+            }
+            _currentArtist.value = current.copy(
+                followed = isFollowing,
+                totalFollowers = newCount
+            )
+        }
+
+        // Ưu tiên 2: Cập nhật biến list artists (cho màn hình danh sách, nếu có)
+        val currentList = _artistState.value.artists
+        if (currentList != null) {
+            val updatedList = currentList.map { artist ->
+                if (artist.id == artistId) {
+                    val newCount = if (isFollowing) {
+                        artist.totalFollowers + 1
+                    } else {
+                        maxOf(0, artist.totalFollowers - 1)
+                    }
+                    artist.copy(
+                        followed = isFollowing,
+                        totalFollowers = newCount
+                    )
+                } else {
+                    artist
+                }
+            }
+            _artistState.value = _artistState.value.copy(
+                artists = updatedList
+            )
+        }
+    }
+    fun getFollowerOfUser() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getMyFollowers()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000) {
+                        val artists = body.result
+                        _artistState.value = _artistState.value.copy(
+                            artists = artists
+                        )
+                    }
+                }
+            } catch (e: Exception) {
             }
         }
-        _artistState.value = _artistState.value.copy(
-            artists = updatedList
-        )
     }
 
     data class ArtistState(

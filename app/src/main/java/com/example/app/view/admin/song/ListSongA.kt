@@ -1,5 +1,6 @@
 package com.example.app.view.admin.song
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
@@ -93,6 +94,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@SuppressLint("UnusedBoxWithConstraintsScope", "StateFlowValueCalledInComposition")
 @Composable
 fun ListSongA(
     modifier: Modifier = Modifier,

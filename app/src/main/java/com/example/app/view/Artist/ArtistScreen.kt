@@ -63,7 +63,12 @@ fun ArtistScreen(
 ) {
     val context = LocalContext.current
     val albumState by albumViewModel.albumState.collectAsState()
+    val currentArtistState by artistViewModel.currentArtist.collectAsState()
+
+    // 2. Tạo displayArtist ưu tiên lấy từ ViewModel
+    val displayArtist = currentArtistState ?: artist
     LaunchedEffect(artist.id) {
+        artistViewModel.initCurrentArtist(artist)
         //albumViewModel.getAlbumByArtist(artist.id)
     }
     LazyColumn(
@@ -103,16 +108,16 @@ fun ArtistScreen(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 HeaderView(
-                    name = artist.name,
-                    image = artist.imageUrlAr,
+                    name = displayArtist.name,
+                    image = displayArtist.imageUrlAr,
                     top = 48,
                     check = false,
-                    artist = artist,
+                    artist = displayArtist,
                     onImageSelected = {
-                        editProfileViewModel.uploadImage(artist.id,it,context)
+                        editProfileViewModel.uploadImage(displayArtist.id,it,context)
                     },
                     onToggleFollowClick = {
-                        artistViewModel.toggleFollow(artist)
+                        artistViewModel.toggleFollow(displayArtist)
                     }
                 )
                 Column(
@@ -133,7 +138,7 @@ fun ArtistScreen(
             }
         }
         item{
-            val previewSongs = artist.songs.take(6)
+            val previewSongs = displayArtist.songs.take(6)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -203,7 +208,7 @@ fun ArtistScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(artist.albums) { album ->
+                    items(displayArtist.albums) { album ->
                         Box(modifier = Modifier.width(140.dp)) {
                             AlbumItem(
                                 album = album,
@@ -227,7 +232,7 @@ fun ArtistScreen(
                     )
             ) {
                 Text(
-                    text = "Về ${artist.name}",
+                    text = "Về ${displayArtist.name}",
                     fontSize = 18.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold,
@@ -242,7 +247,7 @@ fun ArtistScreen(
                     .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
                 AsyncImage(
-                    model = artist.imageUrlAr,
+                    model = displayArtist.imageUrlAr,
                     contentDescription = null,
                     modifier = Modifier
                         .size(200.dp)
@@ -251,7 +256,7 @@ fun ArtistScreen(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
-                    text = artist.name
+                    text = displayArtist.name
                 )
             }
         }

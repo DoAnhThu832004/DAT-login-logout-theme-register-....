@@ -29,10 +29,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.app.model.ApiClient
 import com.example.app.model.repository.SongRepository
 import com.example.app.view.Album.AlbumDetailScreen
 import com.example.app.view.Artist.ArtistScreen
+import com.example.app.view.InProfile.DownloadScreen
+import com.example.app.view.InProfile.FollowerArtistScreen
 import com.example.app.view.Login.LoginScreen
 import com.example.app.view.Login.RegisterScreen
 import com.example.app.view.Player.MiniPlayer
@@ -80,6 +83,13 @@ fun RecipeApp(
     val context = LocalContext.current
     val apiService = ApiClient.build(context)
     val songRepository = remember { SongRepository(apiService) }
+    val albumRepository = remember { com.example.app.model.repository.AlbumRepository(apiService) }
+    val artistRepository = remember { com.example.app.model.repository.ArtistRepository(apiService) }
+    val playlistRepository = remember { com.example.app.model.repository.PlaylistRepository(apiService) }
+    val commentRepository = remember { com.example.app.model.repository.CommentRepository(apiService) }
+    val reportRepository = remember { com.example.app.model.repository.ReportRepository(apiService) }
+    val userRepository = remember { com.example.app.model.repository.UserRepository(apiService) }
+    val searchRepository = remember { com.example.app.model.repository.SearchRepository(apiService) }
     val sessionManager = remember { SessionManager(context) }
 
     val playerViewModel : PlayerViewModel = viewModel()
@@ -99,10 +109,10 @@ fun RecipeApp(
         ) {
             composable(route = Screen.LoginScreen.route) {
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 LoginScreen(
                     loginViewModel = loginViewModel,
@@ -117,7 +127,7 @@ fun RecipeApp(
             }
             composable(route = Screen.RegisterScreen.route) {
                 val registerViewModel : RegisterViewModel = viewModel(
-                    factory = RegisterViewModelFactory(apiService)
+                    factory = RegisterViewModelFactory(userRepository)
                 )
                 RegisterScreen(
                     registerViewModel = registerViewModel,
@@ -130,7 +140,7 @@ fun RecipeApp(
                 popExitTransition = { ExitTransition.None }
             ) {
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 com.example.app.view.general.SplashScreen(
                     navController,
@@ -144,27 +154,27 @@ fun RecipeApp(
             composable(route = Screen.NavigationDraw.route) { backStackEntry ->
                 val name = backStackEntry.arguments?.getString("name") ?: "Guest"
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 val songViewModel : SongViewModel = viewModel(
                     factory = SongViewModelFactory(songRepository)
                 )
                 val searchViewModel : SearchViewModel = viewModel(
-                    factory = SearchViewModelFactory(apiService)
+                    factory = SearchViewModelFactory(searchRepository)
                 )
                 val albumViewModel : AlbumViewModel = viewModel(
-                    factory = AlbumViewModelFactory(apiService)
+                    factory = AlbumViewModelFactory(albumRepository)
                 )
                 val artistViewModel : ArtistViewModel = viewModel(
-                    factory = ArtistViewModelFactory(apiService)
+                    factory = ArtistViewModelFactory(artistRepository)
                 )
                 val playlistViewModel : PlaylistViewModel = viewModel(
-                    factory = PlaylistViewModelFactory(apiService)
+                    factory = PlaylistViewModelFactory(playlistRepository)
                 )
-                val reportViewModel : ReportViewModel = viewModel(factory = ReportViewModelFactory(apiService))
+                val reportViewModel : ReportViewModel = viewModel(factory = ReportViewModelFactory(reportRepository))
                 val reportState by reportViewModel.reportState.collectAsState()
                 val reports = reportState.reports ?: emptyList()
                 NavigationDraw(
@@ -188,25 +198,25 @@ fun RecipeApp(
             composable(route = Screen.UserHomePage.route) { backStackEntry ->
                 val name = backStackEntry.arguments?.getString("name") ?: "Guest"
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 val songViewModel : SongViewModel = viewModel(
                     factory = SongViewModelFactory(songRepository)
                 )
                 val searchViewModel : SearchViewModel = viewModel(
-                    factory = SearchViewModelFactory(apiService)
+                    factory = SearchViewModelFactory(searchRepository)
                 )
                 val albumViewModel : AlbumViewModel = viewModel(
-                    factory = AlbumViewModelFactory(apiService)
+                    factory = AlbumViewModelFactory(albumRepository)
                 )
                 val artistViewModel : ArtistViewModel = viewModel(
-                    factory = ArtistViewModelFactory(apiService)
+                    factory = ArtistViewModelFactory(artistRepository)
                 )
                 val playlistViewModel : PlaylistViewModel = viewModel(
-                    factory = PlaylistViewModelFactory(apiService)
+                    factory = PlaylistViewModelFactory(playlistRepository)
                 )
                 val songState by songViewModel.songState.collectAsState()
                 val songs = songState.songs ?: emptyList()
@@ -258,10 +268,10 @@ fun RecipeApp(
             }
             composable(route = Screen.EditProfilePage.route) {
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 EditProfilePage(
                     navController = navController,
@@ -271,10 +281,10 @@ fun RecipeApp(
             }
             composable(route = Screen.InformationProfilePage.route) {
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 InformationProfilePage(
                     navController = navController,
@@ -286,19 +296,15 @@ fun RecipeApp(
                     factory = SongViewModelFactory(songRepository)
                 )
                 val songState by songViewModel.songState.collectAsState()
-                val songs = songState.songs ?: emptyList()
-                LaunchedEffect(Unit) {
-                    // Kiểm tra nếu chưa có dữ liệu thì mới gọi mạng
-                    if (songState.songs.isNullOrEmpty()) {
-                        songViewModel.getSongs() // Có thể là getSongs() hoặc getAllSongs() tùy theo cách bạn đặt tên trong ViewModel
-                    }
-                }
+                //val songs = songState.songs ?: emptyList()
+                val pagingSongs = songViewModel.songsPaging.collectAsLazyPagingItems()
                 ListAllSong(
-                    songs = songs,
+                    songs = pagingSongs,
                     onBack = { navController.popBackStack() },
                     songViewModel = songViewModel,
                     playerViewModel = playerViewModel,
                     onSongClick = { song ->
+                        val songs = pagingSongs.itemSnapshotList.items.filterNotNull()
                         playerViewModel.play(song, songs)
                         navController.navigate(Screen.PlayerScreen.createRoute())
                     }
@@ -309,10 +315,10 @@ fun RecipeApp(
                     factory = SongViewModelFactory(songRepository)
                 )
                 val commentViewModel : CommentViewModel = viewModel(
-                    factory = CommentViewModelFactory(apiService)
+                    factory = CommentViewModelFactory(commentRepository)
                 )
                 val reportViewModel : ReportViewModel = viewModel(
-                    factory = ReportViewModelFactory(apiService)
+                    factory = ReportViewModelFactory(reportRepository)
                 )
                 PlayerScreen(
                     playerViewModel = playerViewModel,
@@ -324,9 +330,9 @@ fun RecipeApp(
             }
             composable(route = Screen.AlbumDetailScreen.route) {
                 val albumId = it.arguments?.getString("albumId")
-                val albumViewModel: AlbumViewModel = viewModel(factory = AlbumViewModelFactory(apiService))
+                val albumViewModel: AlbumViewModel = viewModel(factory = AlbumViewModelFactory(albumRepository))
                 val reportViewModel : ReportViewModel = viewModel(
-                    factory = ReportViewModelFactory(apiService)
+                    factory = ReportViewModelFactory(reportRepository)
                 )
                 val albumState by albumViewModel.albumState.collectAsState()
                 val currentAlbum by albumViewModel.currentAlbumDetail.collectAsState()
@@ -362,16 +368,16 @@ fun RecipeApp(
             composable(route = Screen.ArtistScreen.route) {
                 val artistId = it.arguments?.getString("artistId")
                 val loginViewModel : LoginViewModel = viewModel(
-                    factory = LoginViewModelFactory(apiService,sessionManager)
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
                 val editProfileViewModel : EditProfileViewModel = viewModel(
-                    factory = EditProfileViewModelFactory(apiService,loginViewModel, sessionManager)
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
                 val albumViewModel : AlbumViewModel = viewModel(
-                    factory = AlbumViewModelFactory(apiService)
+                    factory = AlbumViewModelFactory(albumRepository)
                 )
                 val artistViewModel : ArtistViewModel = viewModel(
-                    factory = ArtistViewModelFactory(apiService)
+                    factory = ArtistViewModelFactory(artistRepository)
                 )
                 val artistState by artistViewModel.artistState.collectAsState()
                 val currentArtist by artistViewModel.currentArtist.collectAsState()
@@ -408,7 +414,7 @@ fun RecipeApp(
             composable(route = Screen.MyPlaylistDetailScreen.route) {
                 val playlistId = it.arguments?.getString("playlistId")
                 val playlistViewModel : PlaylistViewModel = viewModel(
-                    factory = PlaylistViewModelFactory(apiService)
+                    factory = PlaylistViewModelFactory(playlistRepository)
                 )
                 val playlistState by playlistViewModel.playlistState.collectAsState()
                 val currentPlaylist by playlistViewModel.currentPlaylistDetail.collectAsState()
@@ -452,16 +458,16 @@ fun RecipeApp(
                     factory = SongViewModelFactory(songRepository)
                 )
                 val albumViewModel : AlbumViewModel = viewModel(
-                    factory = AlbumViewModelFactory(apiService)
+                    factory = AlbumViewModelFactory(albumRepository)
                 )
                 val artistViewModel : ArtistViewModel = viewModel(
-                    factory = ArtistViewModelFactory(apiService)
+                    factory = ArtistViewModelFactory(artistRepository)
                 )
                 val playlistViewModel : PlaylistViewModel = viewModel(
-                    factory = PlaylistViewModelFactory(apiService)
+                    factory = PlaylistViewModelFactory(playlistRepository)
                 )
                 val reportViewModel : ReportViewModel = viewModel(
-                    factory = ReportViewModelFactory(apiService)
+                    factory = ReportViewModelFactory(reportRepository)
                 )
                 val reportState by reportViewModel.reportState.collectAsState()
                 AllReportScreen(
@@ -479,7 +485,7 @@ fun RecipeApp(
             composable(route = Screen.DetailPlaylistScreen.route) {
                 val playlistId = it.arguments?.getString("playlistId")
                 val playlistViewModel : PlaylistViewModel = viewModel(
-                    factory = PlaylistViewModelFactory(apiService)
+                    factory = PlaylistViewModelFactory(playlistRepository)
                 )
                 val playlistState by playlistViewModel.playlistState.collectAsState()
                 val currentPlaylist by playlistViewModel.currentPlaylistDetail.collectAsState()
@@ -501,6 +507,28 @@ fun RecipeApp(
                         )
                     }
                 }
+            }
+            composable(route = Screen.DownloadScreen.route) {
+                DownloadScreen()
+            }
+            composable(route = Screen.FollowerArtstScreen.route) {
+                val artistViewModel : ArtistViewModel = viewModel(
+                    factory = ArtistViewModelFactory(artistRepository)
+                )
+                val artistState by artistViewModel.artistState.collectAsState()
+                val artists = artistState.artists ?: emptyList()
+                LaunchedEffect(Unit) {
+                    artistViewModel.getFollowerOfUser()
+                }
+                FollowerArtistScreen(
+                    artist = artists,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onArtistClick = {
+                        navController.navigate(Screen.ArtistScreen.createRoute(it.id))
+                    }
+                )
             }
         }
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()

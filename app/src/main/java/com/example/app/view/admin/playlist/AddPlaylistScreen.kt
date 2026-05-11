@@ -1,5 +1,6 @@
 package com.example.app.view.admin.playlist
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Spring
@@ -41,6 +42,7 @@ import com.example.app.R
 import com.example.app.viewmodel.PlaylistViewModel
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun AddPlaylistScreen(
     playlistViewModel: PlaylistViewModel
