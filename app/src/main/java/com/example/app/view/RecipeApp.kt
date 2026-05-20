@@ -91,8 +91,12 @@ fun RecipeApp(
     val userRepository = remember { com.example.app.model.repository.UserRepository(apiService) }
     val searchRepository = remember { com.example.app.model.repository.SearchRepository(apiService) }
     val sessionManager = remember { SessionManager(context) }
+    val database = remember { com.example.app.model.room.AppDatabase.getDatabase(context) }
+    val downloadRepository = remember { com.example.app.model.repository.DownloadRepository(apiService, database.songDao(), context) }
 
-    val playerViewModel : PlayerViewModel = viewModel()
+    val playerViewModel : PlayerViewModel = viewModel(
+        factory = com.example.app.viewmodel.PlayerViewModelFactory(songRepository)
+    )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -234,8 +238,8 @@ fun RecipeApp(
                         playerViewModel = playerViewModel,
                         name = name,
                         user = it,
-                        onViewAllSongs = {
-                            navController.navigate(Screen.ListAllSong.route)
+                        onViewAllSongs = { genreId ->
+                            navController.navigate(Screen.ListAllSong.createRoute(genreId))
                         },
                         onPlayerScreen = { song ->
                             playerViewModel.play(song, songs)
@@ -292,11 +296,14 @@ fun RecipeApp(
                 )
             }
             composable(route = Screen.ListAllSong.route) {
+                val genreId = it.arguments?.getString("genreId")
                 val songViewModel : SongViewModel = viewModel(
                     factory = SongViewModelFactory(songRepository)
                 )
-                val songState by songViewModel.songState.collectAsState()
-                //val songs = songState.songs ?: emptyList()
+                // Set genre filter ngay khi màn hình khởi tạo
+                LaunchedEffect(genreId) {
+                    songViewModel.setPagingGenreFilter(genreId)
+                }
                 val pagingSongs = songViewModel.songsPaging.collectAsLazyPagingItems()
                 ListAllSong(
                     songs = pagingSongs,
@@ -320,11 +327,15 @@ fun RecipeApp(
                 val reportViewModel : ReportViewModel = viewModel(
                     factory = ReportViewModelFactory(reportRepository)
                 )
+                val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
+                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
+                )
                 PlayerScreen(
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
                     reportViewModel = reportViewModel,
                     commentViewModel = commentViewModel,
+                    downloadViewModel = downloadViewModel,
                     onBack = {navController.popBackStack()}
                 )
             }
@@ -509,7 +520,18 @@ fun RecipeApp(
                 }
             }
             composable(route = Screen.DownloadScreen.route) {
-                DownloadScreen()
+                val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
+                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
+                )
+                DownloadScreen(
+                    downloadViewModel = downloadViewModel,
+                    playerViewModel = playerViewModel,
+                    onBack = { navController.popBackStack() },
+                    onSongClick = { song ->
+                        playerViewModel.play(song, emptyList())
+                        navController.navigate(Screen.PlayerScreen.createRoute())
+                    }
+                )
             }
             composable(route = Screen.FollowerArtstScreen.route) {
                 val artistViewModel : ArtistViewModel = viewModel(

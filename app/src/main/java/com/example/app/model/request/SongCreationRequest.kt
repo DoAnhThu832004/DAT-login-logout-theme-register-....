@@ -4,5 +4,6 @@ data class SongCreationRequest(
     val name: String,
     val description: String,
     val duration: Int,
-    val releasedDate: String
+    val releasedDate: String,
+    val genreIds: List<String>
 )

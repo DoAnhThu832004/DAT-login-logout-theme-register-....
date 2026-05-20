@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.app.model.response.Song
 import kotlinx.coroutines.launch
 
-class PlayerViewModel : ViewModel() {
+class PlayerViewModel(private val songRepository: com.example.app.model.repository.SongRepository) : ViewModel() {
     val currentSong = mutableStateOf<Song?>(null)
     val isPlaying = mutableStateOf(false)
     val repeatMode = mutableStateOf(0)
@@ -26,6 +26,16 @@ class PlayerViewModel : ViewModel() {
             currentSong.value = song
             isPlaying.value = true
             updateDuration()
+            
+            // Trigger play count update
+            viewModelScope.launch {
+                try {
+                    songRepository.incrementPlayCount(song.id)
+                    songRepository.recordListen(song.id)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -35,11 +45,16 @@ class PlayerViewModel : ViewModel() {
         isPlaying.value = true
         repeatMode.value = PlayerManager.repeatMode
         isShuffleMode.value = PlayerManager.isShuffleMode
-//        viewModelScope.launch {
-//            retrofitService.listenSong(song.id)
-//        }
         updateDuration()
         updateVolume()
+
+        viewModelScope.launch {
+            try {
+                songRepository.recordListen(song.id)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun next() {

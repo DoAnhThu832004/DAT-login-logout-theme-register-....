@@ -69,7 +69,8 @@ interface ApiService {
     @GET("songs")
     suspend fun getSongs(
         @Query("page") page: Int = 1,
-        @Query("size") size: Int = 10
+        @Query("size") size: Int = 10,
+        @Query("genreId") genreId: String? = null
     ): Response<ApiResponse<PageResponse<Song>>>
     @GET("songs/top-charts")
     suspend fun getTopSongs(): Response<ApiResponse<List<Song>>>
@@ -99,6 +100,14 @@ interface ApiService {
         @Path("id") id: String,
         @Body request: SongUpdateRequest
     ): Response<ApiResponse<Song>>
+
+    @POST("interactions/listen/{songId}")
+    suspend fun recordListen(
+        @Path("songId") songId: String
+    ): Response<ApiResponse<String>>
+
+    @GET("songs/recently-played")
+    suspend fun getRecentlyPlayedSongs(): Response<ApiResponse<List<Song>>>
     @GET("albums")
     suspend fun getAlbums(
         @Query("page") page: Int = 1,
@@ -268,4 +277,10 @@ interface ApiService {
 
     @GET("songs/{songId}/check-downloaded")
     suspend fun checkDownloaded(@Path("songId") id: String): Response<ApiResponse<Boolean>>
+
+    @POST("songs/{songId}/play")
+    suspend fun incrementPlayCount(@Path("songId") songId: String): Response<ApiResponse<String>>
+
+    @GET("genres")
+    suspend fun getGenres(): Response<ApiResponse<List<com.example.app.model.response.Genre>>>
 }

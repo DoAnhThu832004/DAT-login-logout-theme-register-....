@@ -18,7 +18,7 @@ class SongRepository(
     private val apiService: ApiService
 ) {
     suspend fun getTopSongs() = apiService.getTopSongs()
-    suspend fun getSongs() = apiService.getSongs()
+    suspend fun getSongs(page: Int = 1, size: Int = 10, genreId: String? = null) = apiService.getSongs(page, size, genreId)
     suspend fun createSong(request: SongCreationRequest) = apiService.createSong(request)
     suspend fun deleteSong(id: String) = apiService.deleteSong(id)
     suspend fun updateSong(id: String, request: SongUpdateRequest) = apiService.updateSong(id, request)
@@ -35,10 +35,14 @@ class SongRepository(
         return apiService.uploadSongFiles(songId, imagePart, audioPart)
     }
     suspend fun downloadSong(songId: String) = apiService.downloadSong(songId)
-    fun getSongsPaging(query: String? = null): Flow<PagingData<Song>> {
+    fun getSongsPaging(query: String? = null, genreId: String? = null): Flow<PagingData<Song>> {
         return Pager(
             config = PagingConfig(pageSize = 10),
-            pagingSourceFactory = { SongPagingSource(apiService, query) }
+            pagingSourceFactory = { SongPagingSource(apiService, query, genreId) }
         ).flow
     }
+    suspend fun incrementPlayCount(songId: String) = apiService.incrementPlayCount(songId)
+    suspend fun recordListen(songId: String) = apiService.recordListen(songId)
+    suspend fun getRecentlyPlayedSongs() = apiService.getRecentlyPlayedSongs()
+    suspend fun getGenres() = apiService.getGenres()
 }

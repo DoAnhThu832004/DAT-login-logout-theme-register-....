@@ -7,17 +7,18 @@ import com.example.app.model.response.Song
 
 class SongPagingSource(
     private val apiService: ApiService,
-    private val query: String? = null
+    private val query: String? = null,
+    private val genreId: String? = null
 ) : PagingSource<Int, Song>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Song> {
         return try {
             val page = params.key ?: 1
 
-            val response = if (query.isNullOrEmpty()) {
-                apiService.getSongs(page, params.loadSize)
-            } else {
-                apiService.searchSongsForAdmin(query, page, params.loadSize)
+            val response = when {
+                !query.isNullOrEmpty() -> apiService.searchSongsForAdmin(query, page, params.loadSize)
+                !genreId.isNullOrEmpty() -> apiService.getSongs(page, params.loadSize, genreId)
+                else -> apiService.getSongs(page, params.loadSize)
             }
             val songs = response.body()?.result?.result ?: emptyList()
 

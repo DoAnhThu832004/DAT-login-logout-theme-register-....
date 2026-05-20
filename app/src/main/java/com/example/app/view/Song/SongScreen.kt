@@ -2,10 +2,12 @@ package com.example.app.view.Song
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -40,7 +44,52 @@ import com.example.app.model.response.Playlist
 import com.example.app.view.Album.AlbumItem
 import com.example.app.view.Playlist.PlaylistItem
 import com.example.app.view.Song.topSong.DetailTopSong
+import com.example.app.viewmodel.SongViewModel
 import com.example.test_ms.view.SongItem
+
+@Composable
+fun MoodFilterBar(
+    selectedTab: String,
+    onTabSelected: (String) -> Unit
+) {
+    val tabs = listOf("Tất cả", "Thư giãn", "Tập trung", "Workout")
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(end = 8.dp)
+    ) {
+        items(tabs) { tab ->
+            val isSelected = tab == selectedTab
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        if (isSelected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .clickable { onTabSelected(tab) }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = tab,
+                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun SongScreen(
@@ -48,12 +97,17 @@ fun SongScreen(
     topSong: List<Song>,
     albums : List<Album>,
     playlists : List<Playlist>,
-    onViewAllClick: () -> Unit,
+    songViewModel: SongViewModel,
+    onViewAllClick: (genreId: String?) -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
     onClickToTopChart: () -> Unit,
     onToDetailClick: (Playlist) -> Unit
 ) {
+    val selectedMoodTab by songViewModel.selectedMoodTab.collectAsState()
+    val currentGenreId by songViewModel.pagingGenreId.collectAsState()
+    val songState by songViewModel.songState.collectAsState()
+    val recentlyPlayedSongs = remember(songState.recentlyPlayedSongs) { songState.recentlyPlayedSongs ?: emptyList() }
     val validAlbums = remember(albums) { albums.filter { it.status == "PUBLISHED" } }
     val validSongs = remember(songs) { songs.filter { it.status == "PUBLISHED" } }
     val previewSongs = remember(validSongs) { validSongs.take(4) }
@@ -62,6 +116,13 @@ fun SongScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        item {
+            // ——— Thanh lọc tâm trạng ———
+            MoodFilterBar(
+                selectedTab = selectedMoodTab,
+                onTabSelected = { songViewModel.filterSongsByMood(it) }
+            )
+        }
         item {
             Row(
                 modifier = Modifier
@@ -86,7 +147,7 @@ fun SongScreen(
                     modifier = Modifier
                         .padding(end = 8.dp)
                         .clickable {
-                            onViewAllClick()
+                            onViewAllClick(currentGenreId)
                         }
                 )
             }
@@ -181,6 +242,44 @@ fun SongScreen(
                             playlist = it,
                             onToDetailClick = { onToDetailClick(it) }
                         )
+                    }
+                }
+            }
+        }
+        if (recentlyPlayedSongs.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                ) {
+                    Text(
+                        text = "Bài hát nghe gần đây",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(recentlyPlayedSongs, key = { it.id }) { song ->
+                        Box(
+                            modifier = Modifier
+                                .width(140.dp)
+                        ) {
+                            SongItem(
+                                song = song,
+                                onClick = { onSongClick(song) }
+                            )
+                        }
                     }
                 }
             }

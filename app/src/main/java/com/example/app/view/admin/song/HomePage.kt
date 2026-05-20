@@ -58,7 +58,7 @@ fun HomePage(
     val songState by songViewModel.songState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        songViewModel.getSongs()
+        songViewModel.searchAdminSongs("")
     }
     Scaffold(
         bottomBar = {

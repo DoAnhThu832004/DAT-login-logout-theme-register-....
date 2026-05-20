@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.VolumeDown
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -76,6 +78,7 @@ fun PlayerScreen(
     songViewModel: SongViewModel,
     reportViewModel: ReportViewModel,
     commentViewModel: CommentViewModel,
+    downloadViewModel: com.example.app.viewmodel.DownloadViewModel,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -109,6 +112,11 @@ fun PlayerScreen(
         if (showBottomSheet && song != null) {
             // Lấy ID trực tiếp từ bài hát đang phát
             commentViewModel.getComment(song!!.id)
+        }
+    }
+    LaunchedEffect(song?.id) {
+        if (song != null) {
+            downloadViewModel.checkDownloaded(song.id)
         }
     }
 
@@ -155,15 +163,6 @@ fun PlayerScreen(
                     expanded = expanded,
                     onDismissRequest = {expanded = false}
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(text = "Tải xuống")
-                        },
-                        onClick = {
-                            expanded = false
-                            songViewModel.downloadSong(context, song)
-                        }
-                    )
                     DropdownMenuItem(
                         text = {
                             Text("Báo lỗi")
@@ -328,6 +327,38 @@ fun PlayerScreen(
                 IconButton(onClick = { showBottomSheet = true }) {
                     Icon(Icons.Default.ChatBubble, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                 }
+                
+                val isDownloaded = downloadViewModel.isDownloaded.value
+                val isDownloading = downloadViewModel.isDownloading.value
+                IconButton(onClick = { 
+                    if (!isDownloading) {
+                        if (isDownloaded) {
+                            downloadViewModel.deleteDownload(song.id) { success ->
+                                if (success) android.widget.Toast.makeText(context, "Đã xóa bài hát ${song.name}", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            downloadViewModel.downloadSong(song) { success ->
+                                if (success) android.widget.Toast.makeText(context, "Đã tải bài hát ${song.name} thành công", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }) {
+                    if (isDownloading) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (isDownloaded) Icons.Default.DownloadDone else Icons.Default.Download,
+                            contentDescription = "Download",
+                            tint = if (isDownloaded) Color(0xFF1DB954) else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+
                 IconButton(onClick = { }) {
                     Icon(Icons.Default.Share, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                 }

@@ -31,6 +31,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 
@@ -48,17 +49,135 @@ class SongViewModel(
     var isDownloading = mutableStateMapOf<String, Boolean>()
 
     private val _searchQuery = MutableStateFlow("")
+    /** genreId đang được lọc cho màn hình ListAllSong (null = tất cả) */
+    private val _pagingGenreId = MutableStateFlow<String?>(null)
+    /** Public expose \u0111\u1ec3 UI observe genreId hi\u1ec7n t\u1ea1i khi \u1ea5n Xem t\u1ea5t c\u1ea3 */
+    val pagingGenreId: StateFlow<String?> = _pagingGenreId.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val songsPaging: Flow<PagingData<Song>> = _searchQuery
         .debounce(500L)
-        .flatMapLatest { query ->
-            repository.getSongsPaging(query)
+        .combine(_pagingGenreId) { query, genreId -> query to genreId }
+        .flatMapLatest { (query, genreId) ->
+            repository.getSongsPaging(query, genreId)
         }
         .cachedIn(viewModelScope)
 
     fun searchAdminSongsPaging(query: String) {
         _searchQuery.value = query
+    }
+
+    /** Gọi từ màn hình ListAllSong để lọc paging theo genre đang chọn */
+    fun setPagingGenreFilter(genreId: String?) {
+        _pagingGenreId.value = genreId
+    }
+
+    // ===============================
+    // Mood / Genre Filter
+    // ===============================
+    /** Cache toàn bộ genres lấy từ API (tránh gọi lại nhiều lần) */
+    private var _allGenres: List<com.example.app.model.response.Genre> = emptyList()
+
+    /** Trạng thái tab tâm trạng đang được chọn (mặc định "Tất cả") */
+    private val _selectedMoodTab = MutableStateFlow("Tất cả")
+    val selectedMoodTab: StateFlow<String> = _selectedMoodTab.asStateFlow()
+
+    /** Bảng ánh xạ: nhãn UI -> keyG của genre tương ứng trên server */
+    private val moodToKeyG = mapOf(
+        "Thư giãn" to "chill",
+        "Tập trung" to "tập trung",
+        "Workout"  to "động lực"
+    )
+
+    init {
+        // Tải sẵn danh sách genres ngay khi ViewModel khởi tạo
+        viewModelScope.launch {
+            try {
+                val response = repository.getGenres()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        _allGenres = body.result
+                        _songUiState.value = _songUiState.value.copy(genres = body.result)
+                    }
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    /**
+     * Gọi khi người dùng ấn một nút tâm trạng.
+     * @param moodLabel Tên hiển thị trên UI, ví dụ "Thư giãn", "Tất cả"…
+     */
+    fun filterSongsByMood(moodLabel: String) {
+        _selectedMoodTab.value = moodLabel
+
+        if (moodLabel == "Tất cả") {
+            _pagingGenreId.value = null   // Reset paging: hiển thị tất cả bài hát
+            getSongs()
+            return
+        }
+
+        val keyG = moodToKeyG[moodLabel] ?: return
+        val genre = _allGenres.firstOrNull { it.keyG.equals(keyG, ignoreCase = true) } ?: run {
+            // Genres chưa load xong, thử load lại rồi filter
+            viewModelScope.launch {
+                try {
+                    val response = repository.getGenres()
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        if (body?.code == 1000 && body.result != null) {
+                            _allGenres = body.result
+                            _songUiState.value = _songUiState.value.copy(genres = body.result)
+                            val found = _allGenres.firstOrNull { it.keyG.equals(keyG, ignoreCase = true) }
+                            found?.let {
+                                _pagingGenreId.value = it.id  // Cập nhật paging
+                                getSongsByGenreId(it.id)
+                            }
+                        }
+                    }
+                } catch (_: Exception) { }
+            }
+            return
+        }
+        _pagingGenreId.value = genre.id   // Cập nhật paging ngay lập tức
+        getSongsByGenreId(genre.id)
+    }
+
+    /** Gọi API lấy danh sách bài hát theo genreId rồi cập nhật songState.songs */
+    private fun getSongsByGenreId(genreId: String) {
+        viewModelScope.launch {
+            _songUiState.value = _songUiState.value.copy(isLoading = true, error = null)
+            try {
+                val response = repository.getSongs(genreId = genreId)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            songs = body.result.result,
+                            error = null
+                        )
+                    } else {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            error = "Không tải được bài hát theo thể loại"
+                        )
+                    }
+                } else {
+                    val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                    _songUiState.value = _songUiState.value.copy(
+                        isLoading = false,
+                        error = apiErr?.message ?: "Lỗi từ máy chủ"
+                    )
+                }
+            } catch (e: Exception) {
+                _songUiState.value = _songUiState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối: ${e.message}"
+                )
+            }
+        }
     }
     // ===============================
     fun getTopSongs() {
@@ -126,7 +245,58 @@ class SongViewModel(
             }
         }
     }
-    fun createSong(name: String, description: String, duration: Int, releasedDate: String) {
+    fun getRecentlyPlayedSongs() {
+        viewModelScope.launch {
+            _songUiState.value = _songUiState.value.copy(isLoading = true, error = null)
+            try {
+                val response = repository.getRecentlyPlayedSongs()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            recentlyPlayedSongs = body.result,
+                            error = null
+                        )
+                    } else {
+                        _songUiState.value = _songUiState.value.copy(
+                            isLoading = false,
+                            error = "Failed to load recently played songs"
+                        )
+                    }
+                } else {
+                    val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                    _songUiState.value = _songUiState.value.copy(
+                        isLoading = false,
+                        error = apiErr?.message ?: "Failed to load recently played songs"
+                    )
+                }
+            } catch (e: Exception) {
+                _songUiState.value = _songUiState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+    fun getGenres() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getGenres()
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        _songUiState.value = _songUiState.value.copy(
+                            genres = body.result
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
+    fun createSong(name: String, description: String, duration: Int, releasedDate: String, genreIds: List<String> = emptyList()) {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(
                 isLoading = true,
@@ -138,7 +308,8 @@ class SongViewModel(
                     name = name,
                     description = description,
                     duration = duration,
-                    releasedDate = releasedDate
+                    releasedDate = releasedDate,
+                    genreIds = genreIds
                 )
                 val response = repository.createSong(request)
                 if (response.isSuccessful) {
@@ -234,7 +405,7 @@ class SongViewModel(
             }
         }
     }
-    fun updateSong(id: String, name: String, description: String, status: String, duration: Int, releasedDate: String, type: String) {
+    fun updateSong(id: String, name: String, description: String, status: String, duration: Int, releasedDate: String, type: String, genreIds: List<String> = emptyList()) {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(
                 isLoading = true,
@@ -247,7 +418,8 @@ class SongViewModel(
                     status = status,
                     duration = duration,
                     releasedDate = releasedDate,
-                    type = type
+                    type = type,
+                    genreIds = genreIds
                 )
                 val response = repository.updateSong(id, request)
                 if (response.isSuccessful) {
@@ -351,11 +523,7 @@ class SongViewModel(
             currentPage++
         }
 
-        // Nếu ô tìm kiếm rỗng, khôi phục danh sách mặc định
-        if (query.isBlank()) {
-            getSongs()
-            return
-        }
+        // Xóa khôi phục danh sách mặc định vì ta muốn phân trang cho cả danh sách toàn bộ
 
         searchJob = viewModelScope.launch {
             // Chỉ áp dụng độ trễ (Debounce) cho lần gõ phím mới, không áp dụng khi cuộn trang
@@ -368,8 +536,12 @@ class SongViewModel(
             )
 
             try {
-                // Truyền biến currentPage vào lời gọi API
-                val response = repository.searchSongsForAdmin(query, page = currentPage, size = 20)
+                // Phân trang với toàn bộ danh sách nếu query rỗng
+                val response = if (query.isBlank()) {
+                    repository.getSongs(page = currentPage, size = 20)
+                } else {
+                    repository.searchSongsForAdmin(query, page = currentPage, size = 20)
+                }
 
                 if (response.isSuccessful) {
                     val body = response.body()
@@ -452,6 +624,8 @@ class SongViewModel(
     data class SongState(
         val songs: List<Song>? = null,
         val topSongs : List<Song>? = null,
+        val recentlyPlayedSongs: List<Song>? = null,
+        val genres: List<com.example.app.model.response.Genre>? = null,
         val isLoading: Boolean = false,
         val isLoadingMore: Boolean = false,
         val isLastPage: Boolean = false,

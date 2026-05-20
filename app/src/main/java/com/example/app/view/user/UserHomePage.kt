@@ -63,7 +63,7 @@ fun UserHomePage(
     playerViewModel: PlayerViewModel,
     name: String,
     user: UserResponse,
-    onViewAllSongs: () -> Unit,
+    onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
@@ -128,7 +128,7 @@ fun ContentScreen(
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
     user: UserResponse,
-    onViewAllSongs: () -> Unit,
+    onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
@@ -143,16 +143,37 @@ fun ContentScreen(
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
         songViewModel.getTopSongs()
+        songViewModel.getRecentlyPlayedSongs()
         albumViewModel.getAlbums()
         artistViewModel.getArtists()
         playlistViewModel.getPlaylists()
+    }
+    LaunchedEffect(playerViewModel.currentSong.value) {
+        if (playerViewModel.currentSong.value != null) {
+            songViewModel.getRecentlyPlayedSongs()
+        }
     }
     when(selectedIndex) {
         0 -> {
             val isScreenLoading = songState.isLoading || albumState.isLoading || playlistState.isLoading || artistState.isLoadingA
             val screenError = playlistState.error ?: songState.error ?: albumState.error
             val currentTopSongs = remember(songState.topSongs) { songState.topSongs?.take(5) ?: emptyList() }
-            HomePageU(isLoading = isScreenLoading, errorMessage = screenError, songs = songState.songs ?: emptyList(), topSongs = currentTopSongs, albums = albumState.albums ?: emptyList(), playlists = playlistState.playlists ?: emptyList(),searchViewModel = searchViewModel,onViewAllSongs = onViewAllSongs, onPlayerScreen = onPlayerScreen, onAlbumScreen = onAlbumScreen, onArtistScreen = onArtistScreen, onClickToTopChart = onClickToTopChart,onToDetailClick = onToDetailClick)
+            HomePageU(
+                isLoading = isScreenLoading,
+                errorMessage = screenError,
+                songs = songState.songs ?: emptyList(),
+                topSongs = currentTopSongs,
+                albums = albumState.albums ?: emptyList(),
+                playlists = playlistState.playlists ?: emptyList(),
+                songViewModel = songViewModel,
+                searchViewModel = searchViewModel,
+                onViewAllSongs = onViewAllSongs,
+                onPlayerScreen = onPlayerScreen,
+                onAlbumScreen = onAlbumScreen,
+                onArtistScreen = onArtistScreen,
+                onClickToTopChart = onClickToTopChart,
+                onToDetailClick = onToDetailClick
+            )
         }
         1 -> FavoritePage(
             songs = songViewModel.songState.value.songs ?: emptyList(),

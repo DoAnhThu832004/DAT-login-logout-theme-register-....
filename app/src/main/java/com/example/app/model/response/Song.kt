@@ -15,5 +15,7 @@ data class Song(
     val artistName: String?,
     val imageUrl: String?,
     val audioUrl: String?,
-    val favorite: Boolean
+    val favorite: Boolean,
+    var playCount: Int = 0,
+    val genres: List<Genre>? = null
 ): Parcelable

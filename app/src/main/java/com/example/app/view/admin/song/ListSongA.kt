@@ -116,7 +116,6 @@ fun ListSongA(
                     val isAtBottom = lastVisibleIndex >= songs.size - 1
 
                     if (isAtBottom &&
-                        searchQuery.isNotEmpty() && // Chỉ kích hoạt load more khi đang ở chế độ tìm kiếm
                         !songState.isLoading &&
                         !songState.isLoadingMore &&
                         !songState.isLastPage
@@ -152,7 +151,7 @@ fun ListSongA(
                 if (searchQuery.isNotEmpty()) {
                     IconButton(onClick = {
                         searchQuery = ""
-                        songViewModel.getSongs() // Tải lại toàn bộ dữ liệu mặc định
+                        songViewModel.searchAdminSongs("") // Tải lại toàn bộ dữ liệu mặc định bằng phân trang
                     }) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = "Clear")
                     }

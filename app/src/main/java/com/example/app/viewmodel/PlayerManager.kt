@@ -7,6 +7,10 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.app.model.response.Song
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 object PlayerManager {
     private var player: ExoPlayer? = null
@@ -74,11 +78,22 @@ object PlayerManager {
             }
         }
         currentSong = song
-        val mediaItem = MediaItem.fromUri(song.audioUrl.toString())
-        player?.setMediaItem(mediaItem)
-        player?.prepare()
-        player?.play()
-        onSongChanged?.invoke(song) // Trigger callback để update notification
+        
+        kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val localSong = context?.let { com.example.app.model.room.AppDatabase.getDatabase(it).songDao().getDownloadedSongById(song.id) }
+            val uri = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
+                localSong.localAudioPath
+            } else {
+                song.audioUrl.toString()
+            }
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                val mediaItem = MediaItem.fromUri(uri)
+                player?.setMediaItem(mediaItem)
+                player?.prepare()
+                player?.play()
+                onSongChanged?.invoke(song) // Trigger callback để update notification
+            }
+        }
     }
     fun togglePlayPause() {
         player?.let {

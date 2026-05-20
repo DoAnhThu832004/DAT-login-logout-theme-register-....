@@ -6,5 +6,6 @@ data class SongUpdateRequest(
     val status : String,
     val duration : Int,
     val releasedDate : String,
-    val type : String
+    val type : String,
+    val genreIds: List<String>
 )

@@ -40,8 +40,9 @@ fun HomePageU(
     topSongs: List<Song>,
     albums: List<Album>,
     playlists: List<Playlist>,
+    songViewModel: SongViewModel,
     searchViewModel: SearchViewModel,
-    onViewAllSongs: () -> Unit,
+    onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
     onArtistScreen: (Artist) -> Unit,
@@ -73,6 +74,7 @@ fun HomePageU(
                         topSong = topSongs,
                         albums = albums,
                         playlists = playlists,
+                        songViewModel = songViewModel,
                         onViewAllClick = onViewAllSongs,
                         onSongClick = { song ->
                             onPlayerScreen(song)

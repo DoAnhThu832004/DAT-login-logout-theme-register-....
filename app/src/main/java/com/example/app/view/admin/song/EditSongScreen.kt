@@ -34,6 +34,15 @@ import com.example.app.R
 import com.example.app.model.response.Song
 import com.example.app.view.general.DateDialog
 import com.example.app.viewmodel.SongViewModel
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun EditSongScreen(
@@ -41,6 +50,19 @@ fun EditSongScreen(
     songToEdit: Song,
     songId : String
 ) {
+    val songState by songViewModel.songState.collectAsState()
+    LaunchedEffect(Unit) {
+        songViewModel.getGenres()
+    }
+    val selectedGenres = remember(songToEdit) { 
+        mutableStateListOf<String>().apply {
+            songToEdit.genres?.let { genres ->
+                addAll(genres.map { it.id })
+            }
+        }
+    }
+    var showGenreDialog by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -204,6 +226,67 @@ fun EditSongScreen(
             shape = RoundedCornerShape(15.dp)
         )
         Spacer(modifier = Modifier.padding(top = 8.dp))
+        OutlinedTextField(
+            value = if (selectedGenres.isEmpty()) "Chưa chọn thể loại" else "${selectedGenres.size} thể loại đã chọn",
+            onValueChange = {},
+            readOnly = true,
+            label = {
+                Text(
+                    text = "Thể loại",
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+                .clickable { showGenreDialog = true },
+            shape = RoundedCornerShape(15.dp)
+        )
+
+        if (showGenreDialog) {
+            AlertDialog(
+                onDismissRequest = { showGenreDialog = false },
+                title = { Text(text = "Chọn thể loại") },
+                text = {
+                    LazyColumn {
+                        val genres = songState.genres ?: emptyList()
+                        items(genres) { genre ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        if (selectedGenres.contains(genre.id)) {
+                                            selectedGenres.remove(genre.id)
+                                        } else {
+                                            selectedGenres.add(genre.id)
+                                        }
+                                    }
+                                    .padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = selectedGenres.contains(genre.id),
+                                    onCheckedChange = { isChecked ->
+                                        if (isChecked) {
+                                            selectedGenres.add(genre.id)
+                                        } else {
+                                            selectedGenres.remove(genre.id)
+                                        }
+                                    }
+                                )
+                                Text(text = genre.name, modifier = Modifier.padding(start = 8.dp))
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showGenreDialog = false }) {
+                        Text("Xong")
+                    }
+                }
+            )
+        }
+        Spacer(modifier = Modifier.padding(top = 8.dp))
 
         Button(
             onClick = {
@@ -215,7 +298,7 @@ fun EditSongScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
-                    songViewModel.updateSong(songId, nameSong, description,status, duration.toInt(), releasedDate, type)
+                    songViewModel.updateSong(songId, nameSong, description,status, duration.toInt(), releasedDate, type, selectedGenres.toList())
                     val successMessage = context.getString(R.string.cap_nhap_bai_hat_thanh_cong)
                     Toast.makeText(
                         context,
