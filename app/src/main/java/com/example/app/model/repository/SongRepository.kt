@@ -45,4 +45,8 @@ class SongRepository(
     suspend fun recordListen(songId: String) = apiService.recordListen(songId)
     suspend fun getRecentlyPlayedSongs() = apiService.getRecentlyPlayedSongs()
     suspend fun getGenres() = apiService.getGenres()
+    suspend fun getRecommendations(userId: String, limit: Int = 10) =
+        apiService.getRecommendations(userId, limit)
+    suspend fun triggerFullPipeline() = apiService.triggerFullPipeline()
+    suspend fun triggerAggregation() = apiService.triggerAggregation()
 }

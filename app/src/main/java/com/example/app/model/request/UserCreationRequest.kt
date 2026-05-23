@@ -9,5 +9,6 @@ data class UserCreationRequest(
     val password: String,
     val firstName: String,
     val lastName: String,
-    val dob: String
+    val dob: String,
+    val preferredGenreIds: List<String>? = null
 ) : Parcelable

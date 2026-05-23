@@ -49,6 +49,8 @@ import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
+import com.example.app.viewmodel.RecommendationViewModel
+
 @Composable
 fun UserHomePage(
     modifier: Modifier = Modifier,
@@ -61,6 +63,7 @@ fun UserHomePage(
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
+    recommendationViewModel: RecommendationViewModel? = null,
     name: String,
     user: UserResponse,
     onViewAllSongs: (genreId: String?) -> Unit,
@@ -102,6 +105,7 @@ fun UserHomePage(
             searchViewModel = searchViewModel,
             editProfileViewModel = editProfileViewModel,
             playerViewModel = playerViewModel,
+            recommendationViewModel = recommendationViewModel,
             user = user,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
@@ -127,6 +131,7 @@ fun ContentScreen(
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
+    recommendationViewModel: RecommendationViewModel? = null,
     user: UserResponse,
     onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -167,6 +172,7 @@ fun ContentScreen(
                 playlists = playlistState.playlists ?: emptyList(),
                 songViewModel = songViewModel,
                 searchViewModel = searchViewModel,
+                recommendationViewModel = recommendationViewModel,
                 onViewAllSongs = onViewAllSongs,
                 onPlayerScreen = onPlayerScreen,
                 onAlbumScreen = onAlbumScreen,

@@ -283,4 +283,17 @@ interface ApiService {
 
     @GET("genres")
     suspend fun getGenres(): Response<ApiResponse<List<com.example.app.model.response.Genre>>>
+
+    // ===== Recommendation APIs =====
+    @GET("api/recommendations")
+    suspend fun getRecommendations(
+        @Query("userId") userId: String,
+        @Query("limit") limit: Int = 10
+    ): Response<ApiResponse<com.example.app.model.response.RecommendationResponse>>
+
+    @POST("api/admin/recommendations/trigger-full-pipeline")
+    suspend fun triggerFullPipeline(): Response<ApiResponse<String>>
+
+    @POST("api/admin/recommendations/trigger-aggregation")
+    suspend fun triggerAggregation(): Response<ApiResponse<String>>
 }

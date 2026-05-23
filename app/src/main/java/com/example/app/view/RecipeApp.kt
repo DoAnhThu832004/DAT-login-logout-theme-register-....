@@ -131,7 +131,7 @@ fun RecipeApp(
             }
             composable(route = Screen.RegisterScreen.route) {
                 val registerViewModel : RegisterViewModel = viewModel(
-                    factory = RegisterViewModelFactory(userRepository)
+                    factory = RegisterViewModelFactory(userRepository, songRepository)
                 )
                 RegisterScreen(
                     registerViewModel = registerViewModel,
@@ -222,9 +222,20 @@ fun RecipeApp(
                 val playlistViewModel : PlaylistViewModel = viewModel(
                     factory = PlaylistViewModelFactory(playlistRepository)
                 )
+                val recommendationViewModel: com.example.app.viewmodel.RecommendationViewModel = viewModel(
+                    factory = com.example.app.viewmodel.RecommendationViewModelFactory(songRepository)
+                )
                 val songState by songViewModel.songState.collectAsState()
                 val songs = songState.songs ?: emptyList()
                 val userState by editProfileViewModel.editUiState.collectAsState()
+                
+                LaunchedEffect(userState.userResponse?.result?.id) {
+                    val userId = userState.userResponse?.result?.id
+                    if (!userId.isNullOrBlank()) {
+                        recommendationViewModel.getRecommendations(userId = userId, limit = 10)
+                    }
+                }
+
                 userState.userResponse?.let {
                     UserHomePage(
                         navController = navController,
@@ -236,6 +247,7 @@ fun RecipeApp(
                         searchViewModel = searchViewModel,
                         editProfileViewModel = editProfileViewModel,
                         playerViewModel = playerViewModel,
+                        recommendationViewModel = recommendationViewModel,
                         name = name,
                         user = it,
                         onViewAllSongs = { genreId ->

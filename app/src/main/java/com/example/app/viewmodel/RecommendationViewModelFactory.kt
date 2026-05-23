@@ -3,16 +3,14 @@ package com.example.app.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.app.model.repository.SongRepository
-import com.example.app.model.repository.UserRepository
 
-class RegisterViewModelFactory(
-    private val repository: UserRepository,
-    private val songRepository: SongRepository? = null
+class RecommendationViewModelFactory(
+    private val repository: SongRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(RegisterViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(RecommendationViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return RegisterViewModel(repository, songRepository) as T
+            return RecommendationViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

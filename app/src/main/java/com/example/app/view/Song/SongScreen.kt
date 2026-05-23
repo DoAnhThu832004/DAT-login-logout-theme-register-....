@@ -44,6 +44,7 @@ import com.example.app.model.response.Playlist
 import com.example.app.view.Album.AlbumItem
 import com.example.app.view.Playlist.PlaylistItem
 import com.example.app.view.Song.topSong.DetailTopSong
+import com.example.app.viewmodel.RecommendationViewModel
 import com.example.app.viewmodel.SongViewModel
 import com.example.test_ms.view.SongItem
 
@@ -93,11 +94,12 @@ fun MoodFilterBar(
 
 @Composable
 fun SongScreen(
-    songs : List<Song>,
+    songs: List<Song>,
     topSong: List<Song>,
-    albums : List<Album>,
-    playlists : List<Playlist>,
+    albums: List<Album>,
+    playlists: List<Playlist>,
     songViewModel: SongViewModel,
+    recommendationViewModel: RecommendationViewModel? = null,
     onViewAllClick: (genreId: String?) -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
@@ -112,17 +114,28 @@ fun SongScreen(
     val validSongs = remember(songs) { songs.filter { it.status == "PUBLISHED" } }
     val previewSongs = remember(validSongs) { validSongs.take(4) }
     val previewAlbums = remember(validAlbums) { validAlbums.take(4) }
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+
+        // ──── 1. Gợi ý cho bạn (Recommendation) ────
+        if (recommendationViewModel != null) {
+            item {
+                RecommendationSection(
+                    recommendationViewModel = recommendationViewModel,
+                    onSongClick = onSongClick
+                )
+            }
+        }
+
+        // ──── 2. Thanh lọc tâm trạng ────
         item {
-            // ——— Thanh lọc tâm trạng ———
             MoodFilterBar(
                 selectedTab = selectedMoodTab,
                 onTabSelected = { songViewModel.filterSongsByMood(it) }
             )
         }
+
+        // ──── 3. Gợi ý bài hát (tất cả / theo genre) ────
         item {
             Row(
                 modifier = Modifier
@@ -138,7 +151,7 @@ fun SongScreen(
                     text = stringResource(R.string.goi_y_bai_hat),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp,vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                         .weight(1f)
                 )
                 Text(
@@ -146,9 +159,7 @@ fun SongScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .clickable {
-                            onViewAllClick(currentGenreId)
-                        }
+                        .clickable { onViewAllClick(currentGenreId) }
                 )
             }
             LazyRow(
@@ -157,26 +168,15 @@ fun SongScreen(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(previewSongs, key = {it.id}) { song ->
-//                    val artist = artists.firstOrNull { art ->
-//                        art.songs.any { it.id == song.id }
-//                    } ?: Artist(id = "", name = "Unknown", imageUrlAr = "" ,songs = emptyList())
-                    Box(
-                        modifier = Modifier
-                            .width(140.dp)
-                            //.background(MaterialTheme.colorScheme.background)
-                    ) {
-                        //if(song.status == "PUBLISHED") {
-                        SongItem(
-                            song = song,
-                            //artist = artist,
-                            onClick = { onSongClick(song) }
-                        )
-                        //}
+                items(previewSongs, key = { it.id }) { song ->
+                    Box(modifier = Modifier.width(140.dp)) {
+                        SongItem(song = song, onClick = { onSongClick(song) })
                     }
                 }
             }
         }
+
+        // ──── 4. Album Hot ────
         item {
             Row(
                 modifier = Modifier
@@ -190,8 +190,7 @@ fun SongScreen(
                 Text(
                     text = "Album Hot",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
             LazyRow(
@@ -200,16 +199,15 @@ fun SongScreen(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(previewAlbums, key = {it.id}) { album ->
-                    Box(
-                        modifier = Modifier
-                            .width(140.dp)
-                    ) {
+                items(previewAlbums, key = { it.id }) { album ->
+                    Box(modifier = Modifier.width(140.dp)) {
                         AlbumItem(album = album, onClick = { onAlbumClick(album) })
                     }
                 }
             }
         }
+
+        // ──── 5. Playlist ────
         item {
             Row(
                 modifier = Modifier
@@ -223,8 +221,7 @@ fun SongScreen(
                 Text(
                     text = "Playlist",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
             LazyRow(
@@ -234,10 +231,7 @@ fun SongScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(playlists) {
-                    Box(
-                        modifier = Modifier
-                            .width(140.dp)
-                    ) {
+                    Box(modifier = Modifier.width(140.dp)) {
                         PlaylistItem(
                             playlist = it,
                             onToDetailClick = { onToDetailClick(it) }
@@ -246,6 +240,8 @@ fun SongScreen(
                 }
             }
         }
+
+        // ──── 6. Bài hát nghe gần đây ────
         if (recentlyPlayedSongs.isNotEmpty()) {
             item {
                 Row(
@@ -260,8 +256,7 @@ fun SongScreen(
                     Text(
                         text = "Bài hát nghe gần đây",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
                 LazyRow(
@@ -271,19 +266,15 @@ fun SongScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(recentlyPlayedSongs, key = { it.id }) { song ->
-                        Box(
-                            modifier = Modifier
-                                .width(140.dp)
-                        ) {
-                            SongItem(
-                                song = song,
-                                onClick = { onSongClick(song) }
-                            )
+                        Box(modifier = Modifier.width(140.dp)) {
+                            SongItem(song = song, onClick = { onSongClick(song) })
                         }
                     }
                 }
             }
         }
+
+        // ──── 7. #ZingChart ────
         item {
             val zingColors = listOf(
                 Color(0xFF4361EE),
@@ -306,17 +297,15 @@ fun SongScreen(
                     androidx.compose.material.Text(
                         text = "#zingchart",
                         style = TextStyle(
-                            brush = Brush.linearGradient(
-                                colors = zingColors
-                            ),
+                            brush = Brush.linearGradient(colors = zingColors),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             fontStyle = FontStyle.Italic
                         ),
                         modifier = Modifier.padding(top = 8.dp)
                     )
-                    topSong.forEachIndexed { index,it ->
-                        DetailTopSong(song = it,index = index,onSongClick = {onSongClick(it)})
+                    topSong.forEachIndexed { index, it ->
+                        DetailTopSong(song = it, index = index, onSongClick = { onSongClick(it) })
                     }
                     HorizontalDivider(
                         modifier = Modifier
@@ -333,6 +322,7 @@ fun SongScreen(
                 }
             }
         }
+
         item {
             Spacer(modifier = Modifier.padding(bottom = 64.dp))
         }

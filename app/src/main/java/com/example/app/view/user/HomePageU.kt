@@ -31,6 +31,8 @@ import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
+import com.example.app.viewmodel.RecommendationViewModel
+
 @Composable
 fun HomePageU(
     modifier: Modifier = Modifier,
@@ -42,6 +44,7 @@ fun HomePageU(
     playlists: List<Playlist>,
     songViewModel: SongViewModel,
     searchViewModel: SearchViewModel,
+    recommendationViewModel: RecommendationViewModel? = null,
     onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
     onAlbumScreen: (Album) -> Unit,
@@ -75,6 +78,7 @@ fun HomePageU(
                         albums = albums,
                         playlists = playlists,
                         songViewModel = songViewModel,
+                        recommendationViewModel = recommendationViewModel,
                         onViewAllClick = onViewAllSongs,
                         onSongClick = { song ->
                             onPlayerScreen(song)
@@ -91,4 +95,4 @@ fun HomePageU(
             }
         }
     }
-}
+}
