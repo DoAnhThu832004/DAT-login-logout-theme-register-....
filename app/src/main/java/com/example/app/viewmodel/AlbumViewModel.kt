@@ -34,6 +34,14 @@ class AlbumViewModel(
     private val _allSongsState = MutableStateFlow<List<Song>>(emptyList())
     val allSongsState: StateFlow<List<Song>> = _allSongsState.asStateFlow()
 
+    private val _isLoadingMoreSongs = MutableStateFlow(false)
+    val isLoadingMoreSongs: StateFlow<Boolean> = _isLoadingMoreSongs.asStateFlow()
+
+    private val _isSongsLastPage = MutableStateFlow(false)
+    val isSongsLastPage: StateFlow<Boolean> = _isSongsLastPage.asStateFlow()
+
+    private var songsCurrentPage = 1
+
     private val _currentAlbumDetail = MutableStateFlow<Album?>(null)
     val currentAlbumDetail: StateFlow<Album?> = _currentAlbumDetail.asStateFlow()
 
@@ -249,11 +257,39 @@ class AlbumViewModel(
             }
         }
     }
-    fun getAllSongs() {
+    fun getAllSongs(isLoadMore: Boolean = false) {
+        if (isLoadMore && _isSongsLastPage.value) return
+        if (_isLoadingMoreSongs.value) return
+
+        if (!isLoadMore) {
+            songsCurrentPage = 1
+            _isSongsLastPage.value = false
+            _allSongsState.value = emptyList()
+        }
+
+        _isLoadingMoreSongs.value = true
         viewModelScope.launch {
-            val response = repository.getSongs()
-            if (response.isSuccessful && response.body()?.result != null) {
-                _allSongsState.value = response.body()!!.result.result
+            try {
+                val response = repository.getSongs(page = songsCurrentPage, size = 10)
+                if (response.isSuccessful && response.body()?.result != null) {
+                    val pageData = response.body()!!.result
+                    val newSongs = pageData.result
+
+                    _allSongsState.value = if (isLoadMore) {
+                        _allSongsState.value + newSongs
+                    } else {
+                        newSongs
+                    }
+
+                    _isSongsLastPage.value = songsCurrentPage >= pageData.totalPages
+                    if (!_isSongsLastPage.value) {
+                        songsCurrentPage++
+                    }
+                }
+            } catch (e: Exception) {
+                // handle error
+            } finally {
+                _isLoadingMoreSongs.value = false
             }
         }
     }

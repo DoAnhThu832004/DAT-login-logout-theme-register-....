@@ -19,6 +19,9 @@ class DownloadRepository(
 ) {
     fun getAllDownloadedSongs(): Flow<List<DownloadedSongEntity>> = songDao.getAllDownloadedSongs()
 
+    /** Chỉ trả về bài hát người dùng chủ động tải (downloadedByUser = true) */
+    fun getUserDownloadedSongs(): Flow<List<DownloadedSongEntity>> = songDao.getUserDownloadedSongs()
+
     suspend fun getDownloadedSongById(songId: String): DownloadedSongEntity? = songDao.getDownloadedSongById(songId)
 
     suspend fun checkDownloaded(songId: String): Boolean {

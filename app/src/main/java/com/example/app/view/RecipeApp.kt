@@ -34,6 +34,7 @@ import com.example.app.model.ApiClient
 import com.example.app.model.repository.SongRepository
 import com.example.app.view.Album.AlbumDetailScreen
 import com.example.app.view.Artist.ArtistScreen
+import com.example.app.view.InProfile.ChangePasswordScreen
 import com.example.app.view.InProfile.DownloadScreen
 import com.example.app.view.InProfile.FollowerArtistScreen
 import com.example.app.view.Login.LoginScreen
@@ -63,6 +64,8 @@ import com.example.app.viewmodel.LoginViewModelFactory
 import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.PlaylistViewModelFactory
+import com.example.app.viewmodel.ChangePasswordViewModel
+import com.example.app.viewmodel.ChangePasswordViewModelFactory
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
 import com.example.app.viewmodel.ReportViewModel
@@ -232,7 +235,7 @@ fun RecipeApp(
                 LaunchedEffect(userState.userResponse?.result?.id) {
                     val userId = userState.userResponse?.result?.id
                     if (!userId.isNullOrBlank()) {
-                        recommendationViewModel.getRecommendations(userId = userId, limit = 10)
+                        recommendationViewModel.getHomeRecommendations(userId = userId)
                     }
                 }
 
@@ -562,6 +565,21 @@ fun RecipeApp(
                     onArtistClick = {
                         navController.navigate(Screen.ArtistScreen.createRoute(it.id))
                     }
+                )
+            }
+            composable(route = Screen.ChangePasswordScreen.route) {
+                val loginViewModel : LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
+                )
+                val editProfileViewModel : EditProfileViewModel = viewModel(
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
+                )
+                val changePasswordViewModel : ChangePasswordViewModel = viewModel(
+                    factory = ChangePasswordViewModelFactory(userRepository, loginViewModel, editProfileViewModel)
+                )
+                ChangePasswordScreen(
+                    changePasswordViewModel = changePasswordViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

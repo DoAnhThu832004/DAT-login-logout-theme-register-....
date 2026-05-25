@@ -28,6 +28,7 @@ import com.example.app.model.response.Playlist
 import com.example.app.model.response.Report
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
+import com.example.app.model.response.HomeRecommendationResponse
 import com.example.app.viewmodel.SessionManager
 import okhttp3.Interceptor
 import okhttp3.MultipartBody
@@ -290,6 +291,11 @@ interface ApiService {
         @Query("userId") userId: String,
         @Query("limit") limit: Int = 10
     ): Response<ApiResponse<com.example.app.model.response.RecommendationResponse>>
+
+    @GET("api/recommendations/home")
+    suspend fun getHomeRecommendations(
+        @Query("userId") userId: String
+    ): Response<ApiResponse<HomeRecommendationResponse>>
 
     @POST("api/admin/recommendations/trigger-full-pipeline")
     suspend fun triggerFullPipeline(): Response<ApiResponse<String>>

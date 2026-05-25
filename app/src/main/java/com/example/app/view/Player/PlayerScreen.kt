@@ -82,7 +82,7 @@ fun PlayerScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val song = playerViewModel.currentSong.value
+    val song = playerViewModel.currentSong.value  // mutableStateOf → Compose recomposes khi thay đổi
     val isPlaying = playerViewModel.isPlaying.value
     val repeatMode = playerViewModel.repeatMode.value
     val isShuffleMode = playerViewModel.isShuffleMode.value

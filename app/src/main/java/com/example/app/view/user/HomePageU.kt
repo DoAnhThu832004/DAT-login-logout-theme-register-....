@@ -86,6 +86,12 @@ fun HomePageU(
                         onAlbumClick = { album ->
                             onAlbumScreen(album)
                         },
+                        onArtistClick = { artist ->
+                            onArtistScreen(artist)
+                        },
+                        onPlaylistClick = { playlist ->
+                            onToDetailClick(playlist)
+                        },
                         onClickToTopChart = onClickToTopChart,
                         onToDetailClick = {
                             onToDetailClick(it)

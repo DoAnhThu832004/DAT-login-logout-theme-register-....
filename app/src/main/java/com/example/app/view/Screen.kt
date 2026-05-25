@@ -75,4 +75,5 @@ sealed class Screen(val route : String) {
     }
     object DownloadScreen : Screen("downloadScreen")
     object FollowerArtstScreen : Screen("followerArtstScreen")
+    object ChangePasswordScreen : Screen("changePasswordScreen")
 }

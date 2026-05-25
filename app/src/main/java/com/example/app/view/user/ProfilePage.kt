@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowCircleDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -102,6 +103,7 @@ fun ProfilePage(
     val items = listOf(
         NavItemsDrawer(stringResource(R.string.tai_xuong), Icons.Default.ArrowCircleDown, Screen.DownloadScreen.route),
         NavItemsDrawer(stringResource(R.string.tac_gia), Icons.Default.Person, Screen.FollowerArtstScreen.route),
+        NavItemsDrawer("Đổi mật khẩu", Icons.Default.Lock, Screen.ChangePasswordScreen.route),
     )
     LaunchedEffect(Unit) {
         playlistViewModel.getMyPlaylists()

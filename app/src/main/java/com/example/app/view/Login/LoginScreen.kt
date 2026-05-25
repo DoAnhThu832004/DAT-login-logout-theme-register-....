@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -66,39 +68,34 @@ import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.SessionManager
 import kotlinx.coroutines.delay
 
+private val loginErrorColor = Color(0xFFFF6B6B)
+
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
     editProfileViewModel: EditProfileViewModel,
     navController: NavHostController,
     navigateToRegister: () -> Unit,
-    navigateToUserHomePage: (String,String) -> Unit
+    navigateToUserHomePage: (String, String) -> Unit
 ) {
     val context = LocalContext.current
     val loginUiState by loginViewModel.loginUiState.collectAsState()
     val savedUsername by DataStoreUtils.getSavedUsername(context).collectAsState(initial = "")
 
-    // Biến trạng thái lưu trữ giá trị tiến trình giả lập
     var simulatedProgress by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(savedUsername) {
         if (loginUiState.usernameInput.isEmpty() && !savedUsername.isNullOrEmpty()) {
             loginUiState.usernameInput = savedUsername!!
         }
     }
-//    LaunchedEffect(Unit) {
-//        val currentToken = SessionManager(context).getAccessToken()
-//        if (!currentToken.isNullOrEmpty()) {
-//            // Thực hiện điều hướng trực tiếp đến Home tương ứng với Role
-//        }
-//    }
+
     LaunchedEffect(loginUiState.isSuccessful) {
         if (loginUiState.isSuccessful) {
-            // Đẩy tiến trình lên mức tối đa trước khi điều hướng
             simulatedProgress = 100f
-            delay(300) // Khớp với thời gian hoạt ảnh để giao diện cập nhật mượt mà
-
+            delay(300)
             editProfileViewModel.getMyInfo()
-            when(loginUiState.role) {
+            when (loginUiState.role) {
                 "ROLE_ADMIN" -> {
                     loginUiState.name?.let { name ->
                         navController.navigate(Screen.NavigationDraw.createRoute(name)) {
@@ -117,13 +114,11 @@ fun LoginScreen(
         }
     }
 
-    // Luồng mô phỏng tiến trình tải dữ liệu tiệm cận
     LaunchedEffect(loginUiState.isLoading) {
         if (loginUiState.isLoading) {
             simulatedProgress = 0f
             while (simulatedProgress < 95f) {
                 delay(100)
-                // Công thức tính khoảng cách giảm dần để tạo hiệu ứng tiệm cận
                 simulatedProgress += (95f - simulatedProgress) * 0.15f
             }
         } else if (!loginUiState.isSuccessful) {
@@ -146,9 +141,11 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.padding(top = 8.dp))
+
+            // ── Username field ──
             OutlinedTextField(
                 value = loginUiState.usernameInput,
-                onValueChange = { newValue -> loginViewModel.updateUsernameInput(newValue) },
+                onValueChange = { loginViewModel.updateUsernameInput(it) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Email, contentDescription = null,
@@ -163,13 +160,31 @@ fun LoginScreen(
                     )
                 },
                 shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = loginUiState.usernameError != null,
+                colors = OutlinedTextFieldDefaults.colors(
+                    errorBorderColor = loginErrorColor,
+                    errorLabelColor = loginErrorColor
+                )
             )
+            // Lỗi bên dưới field username
+            if (loginUiState.usernameError != null) {
+                Text(
+                    text = loginUiState.usernameError!!,
+                    color = loginErrorColor,
+                    fontSize = 11.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, top = 2.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // ── Password field ──
             OutlinedTextField(
                 value = loginUiState.passwordInput,
-                onValueChange = { password -> loginViewModel.updatePassWordInput(password) },
+                onValueChange = { loginViewModel.updatePassWordInput(it) },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Password, contentDescription = null,
@@ -178,12 +193,11 @@ fun LoginScreen(
                     )
                 },
                 trailingIcon = {
-                    IconButton(
-                        onClick = { loginViewModel.togglePasswordVisibility() },
-                    ) {
-                        Icon(imageVector = if(loginUiState.isPasswordVisible)
-                            Icons.Default.Visibility
-                        else Icons.Default.VisibilityOff,
+                    IconButton(onClick = { loginViewModel.togglePasswordVisibility() }) {
+                        Icon(
+                            imageVector = if (loginUiState.isPasswordVisible)
+                                Icons.Default.Visibility
+                            else Icons.Default.VisibilityOff,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimary
                         )
@@ -196,42 +210,50 @@ fun LoginScreen(
                     )
                 },
                 shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                visualTransformation = if(loginUiState.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
-            )
-
-            if(loginUiState.usernameInput.isEmpty() || loginUiState.passwordInput.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.thong_bao_khong_de_trong),
-                    color = Color.Red,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = loginUiState.passwordError != null,
+                visualTransformation = if (loginUiState.isPasswordVisible)
+                    VisualTransformation.None else PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    errorBorderColor = loginErrorColor,
+                    errorLabelColor = loginErrorColor
                 )
-            } else {
-                loginUiState.error?.let { errorMsg ->
-                    Text(
-                        text = errorMsg,
-                        color = Color.Red,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                }
+            )
+            // Lỗi bên dưới field password
+            if (loginUiState.passwordError != null) {
+                Text(
+                    text = loginUiState.passwordError!!,
+                    color = loginErrorColor,
+                    fontSize = 11.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, top = 2.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Lỗi chung từ server/network — bên TRÊN button
+            loginUiState.error?.let { errorMsg ->
+                Text(
+                    text = errorMsg,
+                    color = loginErrorColor,
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                )
             }
 
             Button(
-                onClick = {
-                    loginViewModel.login()
-                    loginUiState.token?.let { token ->
-                        loginUiState.name?.let { name ->
-                            navigateToUserHomePage(token, name)
-                        }
-                    }
-                },
+                onClick = { loginViewModel.login() },
                 enabled = !loginUiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(R.string.dang_nhap),
@@ -248,32 +270,45 @@ fun LoginScreen(
             )
         }
 
+        // Loading overlay với progress bar
         if (loginUiState.isLoading || (loginUiState.progress == 100f && loginUiState.isSuccessful)) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {}),
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {}
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 8.dp,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp)
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         JetpackRoundedProgressBar(
                             progressPercentage = loginUiState.progress,
-                            modifier = Modifier.fillMaxWidth().height(20.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(20.dp),
                             progressColor = MaterialTheme.colorScheme.primary,
                             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                             text = "${loginUiState.progress.toInt()}%",
-                            cornerRadiusTopLeft = 25.dp, cornerRadiusTopRight = 25.dp,
-                            cornerRadiusBottomRight = 25.dp, cornerRadiusBottomLeft = 25.dp
+                            cornerRadiusTopLeft = 25.dp,
+                            cornerRadiusTopRight = 25.dp,
+                            cornerRadiusBottomRight = 25.dp,
+                            cornerRadiusBottomLeft = 25.dp
                         )
                     }
                 }

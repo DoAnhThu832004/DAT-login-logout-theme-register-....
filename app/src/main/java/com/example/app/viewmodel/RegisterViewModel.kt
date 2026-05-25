@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 class RegisterViewModel(
     private val repository: UserRepository,
@@ -62,40 +65,112 @@ class RegisterViewModel(
             } catch (e: Exception) {
                 _registerUiState.update { it.copy(
                     isLoadingGenres = false,
-                    genreLoadError = "Lỗi mạng: ${e.message}"
+                    genreLoadError = "Lỗi mạng: không thể tải thể loại"
                 ) }
             }
         }
     }
 
     fun updateUsernameInput(input: String) {
-       _registerUiState.update { it.copy(usernameInput = input) }
+        _registerUiState.update { it.copy(usernameInput = input, usernameError = null) }
     }
 
     fun updatePasswordInput(input: String) {
-        _registerUiState.update { it.copy(passwordInput = input) }
+        _registerUiState.update { it.copy(passwordInput = input, passwordError = null) }
     }
 
     fun updateFirstNameInput(input: String) {
-        _registerUiState.update { it.copy(firstNameInput = input) }
+        _registerUiState.update { it.copy(firstNameInput = input, firstNameError = null) }
     }
 
     fun updateLastNameInput(input: String) {
-        _registerUiState.update { it.copy(lastNameInput = input) }
+        _registerUiState.update { it.copy(lastNameInput = input, lastNameError = null) }
     }
 
     fun updateDobInput(input: String) {
-        _registerUiState.update { it.copy(dobInput = input) }
+        _registerUiState.update { it.copy(dobInput = input, dobError = null) }
     }
 
-    /** Chuyển sang bước chọn genre (Bước 2) */
+    /** Validate rồi chuyển sang bước chọn genre (Bước 2) */
     fun proceedToGenreSelection() {
-        _registerUiState.update { it.copy(isOnGenreStep = true) }
+        val state = _registerUiState.value
+        var usernameErr: String? = null
+        var passwordErr: String? = null
+        var firstNameErr: String? = null
+        var lastNameErr: String? = null
+        var dobErr: String? = null
+
+        // --- Username ---
+        when {
+            state.usernameInput.isBlank() -> usernameErr = "Tên đăng nhập không được để trống"
+            state.usernameInput.trim().length < 4 -> usernameErr = "Tên đăng nhập tối thiểu 4 ký tự"
+            state.usernameInput.trim().length > 50 -> usernameErr = "Tên đăng nhập tối đa 50 ký tự"
+        }
+
+        // --- Password ---
+        when {
+            state.passwordInput.isBlank() -> passwordErr = "Mật khẩu không được để trống"
+            state.passwordInput.length < 6 -> passwordErr = "Mật khẩu tối thiểu 6 ký tự"
+            state.passwordInput.length > 100 -> passwordErr = "Mật khẩu tối đa 100 ký tự"
+        }
+
+        // --- firstName ---
+        when {
+            state.firstNameInput.isBlank() -> firstNameErr = "Họ không được để trống"
+            state.firstNameInput.trim().length > 50 -> firstNameErr = "Họ tối đa 50 ký tự"
+        }
+
+        // --- lastName ---
+        when {
+            state.lastNameInput.isBlank() -> lastNameErr = "Tên không được để trống"
+            state.lastNameInput.trim().length > 50 -> lastNameErr = "Tên tối đa 50 ký tự"
+        }
+
+        // --- DOB ---
+        when {
+            state.dobInput.isBlank() -> dobErr = "Ngày sinh không được để trống"
+            else -> {
+                try {
+                    val dob = LocalDate.parse(state.dobInput.trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    val today = LocalDate.now()
+                    val age = today.year - dob.year -
+                        (if (today.dayOfYear < dob.dayOfYear) 1 else 0)
+                    if (age < 10) dobErr = "Bạn phải ít nhất 10 tuổi"
+                    if (dob.isAfter(today)) dobErr = "Ngày sinh không hợp lệ"
+                } catch (e: DateTimeParseException) {
+                    dobErr = "Định dạng ngày: yyyy-MM-dd (VD: 2000-01-31)"
+                }
+            }
+        }
+
+        // Nếu có lỗi thì cập nhật state và dừng
+        if (listOf(usernameErr, passwordErr, firstNameErr, lastNameErr, dobErr).any { it != null }) {
+            _registerUiState.update {
+                it.copy(
+                    usernameError = usernameErr,
+                    passwordError = passwordErr,
+                    firstNameError = firstNameErr,
+                    lastNameError = lastNameErr,
+                    dobError = dobErr
+                )
+            }
+            return
+        }
+
+        // Hợp lệ → chuyển bước
+        _registerUiState.update { it.copy(
+            usernameError = null,
+            passwordError = null,
+            firstNameError = null,
+            lastNameError = null,
+            dobError = null,
+            isOnGenreStep = true
+        ) }
     }
 
     /** Quay lại bước nhập thông tin (Bước 1) */
     fun backToInfoStep() {
-        _registerUiState.update { it.copy(isOnGenreStep = false) }
+        _registerUiState.update { it.copy(isOnGenreStep = false, error = null) }
     }
 
     /** Toggle chọn/bỏ chọn một genre */
@@ -118,11 +193,11 @@ class RegisterViewModel(
             try {
                 val response = repository.createUser(
                     UserCreationRequest(
-                        username = state.usernameInput,
+                        username = state.usernameInput.trim(),
                         password = state.passwordInput,
-                        firstName = state.firstNameInput,
-                        lastName = state.lastNameInput,
-                        dob = state.dobInput,
+                        firstName = state.firstNameInput.trim(),
+                        lastName = state.lastNameInput.trim(),
+                        dob = state.dobInput.trim(),
                         preferredGenreIds = state.selectedGenreIds.ifEmpty { null }
                     )
                 )
@@ -132,17 +207,27 @@ class RegisterViewModel(
                         _registerUiState.update { it.copy(
                             isLoading = false,
                             isSuccessful = true,
-                            error = "Đăng ký thành công"
+                            error = null
                         ) }
                     } else {
-                        resetRegisterUiState(response.message())
+                        _registerUiState.update { it.copy(
+                            isLoading = false,
+                            error = body?.message ?: "Đăng ký thất bại"
+                        ) }
                     }
                 } else {
                     val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
-                    resetRegisterUiState(apiErr?.message ?: "Đăng ký thất bại")
+                    val msg = when (apiErr?.code) {
+                        1002 -> "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác"
+                        else -> apiErr?.message ?: "Đăng ký thất bại, vui lòng thử lại"
+                    }
+                    _registerUiState.update { it.copy(isLoading = false, error = msg) }
                 }
             } catch (e: Exception) {
-                resetRegisterUiState("Lỗi: ${e.message}")
+                _registerUiState.update { it.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối, vui lòng thử lại"
+                ) }
             }
         }
     }
@@ -164,6 +249,12 @@ class RegisterViewModel(
         val lastNameInput: String = "",
         val dobInput: String = "",
         val error: String? = null,
+        // Field-level errors
+        val usernameError: String? = null,
+        val passwordError: String? = null,
+        val firstNameError: String? = null,
+        val lastNameError: String? = null,
+        val dobError: String? = null,
         // Genre selection
         val isOnGenreStep: Boolean = false,
         val isLoadingGenres: Boolean = true,

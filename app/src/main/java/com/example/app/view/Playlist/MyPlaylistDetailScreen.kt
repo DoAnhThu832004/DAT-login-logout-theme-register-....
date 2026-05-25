@@ -81,6 +81,8 @@ fun MyPlaylistDetailScreen(
     // State & Sheet cho chức năng Thêm bài hát
     var showAddSongSheet by remember { mutableStateOf(false) }
     val allSongs by playlistViewModel.allSongsState
+    val isLoadingMore by playlistViewModel.isLoadingMoreSongs
+    val isLastPage by playlistViewModel.isSongsLastPage
     val sheetState = rememberModalBottomSheetState()
     val currentPlaylist = playlistState.playlists?.find { it.id == playlist.id } ?: playlist
     val songs = playlistViewModel.songs
@@ -245,6 +247,9 @@ fun MyPlaylistDetailScreen(
             SelectSongBottomSheet(
                 allSongs = allSongs,
                 existingSongIds = songs.map { it.id },
+                isLoadingMore = isLoadingMore,
+                isLastPage = isLastPage,
+                onLoadMore = { playlistViewModel.getAllSongs(isLoadMore = true) },
                 onDismiss = { showAddSongSheet = false },
                 onSongSelected = { selectedSong ->
                     // Gọi ViewModel thêm bài hát

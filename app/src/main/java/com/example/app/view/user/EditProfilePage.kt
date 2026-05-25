@@ -117,23 +117,6 @@ fun EditProfilePage(
 
         Spacer(modifier = Modifier.padding(top = 16.dp))
 
-        // Username Field
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            enabled = false, // Thường username không cho sửa
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Email, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 6.dp)
-                )
-            },
-            label = { Text(text = stringResource(R.string.ten_dang_nhap), color = MaterialTheme.colorScheme.onBackground) },
-            shape = RoundedCornerShape(15.dp),
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-        )
-
         // First Name Field (Bỏ check null để luôn hiển thị field)
         OutlinedTextField(
             value = firstName,
@@ -171,34 +154,6 @@ fun EditProfilePage(
             value = dob,
             onValueChange = { dob = it },
             label = { Text(text = stringResource(R.string.ngay_sinh), color = MaterialTheme.colorScheme.onBackground) },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.DateRange, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        OutlinedTextField(
-            value = passwordOld,
-            onValueChange = { passwordOld = it },
-            label = { Text(text = stringResource(R.string.mat_khau_cu), color = MaterialTheme.colorScheme.onBackground) },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.DateRange, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        OutlinedTextField(
-            value = passwordNew,
-            onValueChange = { passwordNew = it },
-            label = { Text(text = stringResource(R.string.mat_khau_moi), color = MaterialTheme.colorScheme.onBackground) },
             leadingIcon = {
                 Icon(
                     Icons.Default.DateRange, contentDescription = null,

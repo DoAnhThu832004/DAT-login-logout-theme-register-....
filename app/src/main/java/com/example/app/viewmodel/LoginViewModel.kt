@@ -4,13 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.auth0.android.jwt.JWT
 import com.example.app.model.ApiErrorUtils
 import com.example.app.model.repository.UserRepository
 import com.example.app.model.request.AuthenticationRequest
-import com.example.app.model.response.ApiError
-import com.google.gson.Gson
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,23 +27,57 @@ class LoginViewModel(
 
     fun updateUsernameInput(input: String) {
         _loginUiState.value = _loginUiState.value.copy(
-            usernameInput = input
+            usernameInput = input,
+            usernameError = null,
+            error = null
         )
     }
+
     fun updatePassWordInput(input: String) {
         _loginUiState.value = _loginUiState.value.copy(
-            passwordInput = input
+            passwordInput = input,
+            passwordError = null,
+            error = null
         )
     }
+
     fun togglePasswordVisibility() {
         val currentState = _loginUiState.value
         _loginUiState.value = currentState.copy(isPasswordVisible = !currentState.isPasswordVisible)
     }
+
     fun login() {
-        val username = _loginUiState.value.usernameInput
+        val username = _loginUiState.value.usernameInput.trim()
         val password = _loginUiState.value.passwordInput
+
+        // ── Validate local trước khi gọi API ──
+        var usernameErr: String? = null
+        var passwordErr: String? = null
+
+        when {
+            username.isBlank() -> usernameErr = "Tên đăng nhập không được để trống"
+            username.length > 50 -> usernameErr = "Tên đăng nhập tối đa 50 ký tự"
+        }
+        when {
+            password.isBlank() -> passwordErr = "Mật khẩu không được để trống"
+            password.length > 100 -> passwordErr = "Mật khẩu tối đa 100 ký tự"
+        }
+
+        if (usernameErr != null || passwordErr != null) {
+            _loginUiState.value = _loginUiState.value.copy(
+                usernameError = usernameErr,
+                passwordError = passwordErr
+            )
+            return
+        }
+
         viewModelScope.launch {
-            _loginUiState.value = _loginUiState.value.copy(isLoading = true, error = null)
+            _loginUiState.value = _loginUiState.value.copy(
+                isLoading = true,
+                error = null,
+                usernameError = null,
+                passwordError = null
+            )
             startSimulatedProgress()
             try {
                 val response = repository.authenticate(
@@ -75,20 +106,26 @@ class LoginViewModel(
                             token = token,
                             userId = userId,
                             role = role,
-                            error = "Login successfully"
+                            error = null
                         )
                     } else {
-                        handleLoginFailure(body?.message ?: "Login failed")
+                        handleLoginFailure("Đăng nhập thất bại, vui lòng thử lại")
                     }
                 } else {
                     val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
-                    handleLoginFailure(apiErr?.message ?: "Registration failed")
+                    val msg = when (apiErr?.code) {
+                        1006 -> "Tên đăng nhập hoặc mật khẩu không đúng"
+                        1001 -> "Tài khoản không tồn tại"
+                        else -> apiErr?.message ?: "Đăng nhập thất bại (${response.code()})"
+                    }
+                    handleLoginFailure(msg)
                 }
-            } catch (e : Exception) {
-                handleLoginFailure("Error: ${e.message}")
+            } catch (e: Exception) {
+                handleLoginFailure("Lỗi kết nối, vui lòng kiểm tra mạng và thử lại")
             }
         }
     }
+
     private fun startSimulatedProgress() {
         progressJob?.cancel()
         progressJob = viewModelScope.launch {
@@ -100,51 +137,58 @@ class LoginViewModel(
             }
         }
     }
+
     private suspend fun handleLoginFailure(message: String) {
         progressJob?.cancel()
         _loginUiState.value = _loginUiState.value.copy(progress = 0f)
         resetLoginUiState(message)
     }
-    fun resetLoginUiState(message : String) {
+
+    fun resetLoginUiState(message: String) {
         viewModelScope.launch {
             _loginUiState.value = LoginUiState(isLoading = true, error = message)
             delay(1500)
-            _loginUiState.value = _loginUiState.value.copy(isLoading = false,error = message)
+            _loginUiState.value = _loginUiState.value.copy(isLoading = false, error = message)
         }
     }
-    fun getRoleFromToken(token : String) : String? {
+
+    fun getRoleFromToken(token: String): String? {
         return try {
             val jwt = JWT(token)
             val scope = jwt.getClaim("scope").asString()
             scope?.split(" ")?.firstOrNull()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             null
         }
     }
-    fun getUserIdFromToken(token : String): String? {
+
+    fun getUserIdFromToken(token: String): String? {
         return try {
             val jwt = JWT(token)
             jwt.getClaim("userId").asString()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             null
         }
     }
+
     suspend fun logout() {
         sessionManager.clearSession()
         _loginUiState.value = LoginUiState()
     }
+
     fun logoutAndNavigate(onComplete: () -> Unit) {
         viewModelScope.launch {
-            logout()  // suspend fun
-            onComplete() // callback khi xong
+            logout()
+            onComplete()
         }
     }
+
     fun checkExistingSession(onLoggedIn: (String, String) -> Unit, onNotLoggedIn: () -> Unit) {
         viewModelScope.launch {
             val token = sessionManager.getAccessToken()
             if (!token.isNullOrEmpty()) {
                 val role = getRoleFromToken(token)
-                val name = "User" // Hoặc lấy từ token/API
+                val name = "User"
                 if (role != null) {
                     onLoggedIn(name, role)
                 } else onNotLoggedIn()
@@ -153,6 +197,7 @@ class LoginViewModel(
             }
         }
     }
+
     data class LoginUiState(
         val isLoading: Boolean = false,
         val isSuccessful: Boolean = false,
@@ -162,9 +207,13 @@ class LoginViewModel(
         val passwordInput: String = "",
         val isPasswordVisible: Boolean = false,
 
-        val name : String? = null,
+        // Field-level errors
+        val usernameError: String? = null,
+        val passwordError: String? = null,
+
+        val name: String? = null,
         val token: String? = null,
-        val userId : String? = null,
+        val userId: String? = null,
         val role: String? = null,
         val error: String? = null
     )

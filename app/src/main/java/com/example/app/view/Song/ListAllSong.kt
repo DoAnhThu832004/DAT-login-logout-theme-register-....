@@ -244,7 +244,8 @@ fun DetailListSong(
                 Text(
                     text = song.name,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1
                 )
                 song.artistName?.let {
                     Text(

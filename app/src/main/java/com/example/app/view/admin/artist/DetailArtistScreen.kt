@@ -83,6 +83,8 @@ fun DetailArtistScreen(
     val sheetStateAlbum = rememberModalBottomSheetState()
     val allAlbums by artistViewModel.allAlbumsState.collectAsState()
     val allSongs by artistViewModel.allSongsState.collectAsState()
+    val isLoadingMore by artistViewModel.isLoadingMoreSongs.collectAsState()
+    val isLastPage by artistViewModel.isSongsLastPage.collectAsState()
     if(currentArtist != null) {
         LazyColumn(
             modifier = Modifier
@@ -271,6 +273,9 @@ fun DetailArtistScreen(
             SelectSongBottomSheet(
                 allSongs = allSongs,
                 existingSongIds = currentArtist.songs?.map { it.id } ?: emptyList(),
+                isLoadingMore = isLoadingMore,
+                isLastPage = isLastPage,
+                onLoadMore = { artistViewModel.getAllSongs(isLoadMore = true) },
                 onDismiss = { showAddSongSheet = false },
                 onSongSelected = { selectedSong ->
                     // Gọi ViewModel thêm bài hát

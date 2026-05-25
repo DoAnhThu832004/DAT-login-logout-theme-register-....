@@ -22,7 +22,7 @@ class AlbumRepository(
     suspend fun updateAlbum(id: String, request: AlbumUpdateRequest) = apiService.updateAlbum(id, request)
     suspend fun deleteSongFromAlbum(albumId: String, songId: String) = apiService.deleteSongFromAlbum(albumId, songId)
     suspend fun addSongToAlbum(albumId: String, songId: String) = apiService.addSongToAlbum(albumId, songId)
-    suspend fun getSongs() = apiService.getSongs()
+    suspend fun getSongs(page: Int = 1, size: Int = 10) = apiService.getSongs(page, size)
 
     suspend fun uploadAlbumImage(albumId: String, imagePart: okhttp3.MultipartBody.Part) = apiService.uploadAlbumImage(albumId, imagePart)
 

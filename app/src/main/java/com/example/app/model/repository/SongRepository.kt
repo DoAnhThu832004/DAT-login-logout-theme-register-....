@@ -47,6 +47,8 @@ class SongRepository(
     suspend fun getGenres() = apiService.getGenres()
     suspend fun getRecommendations(userId: String, limit: Int = 10) =
         apiService.getRecommendations(userId, limit)
+    suspend fun getHomeRecommendations(userId: String) =
+        apiService.getHomeRecommendations(userId)
     suspend fun triggerFullPipeline() = apiService.triggerFullPipeline()
     suspend fun triggerAggregation() = apiService.triggerAggregation()
 }

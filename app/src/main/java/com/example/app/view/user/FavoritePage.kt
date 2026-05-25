@@ -154,6 +154,9 @@ fun FavoritePage(
 //                    artist.songs.any { it.id == i.id }
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
             }
+            item {
+                Spacer(modifier = Modifier.padding(bottom = 64.dp))
+            }
         }
     }
 //    BoxWithConstraints {

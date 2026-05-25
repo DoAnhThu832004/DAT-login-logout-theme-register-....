@@ -19,7 +19,8 @@ class DownloadViewModel(private val downloadRepository: DownloadRepository) : Vi
     private val _downloadError = mutableStateOf<String?>(null)
     val downloadError: State<String?> = _downloadError
 
-    val downloadedSongs: kotlinx.coroutines.flow.Flow<List<com.example.app.model.room.DownloadedSongEntity>> = downloadRepository.getAllDownloadedSongs()
+    // Chỉ hiển thị bài hát mà người dùng CHỦ ĐỘNG tải xuống
+    val downloadedSongs: kotlinx.coroutines.flow.Flow<List<com.example.app.model.room.DownloadedSongEntity>> = downloadRepository.getUserDownloadedSongs()
 
     fun checkDownloaded(songId: String) {
         viewModelScope.launch {

@@ -11,5 +11,6 @@ data class DownloadedSongEntity(
     val artistName: String,
     val duration: Int,
     val localAudioPath: String,
-    val localImagePath: String
+    val localImagePath: String,
+    val downloadedByUser: Boolean = true  // true = người dùng chủ động tải
 )

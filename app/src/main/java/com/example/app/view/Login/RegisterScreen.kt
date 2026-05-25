@@ -36,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -45,18 +46,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.app.R
 import com.example.app.model.response.Genre
 import com.example.app.viewmodel.RegisterViewModel
 
 // Màu gradient tím-xanh đặc trưng của app
 private val gradientColors = listOf(Color(0xFF6C63FF), Color(0xFF3EC6E0))
+private val errorColor = Color(0xFFFF6B6B)
 
 @Composable
 fun RegisterScreen(
@@ -133,7 +133,7 @@ private fun UserInfoStep(
             .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header gradient
+        // Header gradient icon
         Box(
             modifier = Modifier
                 .size(72.dp)
@@ -166,58 +166,72 @@ private fun UserInfoStep(
         StepIndicator(currentStep = 1)
         Spacer(modifier = Modifier.height(24.dp))
 
+        // ── Tên đăng nhập ──
         RegisterTextField(
             value = state.usernameInput,
             onValueChange = onUsernameChange,
             label = "Tên đăng nhập",
-            leadingIcon = { Icon(Icons.Default.Person, null, tint = Color(0xFF6C63FF)) }
+            leadingIcon = { Icon(Icons.Default.Person, null, tint = Color(0xFF6C63FF)) },
+            errorText = state.usernameError
         )
+
+        // ── Mật khẩu ──
         RegisterTextField(
             value = state.passwordInput,
             onValueChange = onPasswordChange,
             label = "Mật khẩu",
             leadingIcon = { Icon(Icons.Default.Password, null, tint = Color(0xFF6C63FF)) },
-            isPassword = true
+            isPassword = true,
+            errorText = state.passwordError
         )
+
+        // ── Họ ──
         RegisterTextField(
             value = state.firstNameInput,
             onValueChange = onFirstNameChange,
             label = "Họ",
-            leadingIcon = { Icon(Icons.Default.PersonPin, null, tint = Color(0xFF6C63FF)) }
+            leadingIcon = { Icon(Icons.Default.PersonPin, null, tint = Color(0xFF6C63FF)) },
+            errorText = state.firstNameError
         )
+
+        // ── Tên ──
         RegisterTextField(
             value = state.lastNameInput,
             onValueChange = onLastNameChange,
             label = "Tên",
-            leadingIcon = { Icon(Icons.Default.PersonPin, null, tint = Color(0xFF6C63FF)) }
+            leadingIcon = { Icon(Icons.Default.PersonPin, null, tint = Color(0xFF6C63FF)) },
+            errorText = state.lastNameError
         )
+
+        // ── Ngày sinh ──
         RegisterTextField(
             value = state.dobInput,
             onValueChange = onDobChange,
             label = "Ngày sinh (yyyy-MM-dd)",
-            leadingIcon = { Icon(Icons.Default.DateRange, null, tint = Color(0xFF6C63FF)) }
+            leadingIcon = { Icon(Icons.Default.DateRange, null, tint = Color(0xFF6C63FF)) },
+            errorText = state.dobError
         )
 
-        val isFormComplete = state.usernameInput.isNotBlank() &&
-                state.passwordInput.isNotBlank() &&
-                state.firstNameInput.isNotBlank() &&
-                state.lastNameInput.isNotBlank() &&
-                state.dobInput.isNotBlank()
+        Spacer(modifier = Modifier.height(4.dp))
 
-        if (!isFormComplete) {
+        // Lỗi chung (từ server) hiển thị bên TRÊN button
+        state.error?.let { errorMsg ->
             Text(
-                text = "Vui lòng điền đầy đủ thông tin",
-                color = Color(0xFFFF6B6B),
+                text = errorMsg,
+                color = errorColor,
                 fontSize = 13.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
+
         // Nút Tiếp theo
         Button(
             onClick = onNext,
-            enabled = isFormComplete,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp),
@@ -314,7 +328,6 @@ private fun GenreSelectionStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (isLoadingGenres) {
-            // Skeleton loading khi chưa có dữ liệu genre
             CircularProgressIndicator(
                 color = Color(0xFF6C63FF),
                 modifier = Modifier.size(40.dp)
@@ -328,7 +341,7 @@ private fun GenreSelectionStep(
         } else if (genreLoadError != null) {
             Text(
                 text = genreLoadError,
-                color = Color(0xFFFF6B6B),
+                color = errorColor,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(vertical = 16.dp)
@@ -349,7 +362,6 @@ private fun GenreSelectionStep(
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
             } else {
-                // Genre chip grid (FlowRow tự xuống dòng)
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -376,17 +388,20 @@ private fun GenreSelectionStep(
             )
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Lỗi đăng ký (network/server) — bên TRÊN button
         error?.let {
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = it,
-                color = Color(0xFFFF6B6B),
+                color = errorColor,
                 fontSize = 13.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
             )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
 
         // Nút Đăng ký chính
         Button(
@@ -436,21 +451,40 @@ private fun RegisterTextField(
     onValueChange: (String) -> Unit,
     label: String,
     leadingIcon: @Composable (() -> Unit)? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    errorText: String? = null
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        leadingIcon = leadingIcon,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else
-            androidx.compose.ui.text.input.VisualTransformation.None,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp),
-        shape = RoundedCornerShape(14.dp),
-        singleLine = true
-    )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            leadingIcon = leadingIcon,
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else
+                androidx.compose.ui.text.input.VisualTransformation.None,
+            modifier = Modifier
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            singleLine = true,
+            isError = errorText != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                errorBorderColor = errorColor,
+                errorLabelColor = errorColor,
+                errorLeadingIconColor = errorColor
+            )
+        )
+        // Lỗi hiển thị bên dưới field
+        if (errorText != null) {
+            Text(
+                text = errorText,
+                color = errorColor,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(start = 4.dp, top = 2.dp, bottom = 8.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
 }
 
 @Composable
@@ -459,11 +493,6 @@ private fun GenreChip(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected)
-        Brush.linearGradient(gradientColors)
-    else
-        Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
-
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(24.dp))

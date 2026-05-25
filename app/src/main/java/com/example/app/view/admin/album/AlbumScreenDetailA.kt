@@ -71,6 +71,8 @@ fun AlbumDetailScreenA(
     var showAddSongSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val allSongs by albumViewModel.allSongsState.collectAsState()
+    val isLoadingMore by albumViewModel.isLoadingMoreSongs.collectAsState()
+    val isLastPage by albumViewModel.isSongsLastPage.collectAsState()
     if(currentAlbum != null) {
         Column(
             modifier = Modifier
@@ -170,6 +172,9 @@ fun AlbumDetailScreenA(
             SelectSongBottomSheet(
                 allSongs = allSongs,
                 existingSongIds = currentAlbum.songs?.map { it.id } ?: emptyList(),
+                isLoadingMore = isLoadingMore,
+                isLastPage = isLastPage,
+                onLoadMore = { albumViewModel.getAllSongs(isLoadMore = true) },
                 onDismiss = { showAddSongSheet = false },
                 onSongSelected = { selectedSong ->
                     // Gọi ViewModel thêm bài hát

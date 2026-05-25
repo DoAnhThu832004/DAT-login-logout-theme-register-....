@@ -91,6 +91,7 @@ fun DetailTopSong(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1
             )
             song.artistName?.let {
                 Text(

@@ -14,6 +14,9 @@ interface SongDao {
     @Query("SELECT * FROM downloaded_songs")
     fun getAllDownloadedSongs(): Flow<List<DownloadedSongEntity>>
 
+    @Query("SELECT * FROM downloaded_songs WHERE downloadedByUser = 1")
+    fun getUserDownloadedSongs(): Flow<List<DownloadedSongEntity>>
+
     @Query("SELECT * FROM downloaded_songs WHERE id = :songId")
     suspend fun getDownloadedSongById(songId: String): DownloadedSongEntity?
 

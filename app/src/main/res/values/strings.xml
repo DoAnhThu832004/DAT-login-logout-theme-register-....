@@ -91,4 +91,11 @@
     <string name="phan_hoi_cua_nguoi_dung">Phản hồi của người dùng</string>
     <string name="tai_xuong">Tải xuống</string>
     <string name="danh_sach_quan_tam">Danh sách quan tâm</string>
+    <string name="thu_gian">Thư giãn</string>
+    <string name="tap_trung">Tập trung</string>
+    <string name="workout">Workout</string>
+    <string name="bai_hat_moi_ra">Bài hát mới ra</string>
+    <string name="album_moi_ra">Album mới ra</string>
+    <string name="bai_hat_ra_gan_day">Bài hát ra gần đây</string>
+
 </resources>

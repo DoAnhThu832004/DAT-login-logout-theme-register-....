@@ -103,6 +103,8 @@ fun SongScreen(
     onViewAllClick: (genreId: String?) -> Unit,
     onSongClick: (Song) -> Unit,
     onAlbumClick: (Album) -> Unit,
+    onArtistClick: ((com.example.app.model.response.Artist) -> Unit)? = null,
+    onPlaylistClick: ((Playlist) -> Unit)? = null,
     onClickToTopChart: () -> Unit,
     onToDetailClick: (Playlist) -> Unit
 ) {
@@ -122,7 +124,10 @@ fun SongScreen(
             item {
                 RecommendationSection(
                     recommendationViewModel = recommendationViewModel,
-                    onSongClick = onSongClick
+                    onSongClick = onSongClick,
+                    onArtistClick = onArtistClick,
+                    onAlbumClick = onAlbumClick,
+                    onPlaylistClick = onPlaylistClick
                 )
             }
         }
@@ -148,7 +153,7 @@ fun SongScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.goi_y_bai_hat),
+                    text = stringResource(R.string.bai_hat_moi_ra),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -188,7 +193,7 @@ fun SongScreen(
                     )
             ) {
                 Text(
-                    text = "Album Hot",
+                    text = stringResource(R.string.album_moi_ra),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
@@ -254,7 +259,7 @@ fun SongScreen(
                         )
                 ) {
                     Text(
-                        text = "Bài hát nghe gần đây",
+                        text = stringResource(R.string.bai_hat_ra_gan_day),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
