@@ -15,6 +15,7 @@ import com.example.app.model.request.ReportCreationRequest
 import com.example.app.model.request.ReportUpdateRequest
 import com.example.app.model.request.SongCreationRequest
 import com.example.app.model.request.SongUpdateRequest
+import com.example.app.model.request.ChangePasswordRequest
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.Album
@@ -59,6 +60,8 @@ interface ApiService {
     suspend fun refreshToken(@Body request: RefreshRequest): Response<AuthenticationResponse>
     @PUT("users/{id}")
     suspend fun updateUser(@Path("id") id : String, @Body request: UserUpdateRequest): Response<UserResponse>
+    @PUT("users/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<ApiResponse<String>>
     @GET("users/my-info")
     suspend fun getUserInfo(): Response<UserResponse>
     @Multipart
@@ -111,6 +114,12 @@ interface ApiService {
     suspend fun getRecentlyPlayedSongs(): Response<ApiResponse<List<Song>>>
     @GET("albums")
     suspend fun getAlbums(
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Album>>>
+    @GET("albums/genre/{genreId}")
+    suspend fun getAlbumsByGenre(
+        @Path("genreId") genreId: String,
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10
     ): Response<ApiResponse<PageResponse<Album>>>
@@ -180,6 +189,12 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @GET("playlists/genre/{genreId}")
+    suspend fun getPlaylistsByGenre(
+        @Path("genreId") genreId: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 10
+    ): Response<ApiResponse<PageResponse<Playlist>>>
     @GET("playlists/{playlistId}")
     suspend fun getPlaylistById(@Path("playlistId") playlistId: String): Response<ApiResponse<Playlist>>
     @PUT("playlists/{id}")

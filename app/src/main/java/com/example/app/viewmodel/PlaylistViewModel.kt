@@ -70,6 +70,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun getMyPlaylists() {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(
@@ -82,7 +83,8 @@ class PlaylistViewModel(
                 if(response.isSuccessful && body != null) {
                     _playlistState.value = _playlistState.value.copy(
                         isLoading = false,
-                        playlists = body.result,
+                        myPlaylists = body.result,
+                        playlists = body.result, // Cập nhật cả playlists để tương thích ngược
                         error = null
                     )
                 } else {
@@ -99,6 +101,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun getPlaylists() {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(
@@ -111,7 +114,8 @@ class PlaylistViewModel(
                 if(response.isSuccessful && body != null) {
                     _playlistState.value = _playlistState.value.copy(
                         isLoading = false,
-                        playlists = body.result,
+                        adminPlaylists = body.result,
+                        playlists = body.result, // Cập nhật cả playlists để tương thích ngược
                         error = null
                     )
                 } else {
@@ -128,6 +132,35 @@ class PlaylistViewModel(
             }
         }
     }
+
+    fun getPlaylistsByGenre(genreId: String) {
+        viewModelScope.launch {
+            _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
+            try {
+                val response = repository.getPlaylistsByGenre(genreId)
+                val body = response.body()
+                if (response.isSuccessful && body?.result != null) {
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        adminPlaylists = body.result.result,
+                        playlists = body.result.result,
+                        error = null
+                    )
+                } else {
+                    _playlistState.value = _playlistState.value.copy(
+                        isLoading = false,
+                        error = "Failed to load playlists by genre"
+                    )
+                }
+            } catch (e: Exception) {
+                _playlistState.value = _playlistState.value.copy(
+                    isLoading = false,
+                    error = "Error: ${e.message}"
+                )
+            }
+        }
+    }
+
     fun createPlaylist(name : String, description: String) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(
@@ -144,12 +177,13 @@ class PlaylistViewModel(
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000 && body.result != null) {
-                        val currentPlaylists = _playlistState.value.playlists?.toMutableList() ?: mutableListOf()
-                        currentPlaylists.add(body.result)
+                        val currentMyPlaylists = _playlistState.value.myPlaylists?.toMutableList() ?: mutableListOf()
+                        currentMyPlaylists.add(body.result)
                         _playlistState.value = _playlistState.value.copy(
                             isLoading = false,
                             isCreating = false,
-                            playlists = currentPlaylists,
+                            myPlaylists = currentMyPlaylists,
+                            playlists = currentMyPlaylists,
                             error = null
                         )
                     }
@@ -163,6 +197,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun deletePlaylist(id: String) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(
@@ -174,11 +209,12 @@ class PlaylistViewModel(
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000) {
-                        val currentPlaylists = _playlistState.value.playlists ?: emptyList()
-                        val updatedPlaylists = currentPlaylists.filter { it.id != id }
+                        val currentMyPlaylists = _playlistState.value.myPlaylists ?: emptyList()
+                        val updatedMyPlaylists = currentMyPlaylists.filter { it.id != id }
                         _playlistState.value = _playlistState.value.copy(
                             isLoading = false,
-                            playlists = updatedPlaylists,
+                            myPlaylists = updatedMyPlaylists,
+                            playlists = updatedMyPlaylists,
                             error = null
                         )
                     } else {
@@ -195,8 +231,8 @@ class PlaylistViewModel(
                 )
             }
         }
-
     }
+
     fun updatePlaylist(id: String, title: String, description: String) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(
@@ -213,8 +249,8 @@ class PlaylistViewModel(
                     val body = response.body()
                     if(body?.code == 1000 && body.result != null) {
                         val updatePlaylistFromApi = body.result
-                        val currentList = _playlistState.value.playlists ?: emptyList()
-                        val updatedList = currentList.map {
+                        val currentMyList = _playlistState.value.myPlaylists ?: emptyList()
+                        val updatedMyList = currentMyList.map {
                             if (it.id == id) {
                                 updatePlaylistFromApi
                             } else {
@@ -223,7 +259,8 @@ class PlaylistViewModel(
                         }
                         _playlistState.value = _playlistState.value.copy(
                             isLoading = false,
-                            playlists = updatedList,
+                            myPlaylists = updatedMyList,
+                            playlists = updatedMyList,
                             error = null
                         )
                     }
@@ -236,6 +273,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun uploadImage(playlistId: String, imageUri: Uri, context: Context) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
@@ -248,13 +286,13 @@ class PlaylistViewModel(
                     if (response.isSuccessful && response.body()?.code == 1000) {
                         val updatedPlaylist = response.body()?.result
                         updatedPlaylist?.let { newPlaylist ->
-                            // Cập nhật danh sách hiện tại với item mới từ Server
-                            val updatedList = _playlistState.value.playlists?.map {
+                            val updatedMyList = _playlistState.value.myPlaylists?.map {
                                 if (it.id == playlistId) newPlaylist else it
                             }
                             _playlistState.value = _playlistState.value.copy(
                                 isLoading = false,
-                                playlists = updatedList,
+                                myPlaylists = updatedMyList,
+                                playlists = updatedMyList,
                                 error = null
                             )
                         }
@@ -266,6 +304,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun getSongsInPlaylist(playlistId: String, isFirstLoad: Boolean = false) {
         if (_playlistState.value.isLoading || (isLastPage && !isFirstLoad)) return
         if (isFirstLoad) {
@@ -308,6 +347,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun addSongInPlaylist(playlistId: String, song: Song) {
         viewModelScope.launch {
             _playlistState.value = _playlistState.value.copy(isLoading = true, error = null)
@@ -316,7 +356,6 @@ class PlaylistViewModel(
                 val response = repository.addSongToPlaylist(playlistId, song.id)
 
                 if (response.isSuccessful && response.body()?.code == 1000) {
-                    // Logic giống AlbumViewModel: Cập nhật UI local ngay lập tức
                     if (songs.none { it.id == song.id }) {
                         songs.add(song)
                     }
@@ -348,7 +387,6 @@ class PlaylistViewModel(
                 val response = repository.deleteSongFromPlaylist(playlistId, songId)
 
                 if (response.isSuccessful) {
-                    // Logic giống AlbumViewModel: Sử dụng filter/remove để cập nhật UI ngay
                     songs.removeAll { it.id == songId }
 
                     _playlistState.value = _playlistState.value.copy(
@@ -369,6 +407,7 @@ class PlaylistViewModel(
             }
         }
     }
+
     fun getAllSongs(isLoadMore: Boolean = false) {
         if (isLoadMore && _isSongsLastPage.value) return
         if (_isLoadingMoreSongs.value) return
@@ -405,8 +444,11 @@ class PlaylistViewModel(
             }
         }
     }
+
     data class PlaylistState(
-        val playlists: List<Playlist>? = null,
+        val playlists: List<Playlist>? = null, // Compatibility field
+        val adminPlaylists: List<Playlist>? = null, // Store admin/global playlists
+        val myPlaylists: List<Playlist>? = null,    // Store user private playlists
         val isCreating: Boolean = false,
         val isLoading: Boolean = false,
         val error: String? = null

@@ -84,18 +84,21 @@ fun MyPlaylistDetailScreen(
     val isLoadingMore by playlistViewModel.isLoadingMoreSongs
     val isLastPage by playlistViewModel.isSongsLastPage
     val sheetState = rememberModalBottomSheetState()
-    val currentPlaylist = playlistState.playlists?.find { it.id == playlist.id } ?: playlist
+    
+    // Tìm kiếm trong cả 2 danh sách để đảm bảo tính nhất quán
+    val currentPlaylist = playlistState.myPlaylists?.find { it.id == playlist.id } 
+        ?: playlistState.adminPlaylists?.find { it.id == playlist.id } 
+        ?: playlist
+        
     val songs = playlistViewModel.songs
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            // Thực hiện upload ngay khi có Uri
             playlistViewModel.uploadImage(playlist.id, it, context)
         }
     }
 
-    // Load tất cả bài hát và bài hát trong playlist khi mở màn hình
     LaunchedEffect(playlist.id) {
         playlistViewModel.getAllSongs()
         playlistViewModel.getSongsInPlaylist(playlist.id)
@@ -125,7 +128,7 @@ fun MyPlaylistDetailScreen(
                     contentColor = MaterialTheme.colorScheme.onSurface
                 )
             ) {
-                if(playlist.imageUrlP.isNullOrEmpty()) {
+                if(currentPlaylist.imageUrlP.isNullOrEmpty()) {
                     Icon(
                         imageVector = Icons.Default.MusicNote,
                         contentDescription = null,
@@ -144,7 +147,6 @@ fun MyPlaylistDetailScreen(
                 }
             }
             Row {
-                // Nút mở Sheet Thêm Bài Hát
                 Box {
                     IconButton(
                         onClick = { expanded = true }
@@ -183,7 +185,7 @@ fun MyPlaylistDetailScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = playlist.title,
+            text = currentPlaylist.title, // Dùng dữ liệu mới nhất
             modifier = Modifier.padding()
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -221,8 +223,7 @@ fun MyPlaylistDetailScreen(
         }
     }
 
-    // BottomSheet Sửa Playlist
-    if(showPlaylistSheet && playlistState.playlists != null) {
+    if(showPlaylistSheet) {
         ModalBottomSheet(
             onDismissRequest = { showPlaylistSheet = false },
             sheetState = sheetStatePlaylist
@@ -230,15 +231,14 @@ fun MyPlaylistDetailScreen(
             SelectArtistBottomSheet(
                 playlistViewModel = playlistViewModel,
                 title = context.getString(R.string.tao_playlist),
-                name = playlist.title,
-                description = playlist.description,
-                playlist.id,
+                name = currentPlaylist.title,
+                description = currentPlaylist.description,
+                currentPlaylist.id,
                 check = false
             )
         }
     }
 
-    // BottomSheet Thêm Bài Hát
     if (showAddSongSheet) {
         ModalBottomSheet(
             onDismissRequest = { showAddSongSheet = false },
@@ -252,9 +252,8 @@ fun MyPlaylistDetailScreen(
                 onLoadMore = { playlistViewModel.getAllSongs(isLoadMore = true) },
                 onDismiss = { showAddSongSheet = false },
                 onSongSelected = { selectedSong ->
-                    // Gọi ViewModel thêm bài hát
                     playlistViewModel.addSongInPlaylist(playlist.id, selectedSong)
-                    showAddSongSheet = false // Đóng sheet
+                    showAddSongSheet = false
                 }
             )
         }

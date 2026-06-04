@@ -62,21 +62,29 @@ class EditProfileViewModel(
         }
     }
 
-    fun updateProfile(username: String, password: String?, firstName: String, lastName: String, dob: String) {
+    fun updateProfile(firstName: String, lastName: String, dob: String) {
         viewModelScope.launch {
             _editUiState.value = _editUiState.value.copy(isLoadingE = true, errorE = null)
-            val userId = loginViewModel.loginUiState.value.userId ?: run { _editUiState.value = _editUiState.value.copy(isLoadingE = false, errorE = "User ID not found")
+            val userId = _editUiState.value.userResponse?.result?.id ?: loginViewModel.loginUiState.value.userId
+            if (userId == null) {
+                _editUiState.value = _editUiState.value.copy(isLoadingE = false, errorE = "User ID not found")
                 return@launch
             }
+            
+            val currentUsername = _editUiState.value.userResponse?.result?.username ?: loginViewModel.loginUiState.value.name ?: ""
+            // Lấy roles hiện tại để không bị mất quyền khi update
+            val currentRoles = _editUiState.value.userResponse?.result?.roles?.map { it.name } ?: listOf("USER")
+
             try {
                 val response = repository.updateUser(
                     id = userId,
                     UserUpdateRequest(
-                        username = username,
-                        password = password,
+                        username = currentUsername,
+                        password = null, // Backend nên xử lý nếu null thì không đổi pass
                         firstName = firstName,
                         lastName = lastName,
-                        dob = dob
+                        dob = dob,
+                        roles = currentRoles
                     )
                 )
                 if (response.isSuccessful) {
@@ -88,6 +96,7 @@ class EditProfileViewModel(
                             userResponse = body,
                             errorE = "Update successfully"
                         )
+                        // Reset success state after a delay or let UI handle it
                     } else {
                         resetEditUiState(body?.message ?: "Update failed")
                     }
@@ -101,11 +110,17 @@ class EditProfileViewModel(
         }
     }
 
+    fun clearSuccessState() {
+        _editUiState.value = _editUiState.value.copy(isSuccessfulE = false)
+    }
+
     fun resetEditUiState(message: String) {
+        _editUiState.value = _editUiState.value.copy(isLoadingE = false, errorE = message)
         viewModelScope.launch {
-            _editUiState.value = _editUiState.value.copy(isLoadingE = true, errorE = message)
-            delay(1500)
-            _editUiState.value = _editUiState.value.copy(isLoadingE = false,isSuccessfulE = false, errorE = message)
+            delay(3000)
+            if (_editUiState.value.errorE == message) {
+                _editUiState.value = _editUiState.value.copy(errorE = null)
+            }
         }
     }
     // Trong EditProfileViewModel.kt

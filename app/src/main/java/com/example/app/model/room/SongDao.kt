@@ -11,15 +11,15 @@ interface SongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSong(song: DownloadedSongEntity)
 
-    @Query("SELECT * FROM downloaded_songs")
-    fun getAllDownloadedSongs(): Flow<List<DownloadedSongEntity>>
+    @Query("SELECT * FROM downloaded_songs WHERE userId = :userId")
+    fun getAllDownloadedSongs(userId: String): Flow<List<DownloadedSongEntity>>
 
-    @Query("SELECT * FROM downloaded_songs WHERE downloadedByUser = 1")
-    fun getUserDownloadedSongs(): Flow<List<DownloadedSongEntity>>
+    @Query("SELECT * FROM downloaded_songs WHERE userId = :userId AND downloadedByUser = 1")
+    fun getUserDownloadedSongs(userId: String): Flow<List<DownloadedSongEntity>>
 
-    @Query("SELECT * FROM downloaded_songs WHERE id = :songId")
-    suspend fun getDownloadedSongById(songId: String): DownloadedSongEntity?
+    @Query("SELECT * FROM downloaded_songs WHERE id = :songId AND userId = :userId")
+    suspend fun getDownloadedSongById(songId: String, userId: String): DownloadedSongEntity?
 
-    @Query("DELETE FROM downloaded_songs WHERE id = :songId")
-    suspend fun deleteSong(songId: String)
+    @Query("DELETE FROM downloaded_songs WHERE id = :songId AND userId = :userId")
+    suspend fun deleteSong(songId: String, userId: String)
 }

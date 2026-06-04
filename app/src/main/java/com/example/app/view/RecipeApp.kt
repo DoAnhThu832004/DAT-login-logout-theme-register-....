@@ -66,6 +66,7 @@ import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.PlaylistViewModelFactory
 import com.example.app.viewmodel.ChangePasswordViewModel
 import com.example.app.viewmodel.ChangePasswordViewModelFactory
+import com.example.app.viewmodel.PlayerManager
 import com.example.app.viewmodel.RegisterViewModel
 import com.example.app.viewmodel.RegisterViewModelFactory
 import com.example.app.viewmodel.ReportViewModel
@@ -236,6 +237,7 @@ fun RecipeApp(
                     val userId = userState.userResponse?.result?.id
                     if (!userId.isNullOrBlank()) {
                         recommendationViewModel.getHomeRecommendations(userId = userId)
+                        PlayerManager.currentUserId = userId // Cập nhật userId cho PlayerManager
                     }
                 }
 
@@ -345,12 +347,19 @@ fun RecipeApp(
                 val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
                     factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
                 )
+                val loginViewModel : LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
+                )
+                val editProfileViewModel : EditProfileViewModel = viewModel(
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
+                )
                 PlayerScreen(
                     playerViewModel = playerViewModel,
                     songViewModel = songViewModel,
                     reportViewModel = reportViewModel,
                     commentViewModel = commentViewModel,
                     downloadViewModel = downloadViewModel,
+                    editProfileViewModel = editProfileViewModel,
                     onBack = {navController.popBackStack()}
                 )
             }
@@ -538,9 +547,16 @@ fun RecipeApp(
                 val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
                     factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
                 )
+                val loginViewModel : LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
+                )
+                val editProfileViewModel : EditProfileViewModel = viewModel(
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
+                )
                 DownloadScreen(
                     downloadViewModel = downloadViewModel,
                     playerViewModel = playerViewModel,
+                    editProfileViewModel = editProfileViewModel,
                     onBack = { navController.popBackStack() },
                     onSongClick = { song ->
                         playerViewModel.play(song, emptyList())

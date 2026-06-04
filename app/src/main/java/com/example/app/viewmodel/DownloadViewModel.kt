@@ -6,6 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.repository.DownloadRepository
 import com.example.app.model.response.Song
+import com.example.app.model.room.DownloadedSongEntity
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DownloadViewModel(private val downloadRepository: DownloadRepository) : ViewModel() {
@@ -19,20 +24,35 @@ class DownloadViewModel(private val downloadRepository: DownloadRepository) : Vi
     private val _downloadError = mutableStateOf<String?>(null)
     val downloadError: State<String?> = _downloadError
 
-    // Chỉ hiển thị bài hát mà người dùng CHỦ ĐỘNG tải xuống
-    val downloadedSongs: kotlinx.coroutines.flow.Flow<List<com.example.app.model.room.DownloadedSongEntity>> = downloadRepository.getUserDownloadedSongs()
+    private val _downloadedSongs = MutableStateFlow<List<DownloadedSongEntity>>(emptyList())
+    val downloadedSongs: StateFlow<List<DownloadedSongEntity>> = _downloadedSongs.asStateFlow()
 
-    fun checkDownloaded(songId: String) {
-        viewModelScope.launch {
-            _isDownloaded.value = downloadRepository.checkDownloaded(songId)
+    private var currentSongsJob: Job? = null
+
+    /**
+     * Tải danh sách bài hát của người dùng cụ thể. 
+     * Nên gọi hàm này mỗi khi vào màn hình Download hoặc khi userId thay đổi.
+     */
+    fun loadDownloadedSongs(userId: String) {
+        currentSongsJob?.cancel()
+        currentSongsJob = viewModelScope.launch {
+            downloadRepository.getUserDownloadedSongs(userId).collect {
+                _downloadedSongs.value = it
+            }
         }
     }
 
-    fun downloadSong(song: Song, onComplete: (Boolean) -> Unit) {
+    fun checkDownloaded(songId: String, userId: String) {
+        viewModelScope.launch {
+            _isDownloaded.value = downloadRepository.checkDownloaded(songId, userId)
+        }
+    }
+
+    fun downloadSong(song: Song, userId: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             _isDownloading.value = true
             _downloadError.value = null
-            val success = downloadRepository.downloadSong(song)
+            val success = downloadRepository.downloadSong(song, userId)
             _isDownloaded.value = success
             _isDownloading.value = false
             if (!success) {
@@ -42,9 +62,9 @@ class DownloadViewModel(private val downloadRepository: DownloadRepository) : Vi
         }
     }
 
-    fun deleteDownload(songId: String, onComplete: (Boolean) -> Unit) {
+    fun deleteDownload(songId: String, userId: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val success = downloadRepository.deleteDownload(songId)
+            val success = downloadRepository.deleteDownload(songId, userId)
             if (success) {
                 _isDownloaded.value = false
             }

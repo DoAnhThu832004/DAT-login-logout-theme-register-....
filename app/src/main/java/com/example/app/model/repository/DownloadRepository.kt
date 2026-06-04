@@ -17,16 +17,16 @@ class DownloadRepository(
     private val songDao: SongDao,
     private val context: Context
 ) {
-    fun getAllDownloadedSongs(): Flow<List<DownloadedSongEntity>> = songDao.getAllDownloadedSongs()
+    fun getAllDownloadedSongs(userId: String): Flow<List<DownloadedSongEntity>> = songDao.getAllDownloadedSongs(userId)
 
     /** Chỉ trả về bài hát người dùng chủ động tải (downloadedByUser = true) */
-    fun getUserDownloadedSongs(): Flow<List<DownloadedSongEntity>> = songDao.getUserDownloadedSongs()
+    fun getUserDownloadedSongs(userId: String): Flow<List<DownloadedSongEntity>> = songDao.getUserDownloadedSongs(userId)
 
-    suspend fun getDownloadedSongById(songId: String): DownloadedSongEntity? = songDao.getDownloadedSongById(songId)
+    suspend fun getDownloadedSongById(songId: String, userId: String): DownloadedSongEntity? = songDao.getDownloadedSongById(songId, userId)
 
-    suspend fun checkDownloaded(songId: String): Boolean {
-        // Check locally first
-        val localSong = songDao.getDownloadedSongById(songId)
+    suspend fun checkDownloaded(songId: String, userId: String): Boolean {
+        // Check locally first with userId
+        val localSong = songDao.getDownloadedSongById(songId, userId)
         if (localSong != null) {
             val file = File(localSong.localAudioPath)
             if (file.exists()) return true
@@ -41,7 +41,7 @@ class DownloadRepository(
         }
     }
 
-    suspend fun downloadSong(song: Song): Boolean = withContext(Dispatchers.IO) {
+    suspend fun downloadSong(song: Song, userId: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val response = apiService.downloadSong(song.id)
             if (response.isSuccessful) {
@@ -51,7 +51,8 @@ class DownloadRepository(
                     if (!downloadDir.exists()) {
                         downloadDir.mkdirs()
                     }
-                    val audioFile = File(downloadDir, "${song.id}.mp3")
+                    // Thêm userId vào tên file để tránh xung đột nếu cần, hoặc quản lý theo sub-folder
+                    val audioFile = File(downloadDir, "${userId}_${song.id}.mp3")
 
                     val inputStream = body.byteStream()
                     val outputStream = FileOutputStream(audioFile)
@@ -65,9 +66,10 @@ class DownloadRepository(
                     outputStream.close()
                     inputStream.close()
 
-                    // Save to Room
+                    // Save to Room with userId
                     val entity = DownloadedSongEntity(
                         id = song.id,
+                        userId = userId,
                         name = song.name,
                         artistName = song.artistName ?: "Unknown",
                         duration = song.duration,
@@ -85,15 +87,15 @@ class DownloadRepository(
         }
     }
 
-    suspend fun deleteDownload(songId: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun deleteDownload(songId: String, userId: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val localSong = songDao.getDownloadedSongById(songId)
+            val localSong = songDao.getDownloadedSongById(songId, userId)
             if (localSong != null) {
                 val file = File(localSong.localAudioPath)
                 if (file.exists()) {
                     file.delete()
                 }
-                songDao.deleteSong(songId)
+                songDao.deleteSong(songId, userId)
             }
             return@withContext true
         } catch (e: Exception) {

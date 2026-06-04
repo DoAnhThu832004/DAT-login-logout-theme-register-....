@@ -98,4 +98,13 @@
     <string name="bai_hat_moi_ra">New Songs</string>
     <string name="album_moi_ra">New Albums</string>
     <string name="bai_hat_ra_gan_day">Recently Song</string>
+    <string name="che_do_toi">Dark mode</string>
+    <string name="che_do_sang">Light mode</string>
+    <string name="giao_dien_nen_den">Dark background interface</string>
+    <string name="giao_dien_nen_trang">Light background interface</string>
+    <string name="tai_khoan">Account</string>
+    <string name="quan_tri_vien">Administrator</string>
+    <string name="doi_mat_khau">Change password</string>
+    <string name="chao_mung_dang_nhap">Welcome back</string>
+    <string name="dang_nhap_tiep_tuc">Login to continue</string>
 </resources>

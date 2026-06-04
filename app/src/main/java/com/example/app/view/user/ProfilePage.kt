@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.ArrowCircleDown
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -162,7 +165,7 @@ fun ProfilePage(
             }
         }
         LazyColumn {
-            val currentPlaylist = playlistState.playlists
+            val currentPlaylist = playlistState.myPlaylists
             item {
                 Row(
                     modifier = Modifier
@@ -239,41 +242,86 @@ fun ProfilePage(
                 }
             }
             item {
-                LazyRow(
+                val iconGradients = listOf(
+                    listOf(Color(0xFF6C63FF), Color(0xFF9C8FFF)),
+                    listOf(Color(0xFF00C6B4), Color(0xFF00E8CC)),
+                    listOf(Color(0xFFFF6B8A), Color(0xFFFF9BAD))
+                )
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    items(items,key = {it.label}) { it ->
+                    items.forEachIndexed { index, navItem ->
+                        val gradient = iconGradients.getOrElse(index) {
+                            listOf(Color(0xFF6C63FF), Color(0xFF9C8FFF))
+                        }
                         Box(
                             modifier = Modifier
-                                .width(120.dp)
-                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                                .fillMaxWidth()
+                                .background(
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shape = when (index) {
+                                        0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                                        items.lastIndex -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                                        else -> RoundedCornerShape(0.dp)
+                                    }
+                                )
+                                .shadow(
+                                    elevation = if (index == 0 || index == items.lastIndex) 2.dp else 0.dp,
+                                    shape = when (index) {
+                                        0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                                        items.lastIndex -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                                        else -> RoundedCornerShape(0.dp)
+                                    }
+                                )
+                                .clickable { navController.navigate(navItem.route) }
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
                         ) {
-                            Card(
-                                onClick = {
-                                    navController.navigate(it.route)
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(
+                                // Gradient icon container
+                                Box(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                        .size(44.dp)
+                                        .background(
+                                            brush = Brush.linearGradient(gradient),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = it.icon,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = it.label,
-                                        modifier = Modifier.padding(start = 8.dp)
+                                        imageVector = navItem.icon,
+                                        contentDescription = navItem.label,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(22.dp)
                                     )
                                 }
+                                Spacer(modifier = Modifier.width(14.dp))
+                                Text(
+                                    text = navItem.label,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForwardIos,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                    modifier = Modifier.size(14.dp)
+                                )
                             }
+                        }
+                        if (index < items.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 74.dp, end = 16.dp),
+                                thickness = 0.8.dp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                            )
                         }
                     }
                 }
@@ -325,9 +373,12 @@ fun ProfilePage(
                     }
                 }
             }
+            item {
+                Spacer(modifier = Modifier.height(100.dp))
+            }
         }
     }
-    if(showPlaylistSheet && playlistState.playlists != null) {
+    if(showPlaylistSheet && playlistState.myPlaylists != null) {
         ModalBottomSheet(
             onDismissRequest = { showPlaylistSheet = false },
             sheetState = sheetStatePlaylist

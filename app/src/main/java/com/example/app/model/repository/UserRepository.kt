@@ -1,6 +1,7 @@
 package com.example.app.model.repository
 
 import com.example.app.model.ApiService
+import com.example.app.model.request.ChangePasswordRequest
 import com.example.app.model.request.AuthenticationRequest
 import com.example.app.model.request.UserCreationRequest
 import com.example.app.model.request.UserUpdateRequest
@@ -14,4 +15,5 @@ class UserRepository(
     suspend fun updateUser(id: String, request: UserUpdateRequest) = apiService.updateUser(id, request)
     suspend fun getUserInfo() = apiService.getUserInfo()
     suspend fun uploadUserImage(id: String, imagePart: MultipartBody.Part) = apiService.uploadUserImage(id, imagePart)
+    suspend fun changePassword(request: ChangePasswordRequest) = apiService.changePassword(request)
 }

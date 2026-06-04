@@ -18,6 +18,8 @@ object PlayerManager {
     var currentSong: Song?  = null
         private set
 
+    var currentUserId: String? = null // Thêm để theo dõi người dùng hiện tại
+
     private var songList: List<Song> = emptyList()
     private var currentIndex: Int = -1
     private var shuffledList: List<Song> = emptyList()
@@ -80,7 +82,12 @@ object PlayerManager {
         currentSong = song
         
         kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val localSong = context?.let { com.example.app.model.room.AppDatabase.getDatabase(it).songDao().getDownloadedSongById(song.id) }
+            // Sử dụng currentUserId để tìm kiếm bài hát đã tải của đúng người dùng
+            val localSong = if (context != null && !currentUserId.isNullOrBlank()) {
+                com.example.app.model.room.AppDatabase.getDatabase(context!!).songDao()
+                    .getDownloadedSongById(song.id, currentUserId!!)
+            } else null
+
             val uri = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
                 localSong.localAudioPath
             } else {

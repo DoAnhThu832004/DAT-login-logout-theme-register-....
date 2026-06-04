@@ -49,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,7 +64,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.view.general.SelectReportBottomSheet
 import com.example.app.viewmodel.CommentViewModel
@@ -79,10 +79,15 @@ fun PlayerScreen(
     reportViewModel: ReportViewModel,
     commentViewModel: CommentViewModel,
     downloadViewModel: com.example.app.viewmodel.DownloadViewModel,
+    editProfileViewModel: com.example.app.viewmodel.EditProfileViewModel,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val song = playerViewModel.currentSong.value  // mutableStateOf → Compose recomposes khi thay đổi
+
+    val userState by editProfileViewModel.editUiState.collectAsState()
+    val userId = userState.userResponse?.result?.id ?: ""
+
     val isPlaying = playerViewModel.isPlaying.value
     val repeatMode = playerViewModel.repeatMode.value
     val isShuffleMode = playerViewModel.isShuffleMode.value
@@ -114,9 +119,9 @@ fun PlayerScreen(
             commentViewModel.getComment(song!!.id)
         }
     }
-    LaunchedEffect(song?.id) {
-        if (song != null) {
-            downloadViewModel.checkDownloaded(song.id)
+    LaunchedEffect(song?.id, userId) {
+        if (song != null && userId.isNotEmpty()) {
+            downloadViewModel.checkDownloaded(song.id, userId)
         }
     }
 
@@ -327,20 +332,22 @@ fun PlayerScreen(
                 IconButton(onClick = { showBottomSheet = true }) {
                     Icon(Icons.Default.ChatBubble, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(32.dp))
                 }
-                
+
                 val isDownloaded = downloadViewModel.isDownloaded.value
                 val isDownloading = downloadViewModel.isDownloading.value
-                IconButton(onClick = { 
-                    if (!isDownloading) {
+                IconButton(onClick = {
+                    if (!isDownloading && userId.isNotEmpty()) {
                         if (isDownloaded) {
-                            downloadViewModel.deleteDownload(song.id) { success ->
+                            downloadViewModel.deleteDownload(song.id, userId) { success ->
                                 if (success) android.widget.Toast.makeText(context, "Đã xóa bài hát ${song.name}", android.widget.Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            downloadViewModel.downloadSong(song) { success ->
+                            downloadViewModel.downloadSong(song, userId) { success ->
                                 if (success) android.widget.Toast.makeText(context, "Đã tải bài hát ${song.name} thành công", android.widget.Toast.LENGTH_SHORT).show()
                             }
                         }
+                    } else if (userId.isEmpty()) {
+                        android.widget.Toast.makeText(context, "Vui lòng đăng nhập để tải bài hát", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }) {
                     if (isDownloading) {

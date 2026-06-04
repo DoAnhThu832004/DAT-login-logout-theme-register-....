@@ -97,5 +97,14 @@
     <string name="bai_hat_moi_ra">Bài hát mới ra</string>
     <string name="album_moi_ra">Album mới ra</string>
     <string name="bai_hat_ra_gan_day">Bài hát ra gần đây</string>
+    <string name="che_do_toi">Chế độ tối</string>
+    <string name="che_do_sang">Chế độ sáng</string>
+    <string name="giao_dien_nen_den">Giao diện nền đen</string>
+    <string name="giao_dien_nen_trang">Giao diện nền trắng</string>
+    <string name="tai_khoan">Tài khoản</string>
+    <string name="quan_tri_vien">Quản trị viên</string>
+    <string name="doi_mat_khau">Đổi mật khẩu</string>
+    <string name="chao_mung_dang_nhap">Chào mừng bạn trở lại</string>
+    <string name="dang_nhap_tiep_tuc">Đăng nhập để tiếp tục</string>
 
 </resources>

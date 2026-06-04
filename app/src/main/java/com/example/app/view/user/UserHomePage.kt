@@ -145,13 +145,24 @@ fun ContentScreen(
     val albumState by albumViewModel.albumState.collectAsState()
     val playlistState by playlistViewModel.playlistState.collectAsState()
     val artistState by artistViewModel.artistState.collectAsState()
+    val selectedMoodTab by songViewModel.selectedMoodTab.collectAsState()
+    val pagingGenreId by songViewModel.pagingGenreId.collectAsState()
     LaunchedEffect(Unit) {
         songViewModel.getSongs()
         songViewModel.getTopSongs()
         songViewModel.getRecentlyPlayedSongs()
-        albumViewModel.getAlbums()
         artistViewModel.getArtists()
-        playlistViewModel.getPlaylists()
+    }
+    // Khi genre filter thay đổi, album và playlist cũng thay đổi theo
+    LaunchedEffect(pagingGenreId) {
+        val genreId = pagingGenreId
+        if (genreId == null) {
+            albumViewModel.getAlbums()
+            playlistViewModel.getPlaylists()
+        } else {
+            albumViewModel.getAlbumsByGenre(genreId)
+            playlistViewModel.getPlaylistsByGenre(genreId)
+        }
     }
     LaunchedEffect(playerViewModel.currentSong.value) {
         if (playerViewModel.currentSong.value != null) {
@@ -169,7 +180,7 @@ fun ContentScreen(
                 songs = songState.songs ?: emptyList(),
                 topSongs = currentTopSongs,
                 albums = albumState.albums ?: emptyList(),
-                playlists = playlistState.playlists ?: emptyList(),
+                playlists = playlistState.adminPlaylists ?: emptyList(), // Use adminPlaylists
                 songViewModel = songViewModel,
                 searchViewModel = searchViewModel,
                 recommendationViewModel = recommendationViewModel,

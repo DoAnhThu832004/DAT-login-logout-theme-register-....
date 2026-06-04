@@ -9,12 +9,17 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +29,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -40,22 +46,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -65,10 +66,16 @@ import com.example.app.view.general.JetpackRoundedProgressBar
 import com.example.app.viewmodel.DataStoreUtils
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
-import com.example.app.viewmodel.SessionManager
 import kotlinx.coroutines.delay
 
 private val loginErrorColor = Color(0xFFFF6B6B)
+
+// Gradient palette
+private val gradientTop    = Color(0xFF1A1040)
+private val gradientMid    = Color(0xFF2D1B69)
+private val gradientBottom = Color(0xFF11264F)
+private val accentPurple   = Color(0xFF7C4DFF)
+private val accentPink     = Color(0xFFE040FB)
 
 @Composable
 fun LoginScreen(
@@ -126,156 +133,268 @@ fun LoginScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(gradientTop, gradientMid, gradientBottom)
+                )
+            )
+    ) {
+        // ── Decorative blur circles ──────────────────────────────────────────
+        Box(
+            modifier = Modifier
+                .size(280.dp)
+                .offset(x = (-80).dp, y = (-40).dp)
+                .blur(80.dp)
+                .background(accentPurple.copy(alpha = 0.35f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(220.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 60.dp, y = 80.dp)
+                .blur(70.dp)
+                .background(accentPink.copy(alpha = 0.25f), CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .align(Alignment.BottomStart)
+                .offset(x = (-40).dp, y = 60.dp)
+                .blur(60.dp)
+                .background(Color(0xFF00BCD4).copy(alpha = 0.2f), CircleShape)
+        )
+
+        // ── Main content ─────────────────────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = stringResource(R.string.dang_nhap),
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.padding(top = 8.dp))
 
-            // ── Username field ──
-            OutlinedTextField(
-                value = loginUiState.usernameInput,
-                onValueChange = { loginViewModel.updateUsernameInput(it) },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Email, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(start = 6.dp)
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(R.string.ten_dang_nhap),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                shape = RoundedCornerShape(15.dp),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                isError = loginUiState.usernameError != null,
-                colors = OutlinedTextFieldDefaults.colors(
-                    errorBorderColor = loginErrorColor,
-                    errorLabelColor = loginErrorColor
-                )
-            )
-            // Lỗi bên dưới field username
-            if (loginUiState.usernameError != null) {
-                Text(
-                    text = loginUiState.usernameError!!,
-                    color = loginErrorColor,
-                    fontSize = 11.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 4.dp, top = 2.dp)
+            // App logo
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(accentPurple, accentPink)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MusicNote,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(44.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
 
-            // ── Password field ──
-            OutlinedTextField(
-                value = loginUiState.passwordInput,
-                onValueChange = { loginViewModel.updatePassWordInput(it) },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Password, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(start = 6.dp)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = stringResource(R.string.chao_mung_dang_nhap),
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.dang_nhap_tiep_tuc),
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // ── Glass card ───────────────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(24.dp, RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(Color.White.copy(alpha = 0.08f))
+                    .padding(24.dp)
+            ) {
+                Column {
+                    // Username field
+                    OutlinedTextField(
+                        value = loginUiState.usernameInput,
+                        onValueChange = { loginViewModel.updateUsernameInput(it) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Email,
+                                contentDescription = null,
+                                tint = accentPurple.copy(alpha = 0.9f),
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(R.string.ten_dang_nhap),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = loginUiState.usernameError != null,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = accentPurple,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = accentPurple,
+                            errorBorderColor = loginErrorColor,
+                            errorLabelColor = loginErrorColor
+                        )
                     )
-                },
-                trailingIcon = {
-                    IconButton(onClick = { loginViewModel.togglePasswordVisibility() }) {
-                        Icon(
-                            imageVector = if (loginUiState.isPasswordVisible)
-                                Icons.Default.Visibility
-                            else Icons.Default.VisibilityOff,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
+                    if (loginUiState.usernameError != null) {
+                        Text(
+                            text = loginUiState.usernameError!!,
+                            color = loginErrorColor,
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 3.dp)
                         )
                     }
-                },
-                label = {
-                    Text(
-                        text = stringResource(R.string.mat_khau),
-                        color = MaterialTheme.colorScheme.onBackground
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Password field
+                    OutlinedTextField(
+                        value = loginUiState.passwordInput,
+                        onValueChange = { loginViewModel.updatePassWordInput(it) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = accentPurple.copy(alpha = 0.9f),
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { loginViewModel.togglePasswordVisibility() }) {
+                                Icon(
+                                    imageVector = if (loginUiState.isPasswordVisible)
+                                        Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = null,
+                                    tint = Color.White.copy(alpha = 0.6f)
+                                )
+                            }
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(R.string.mat_khau),
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = loginUiState.passwordError != null,
+                        visualTransformation = if (loginUiState.isPasswordVisible)
+                            VisualTransformation.None else PasswordVisualTransformation(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = accentPurple,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = accentPurple,
+                            errorBorderColor = loginErrorColor,
+                            errorLabelColor = loginErrorColor
+                        )
                     )
-                },
-                shape = RoundedCornerShape(15.dp),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                isError = loginUiState.passwordError != null,
-                visualTransformation = if (loginUiState.isPasswordVisible)
-                    VisualTransformation.None else PasswordVisualTransformation(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    errorBorderColor = loginErrorColor,
-                    errorLabelColor = loginErrorColor
-                )
-            )
-            // Lỗi bên dưới field password
-            if (loginUiState.passwordError != null) {
-                Text(
-                    text = loginUiState.passwordError!!,
-                    color = loginErrorColor,
-                    fontSize = 11.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 4.dp, top = 2.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
+                    if (loginUiState.passwordError != null) {
+                        Text(
+                            text = loginUiState.passwordError!!,
+                            color = loginErrorColor,
+                            fontSize = 11.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 3.dp)
+                        )
+                    }
 
-            // Lỗi chung từ server/network — bên TRÊN button
-            loginUiState.error?.let { errorMsg ->
-                Text(
-                    text = errorMsg,
-                    color = loginErrorColor,
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                )
+                    // Server error
+                    loginUiState.error?.let { errorMsg ->
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = errorMsg,
+                            color = loginErrorColor,
+                            fontSize = 13.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Login button with gradient
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(
+                                if (!loginUiState.isLoading)
+                                    Brush.horizontalGradient(listOf(accentPurple, accentPink))
+                                else
+                                    Brush.horizontalGradient(
+                                        listOf(
+                                            Color.Gray.copy(alpha = 0.4f),
+                                            Color.Gray.copy(alpha = 0.4f)
+                                        )
+                                    )
+                            )
+                            .clickable(enabled = !loginUiState.isLoading) {
+                                loginViewModel.login()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(R.string.dang_nhap),
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            letterSpacing = 0.5.sp
+                        )
+                    }
+                }
             }
 
-            Button(
-                onClick = { loginViewModel.login() },
-                enabled = !loginUiState.isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.fillMaxWidth()
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Register link
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.dang_nhap),
-                    color = Color.White
+                    text = "Chưa có tài khoản? ",
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = stringResource(R.string.dang_ky),
+                    color = accentPink,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { navigateToRegister() }
                 )
             }
-
-            Text(
-                text = stringResource(R.string.hoi_dang_ky),
-                color = Color.Blue,
-                modifier = Modifier
-                    .clickable { navigateToRegister() }
-                    .padding(top = 8.dp)
-            )
         }
 
-        // Loading overlay với progress bar
+        // ── Loading overlay ──────────────────────────────────────────────────
         if (loginUiState.isLoading || (loginUiState.progress == 100f && loginUiState.isSuccessful)) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
+                    .background(Color.Black.copy(alpha = 0.6f))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -284,26 +403,33 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 8.dp,
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0xFF1E1040),
+                    shadowElevation = 12.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
+                        .padding(horizontal = 40.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp),
+                            .padding(28.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text(
+                            text = stringResource(R.string.dang_nhap),
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
                         JetpackRoundedProgressBar(
                             progressPercentage = loginUiState.progress,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(20.dp),
-                            progressColor = MaterialTheme.colorScheme.primary,
-                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                            progressColor = accentPurple,
+                            backgroundColor = Color.White.copy(alpha = 0.1f),
                             text = "${loginUiState.progress.toInt()}%",
                             cornerRadiusTopLeft = 25.dp,
                             cornerRadiusTopRight = 25.dp,

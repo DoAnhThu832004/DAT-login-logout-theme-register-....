@@ -99,6 +99,30 @@ class AlbumViewModel(
             }
         }
     }
+
+    fun getAlbumsByGenre(genreId: String) {
+        viewModelScope.launch {
+            _albumUiState.value = _albumUiState.value.copy(isLoading = true, error = null)
+            try {
+                val response = repository.getAlbumsByGenre(genreId)
+                val body = response.body()
+                if (response.isSuccessful && body?.result != null) {
+                    _albumUiState.value = _albumUiState.value.copy(
+                        isLoading = false,
+                        albums = body.result.result,
+                        error = null
+                    )
+                } else {
+                    _albumUiState.value = _albumUiState.value.copy(
+                        isLoading = false,
+                        error = "Failed to load albums by genre"
+                    )
+                }
+            } catch (e: Exception) {
+                _albumUiState.value = _albumUiState.value.copy(isLoading = false)
+            }
+        }
+    }
     fun createAlbum(name: String, description: String) {
         viewModelScope.launch {
             _albumUiState.value = _albumUiState.value.copy(

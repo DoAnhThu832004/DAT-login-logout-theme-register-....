@@ -499,39 +499,40 @@ fun TopBar(
             )
         },
         actions = {
+            val unresolvedCount = reports.count { it.status == "PENDING" || it.status == "IN_PROGRESS" }
             Box(
-                modifier = Modifier.wrapContentSize(),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(end = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
-                    onClick = {onToReport()}
+                    onClick = { onToReport() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = null,
-                        modifier = Modifier
-                            .padding()
-                            .size(30.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        modifier = Modifier.size(30.dp),
+                        tint = Color(0xFFFFB300)
                     )
-                    if(reports.size > 0) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd) // Căn lên góc trên bên phải cho chuẩn UI/UX
-                                .offset(x = (-2).dp, y = (2).dp) // Tinh chỉnh vị trí để đè nhẹ lên Icon
-                                .sizeIn(minWidth = 16.dp, minHeight = 24.dp) // Đảm bảo luôn là hình tròn/oval đẹp
-                                .background(Color.Red, shape = CircleShape)
-                                .padding(horizontal = 4.dp), // Padding ngang để số có 2 chữ số không bị dính biên
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (reports.size > 99) "99+" else reports.size.toString(),
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                }
+                if (unresolvedCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = (-2).dp, y = 4.dp)
+                            .sizeIn(minWidth = 18.dp, minHeight = 18.dp)
+                            .background(Color.Red, shape = CircleShape)
+                            .padding(horizontal = 4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (unresolvedCount > 99) "99+" else unresolvedCount.toString(),
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }

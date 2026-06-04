@@ -25,6 +25,7 @@ class AlbumRepository(
     suspend fun getSongs(page: Int = 1, size: Int = 10) = apiService.getSongs(page, size)
 
     suspend fun uploadAlbumImage(albumId: String, imagePart: okhttp3.MultipartBody.Part) = apiService.uploadAlbumImage(albumId, imagePart)
+    suspend fun getAlbumsByGenre(genreId: String, page: Int = 1, size: Int = 10) = apiService.getAlbumsByGenre(genreId, page, size)
 
     fun getAlbumsPaging(): Flow<PagingData<Album>> {
         return Pager(

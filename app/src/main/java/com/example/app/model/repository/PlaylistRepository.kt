@@ -19,4 +19,5 @@ class PlaylistRepository(
     suspend fun deleteSongFromPlaylist(playlistId: String, songId: String) = apiService.deleteSongFromPlaylist(playlistId, songId)
     suspend fun uploadPlaylistImage(playlistId: String, imagePart: MultipartBody.Part) = apiService.uploadPlaylistImage(playlistId, imagePart)
     suspend fun getSongs(page: Int = 1, size: Int = 10) = apiService.getSongs(page, size)
+    suspend fun getPlaylistsByGenre(genreId: String, page: Int = 1, size: Int = 10) = apiService.getPlaylistsByGenre(genreId, page, size)
 }
