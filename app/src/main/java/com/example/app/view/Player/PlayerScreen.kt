@@ -150,7 +150,7 @@ fun PlayerScreen(
                 Icon(
                     Icons.Default.ArrowBack,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -161,7 +161,7 @@ fun PlayerScreen(
                     Icon(
                         Icons.Default.MoreVert,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 DropdownMenu(
@@ -199,7 +199,7 @@ fun PlayerScreen(
         Spacer(modifier = Modifier.weight(0.3f))
         Text(
             text = song.name,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 1

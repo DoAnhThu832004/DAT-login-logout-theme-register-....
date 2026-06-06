@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -30,8 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.example.app.R
 import com.example.app.model.response.Playlist
 import com.example.app.view.Album.SongListInAlbum
 import com.example.app.viewmodel.PlaylistViewModel
@@ -84,7 +87,8 @@ fun DetailPlaylistScreen(
                     ) {
                         Icon(
                             Icons.Default.ArrowBackIosNew,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onSurface
                         )
                     }
                     Image(
@@ -101,12 +105,15 @@ fun DetailPlaylistScreen(
                     ) {
                         Icon(
                             Icons.Default.MoreVert,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onSurface
                         )
                     }
                 }
                 Text(
-                    text = playlist.title
+                    text = playlist.title,
+                    style = MaterialTheme.typography.h5,
+                    color = MaterialTheme.colors.onSurface
                 )
                 Row(
                     modifier = Modifier
@@ -117,7 +124,8 @@ fun DetailPlaylistScreen(
                     ) {
                         Icon(
                             Icons.Default.Download,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onSurface
                         )
                     }
                     IconButton(
@@ -125,11 +133,20 @@ fun DetailPlaylistScreen(
                     ) {
                         Icon(
                             Icons.Default.Favorite,
-                            contentDescription = null
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onSurface
                         )
                     }
                 }
             }
+        }
+        item {
+            Text(
+                text = stringResource(R.string.bai_hat),
+                style = MaterialTheme.typography.h6,
+                color = MaterialTheme.colors.onSurface,
+                modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+            )
         }
         items(songs, key = { it.id }) {
             SongListInAlbum(

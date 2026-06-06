@@ -326,7 +326,7 @@ private fun ArtistRecommendItem(artist: Artist, onClick: () -> Unit) {
         Text(
             text = "${artist.totalFollowers} người theo dõi",
             fontSize = 10.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center

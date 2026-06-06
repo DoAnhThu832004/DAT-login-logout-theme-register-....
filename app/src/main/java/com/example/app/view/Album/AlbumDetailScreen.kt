@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,7 +66,8 @@ fun AlbumDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier
@@ -123,6 +125,11 @@ fun AlbumDetailScreen(
                 }
             }
         }
+        Text(
+            text = album.name,
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleLarge,
+        )
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Row(
             modifier = Modifier
@@ -133,7 +140,7 @@ fun AlbumDetailScreen(
                 )
         ) {
             Text(
-                text = "Bài hát",
+                text = stringResource(R.string.bai_hat),
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold,
@@ -163,7 +170,7 @@ fun AlbumDetailScreen(
                     )
             ) {
                 Text(
-                    text = "Ve ${album.name}",
+                    text = "${stringResource(R.string.ve)} ${album.name}",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
