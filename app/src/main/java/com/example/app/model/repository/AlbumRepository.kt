@@ -16,7 +16,7 @@ class AlbumRepository(
     private val apiService: ApiService
 ) {
     suspend fun getAlbumById(id: String) = apiService.getAlbumById(id)
-    suspend fun getAlbums() = apiService.getAlbums()
+    suspend fun getAlbums(page: Int = 1, size: Int = 10) = apiService.getAlbums(page, size)
     suspend fun createAlbum(request: AlbumCreationRequest) = apiService.createAlbum(request)
     suspend fun deleteAlbum(id: String) = apiService.deleteAlbum(id)
     suspend fun updateAlbum(id: String, request: AlbumUpdateRequest) = apiService.updateAlbum(id, request)
@@ -26,6 +26,7 @@ class AlbumRepository(
 
     suspend fun uploadAlbumImage(albumId: String, imagePart: okhttp3.MultipartBody.Part) = apiService.uploadAlbumImage(albumId, imagePart)
     suspend fun getAlbumsByGenre(genreId: String, page: Int = 1, size: Int = 10) = apiService.getAlbumsByGenre(genreId, page, size)
+    suspend fun searchAlbumsForAdmin(query: String, page: Int, size: Int) = apiService.searchAlbumsForAdmin(query, page, size)
 
     fun getAlbumsPaging(): Flow<PagingData<Album>> {
         return Pager(

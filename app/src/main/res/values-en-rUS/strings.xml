@@ -112,4 +112,11 @@
     <string name="mo_ta_khong_co_ket_noi">Please check your network connection and try again</string>
     <string name="thu_lai">Try Again</string>
     <string name="can_ket_noi_internet">This feature requires an internet connection</string>
+    <string name="quan_ly_nguoi_dung">User Management</string>
+    <string name="khoa_tai_khoan_tieu_de">Block Account</string>
+    <string name="mo_khoa_tai_khoan_tieu_de">Unblock Account</string>
+    <string name="xac_nhan_khoa_nguoi_dung">Are you sure you want to block user %1$s?</string>
+    <string name="xac_nhan_mo_khoa_nguoi_dung">Are you sure you want to unblock user %1$s?</string>
+    <string name="tai_khoan_bi_khoa">Your account has been blocked by admin</string>
+    <string name="nguoi_dung_trong">User list is empty</string>
 </resources>

@@ -39,7 +39,7 @@ fun AlbumScreen(
     val albumState by albumViewModel.albumState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        albumViewModel.getAlbums()
+        albumViewModel.searchAdminAlbums("")
     }
     Scaffold(
         bottomBar = {

@@ -1,0 +1,117 @@
+﻿.\gradlew : WARNING: A restricted method in java.lang.System has been called
+At line:1 char:1
++ .\gradlew compileDebugKotlin 2>&1 | Out-File -FilePath "build_errors. ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A rest...has been called:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an 
+unnamed module (file:/C:/Users/ASUS/.gradle/wrapper/dists/gradle-8.11.1-bin/bpt9gzteqjrbo1mjrsomdt32c/gradle-8.11.1/lib
+/native-platform-0.22-milestone-26.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+Starting a Gradle Daemon, 2 incompatible and 5 stopped Daemons could not be reused, use --status for details
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+
+> Task :app:kaptGenerateStubsDebugKotlin
+w: Kapt currently doesn't support language version 2.0+. Falling back to 1.9.
+
+> Task :app:kaptDebugKotlin
+
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/model/ApiClient.kt:75:51 '@JvmStatic() @Deprecated(...) fun create(contentType: MediaType?, content: String): RequestBody' is deprecated. Moved to extension function. Put the 'content' argument first to fix Java.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Album/AlbumDetailScreen.kt:86:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Artist/ArtistScreen.kt:99:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/InProfile/ChangePasswordScreen.kt:127:44 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/InProfile/DownloadScreen.kt:59:44 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/CommentScreen.kt:379:45 '@property:Deprecated(...) val Icons.Filled.ArrowBackIos: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBackIos.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:151:35 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:283:32 '@property:Deprecated(...) val Icons.Filled.VolumeDown: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeDown.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:294:32 '@property:Deprecated(...) val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/MyPlaylistDetailScreen.kt:121:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/MyPlaylistDetailScreen.kt:210:49 '@property:Deprecated(...) val Icons.Filled.Comment: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Comment.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/PlaylistItem.kt:43:45 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/SelectArtistBottomSheet.kt:72:35 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Song/ListAllSong.kt:111:53 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Song/ListAllSong.kt:291:9 '@Deprecated(...) @Composable() @ComposableTarget(...) fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/NavigationDraw.kt:369:73 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/NavigationDraw.kt:372:74 '@property:Deprecated(...) val Icons.Filled.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/album/AlbumScreen.kt:36:74 '@property:Deprecated(...) val Icons.Filled.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ListAlt.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/album/AlbumScreenDetailA.kt:86:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/album/UploadFileAlbum.kt:77:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/artist/ArtistScreenA.kt:42:76 '@property:Deprecated(...) val Icons.Filled.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ListAlt.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/artist/DetailArtistScreen.kt:114:53 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/artist/UploadFileArtist.kt:74:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/playlist/AddPlaylistScreen.kt:103:43 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/playlist/PlaylistScreenA.kt:44:77 '@property:Deprecated(...) val Icons.Filled.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ListAlt.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/playlist/UploadFilePlaylist.kt:76:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/report/AllReportScreen.kt:132:57 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/admin/song/HomePage.kt:55:75 '@property:Deprecated(...) val Icons.Filled.ListAlt: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ListAlt.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/general/SearchBar.kt:89:18 '@Deprecated(...) fun Modifier.menuAnchor(): Modifier' is deprecated. Use overload that takes MenuAnchorType and enabled parameters.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/general/SelectReportBottomSheet.kt:83:39 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/general/SelectReportBottomSheet.kt:92:22 '@Deprecated(...) fun Modifier.menuAnchor(): Modifier' is deprecated. Use overload that takes MenuAnchorType and enabled parameters.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/general/SelectReportBottomSheet.kt:138:22 '@Deprecated(...) fun Modifier.menuAnchor(): Modifier' is deprecated. Use overload that takes MenuAnchorType and enabled parameters.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/EditProfilePage.kt:113:54 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/FavoritePage.kt:260:9 '@Deprecated(...) @Composable() @ComposableTarget(...) fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/InfomationProfilePage.kt:76:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/ProfilePage.kt:105:73 '@property:Deprecated(...) val Icons.Filled.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Logout.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/ProfilePage.kt:332:65 '@property:Deprecated(...) val Icons.Filled.ArrowForwardIos: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForwardIos.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/user/SettingPage.kt:102:53 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/AlbumViewModel.kt:135:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/AlbumViewModel.kt:213:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/AlbumViewModel.kt:287:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/ArtistViewModel.kt:122:51 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/ArtistViewModel.kt:149:51 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/ArtistViewModel.kt:204:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/ArtistViewModel.kt:277:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/CommentViewModel.kt:73:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/CommentViewModel.kt:132:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/EditProfileViewModel.kt:45:46 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/EditProfileViewModel.kt:92:46 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:84:28 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:165:51 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:193:51 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:278:46 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:349:46 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:422:62 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/RecommendationViewModel.kt:30:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/RecommendationViewModel.kt:67:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/RegisterViewModel.kt:47:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/ReportViewModel.kt:96:46 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:59:10 This declaration is in a preview state and can be changed in a backwards-incompatible manner with a best-effort migration. Its usage should be marked with '@kotlinx.coroutines.FlowPreview' or '@OptIn(kotlinx.coroutines.FlowPreview::class)' if you accept the drawback of relying on preview API
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:99:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:129:51 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:155:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:193:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:221:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:255:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:288:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:317:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:427:47 Condition is always 'true'.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/SongViewModel.kt:548:47 Condition is always 'true'.
+[Incubating] Problems report is available at: file:///C:/Users/ASUS/AndroidStudioProjects/App/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 45s
+16 actionable tasks: 7 executed, 9 up-to-date

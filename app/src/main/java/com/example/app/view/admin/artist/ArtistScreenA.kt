@@ -45,7 +45,7 @@ fun ArtistScreenA(
     val aritstState by artistViewModel.artistState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        artistViewModel.getArtists()
+        artistViewModel.searchAdminArtists("")
     }
     Scaffold(
         bottomBar = {

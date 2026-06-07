@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 data class RoleResult(
     val name: String,
     val description : String,
-    val permission: List<Permissions>
+    val permissions: List<Permissions>?
 ): Parcelable

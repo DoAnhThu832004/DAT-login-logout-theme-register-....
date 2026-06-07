@@ -87,6 +87,7 @@ import com.example.app.view.admin.playlist.UploadFilePlaylist
 import com.example.app.view.admin.song.EditSongScreen
 import com.example.app.view.admin.song.HomePage
 import com.example.app.view.admin.song.UploadFileSong
+import com.example.app.view.admin.user.UserManagementScreen
 import com.example.app.view.general.ConfirmDialog
 import com.example.app.view.general.HeaderView
 import com.example.app.view.user.InformationProfilePage
@@ -97,6 +98,7 @@ import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
+import com.example.app.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
 
 
@@ -110,6 +112,7 @@ fun NavigationDraw(
     artistViewModel: ArtistViewModel,
     searchViewModel: SearchViewModel,
     playlistViewModel: PlaylistViewModel,
+    userViewModel: UserViewModel,
     reports: List<Report>,
     navController: NavHostController,
     darkTheme: Boolean,
@@ -340,6 +343,9 @@ fun NavigationDraw(
                         }
                     )
                 }
+                composable(route = Screen.UserManagementScreen.route) {
+                    UserManagementScreen(userViewModel = userViewModel)
+                }
             }
         }
     }
@@ -361,6 +367,7 @@ fun DrawerContent(
         NavItemsDrawer(stringResource(R.string.album), Icons.Default.Album, Screen.AlbumScreen.route),
         NavItemsDrawer(stringResource(R.string.tac_gia), Icons.Default.Person, Screen.ArtistScreenA.route),
         NavItemsDrawer(stringResource(R.string.playlist), Icons.Default.PlaylistPlay,Screen.PlaylistScreenA.route),
+        NavItemsDrawer(stringResource(R.string.quan_ly_nguoi_dung), Icons.Default.AccountCircle, Screen.UserManagementScreen.route),
         NavItemsDrawer(stringResource(R.string.cai_dat), Icons.Default.Settings, Screen.SettingPageA.route),
         NavItemsDrawer(stringResource(R.string.dang_xuat), Icons.Default.Logout, Screen.LoginScreen.route)
     )

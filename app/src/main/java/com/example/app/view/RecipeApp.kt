@@ -77,6 +77,8 @@ import com.example.app.viewmodel.SearchViewModelFactory
 import com.example.app.viewmodel.SessionManager
 import com.example.app.viewmodel.SongViewModel
 import com.example.app.viewmodel.SongViewModelFactory
+import com.example.app.viewmodel.UserViewModel
+import com.example.app.viewmodel.UserViewModelFactory
 import com.example.app.viewmodel.rememberNetworkState
 
 /**
@@ -208,6 +210,9 @@ fun RecipeApp(
                 val playlistViewModel : PlaylistViewModel = viewModel(
                     factory = PlaylistViewModelFactory(playlistRepository)
                 )
+                val userViewModel : UserViewModel = viewModel(
+                    factory = UserViewModelFactory(userRepository)
+                )
                 val reportViewModel : ReportViewModel = viewModel(factory = ReportViewModelFactory(reportRepository))
                 val reportState by reportViewModel.reportState.collectAsState()
                 val reports = reportState.reports ?: emptyList()
@@ -221,6 +226,7 @@ fun RecipeApp(
                         artistViewModel = artistViewModel,
                         searchViewModel = searchViewModel,
                         playlistViewModel = playlistViewModel,
+                        userViewModel = userViewModel,
                         reports = reports,
                         darkTheme = darkTheme,
                         onThemeUpdated = onThemeUpdated,

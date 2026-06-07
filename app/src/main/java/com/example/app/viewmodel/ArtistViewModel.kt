@@ -90,6 +90,102 @@ class ArtistViewModel(
             }
         }
     }
+
+    private var searchJob: kotlinx.coroutines.Job? = null
+    private var currentSearchQuery: String = ""
+    private var currentPage: Int = 1
+
+    fun searchAdminArtists(query: String, isLoadMore: Boolean = false) {
+        if (!isLoadMore) {
+            searchJob?.cancel()
+            currentSearchQuery = query
+            currentPage = 1
+        } else {
+            if (_artistState.value.isLastPage || _artistState.value.isLoadingMore) return
+            currentPage++
+        }
+
+        searchJob = viewModelScope.launch {
+            if (!isLoadMore) kotlinx.coroutines.delay(500)
+
+            _artistState.value = _artistState.value.copy(
+                isLoadingA = !isLoadMore,
+                isLoadingMore = isLoadMore,
+                errorA = null
+            )
+
+            try {
+                if (query.isBlank()) {
+                    val response = repository.getArtists()
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        if (body?.code == 1000 && body.result != null) {
+                            _artistState.value = _artistState.value.copy(
+                                isLoadingA = false,
+                                isLoadingMore = false,
+                                artists = body.result,
+                                isLastPage = true,
+                                errorA = null
+                            )
+                        } else {
+                            _artistState.value = _artistState.value.copy(
+                                isLoadingA = false,
+                                isLoadingMore = false,
+                                errorA = "Không tải được dữ liệu"
+                            )
+                        }
+                    } else {
+                        val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                        _artistState.value = _artistState.value.copy(
+                            isLoadingA = false,
+                            isLoadingMore = false,
+                            errorA = apiErr?.message ?: "Lỗi từ hệ thống máy chủ"
+                        )
+                    }
+                } else {
+                    val response = repository.searchArtistsForAdmin(query, page = currentPage, size = 20)
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        if (body?.code == 1000 && body.result != null) {
+                            val pageData = body.result
+                            val newArtists = pageData.result
+
+                            val currentList = if (isLoadMore) _artistState.value.artists.orEmpty() else emptyList()
+                            val updatedList = currentList + newArtists
+
+                            _artistState.value = _artistState.value.copy(
+                                isLoadingA = false,
+                                isLoadingMore = false,
+                                artists = updatedList,
+                                isLastPage = currentPage >= pageData.totalPages,
+                                errorA = null
+                            )
+                        } else {
+                            _artistState.value = _artistState.value.copy(
+                                isLoadingA = false,
+                                isLoadingMore = false,
+                                errorA = "Không tải được dữ liệu"
+                            )
+                        }
+                    } else {
+                        val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                        _artistState.value = _artistState.value.copy(
+                            isLoadingA = false,
+                            isLoadingMore = false,
+                            errorA = apiErr?.message ?: "Lỗi từ hệ thống máy chủ"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _artistState.value = _artistState.value.copy(
+                    isLoadingA = false,
+                    isLoadingMore = false,
+                    errorA = "Lỗi đường truyền kết nối mạng: ${e.message}"
+                )
+                if (isLoadMore) currentPage--
+            }
+        }
+    }
     fun createArtist(name: String, description: String) {
         viewModelScope.launch {
             _artistState.value = _artistState.value.copy(
@@ -446,6 +542,8 @@ class ArtistViewModel(
     data class ArtistState(
         val isLoadingA: Boolean = false,
         val artists: List<Artist>? = null,
+        val isLoadingMore: Boolean = false,
+        val isLastPage: Boolean = false,
         val errorA: String? = null,
         val isCreating: Boolean = false,
     )

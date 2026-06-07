@@ -111,4 +111,11 @@
     <string name="mo_ta_khong_co_ket_noi">Vui lòng kiểm tra kết nối mạng và thử lại</string>
     <string name="thu_lai">Thử lại</string>
     <string name="can_ket_noi_internet">Tính năng này cần kết nối internet</string>
+    <string name="quan_ly_nguoi_dung">Quản lý người dùng</string>
+    <string name="khoa_tai_khoan_tieu_de">Khoá tài khoản</string>
+    <string name="mo_khoa_tai_khoan_tieu_de">Mở khoá tài khoản</string>
+    <string name="xac_nhan_khoa_nguoi_dung">Bạn có chắc chắn muốn khoá người dùng %1$s không?</string>
+    <string name="xac_nhan_mo_khoa_nguoi_dung">Bạn có chắc chắn muốn mở khoá người dùng %1$s không?</string>
+    <string name="tai_khoan_bi_khoa">Tài khoản của bạn đã bị khóa bởi quản trị viên</string>
+    <string name="nguoi_dung_trong">Danh sách người dùng trống</string>
 </resources>

@@ -23,4 +23,5 @@ class ArtistRepository(
     suspend fun getSongs(page: Int = 1, size: Int = 10) = apiService.getSongs(page, size)
     suspend fun getAlbums(page: Int = 1, size: Int = 10) = apiService.getAlbums(page, size)
     suspend fun uploadArtistImage(artistId: String, imagePart: okhttp3.MultipartBody.Part) = apiService.uploadArtistImage(artistId, imagePart)
+    suspend fun searchArtistsForAdmin(query: String, page: Int, size: Int) = apiService.searchArtistsForAdmin(query, page, size)
 }

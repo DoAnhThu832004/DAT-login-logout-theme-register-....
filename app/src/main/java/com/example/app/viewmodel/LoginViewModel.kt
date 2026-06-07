@@ -109,13 +109,20 @@ class LoginViewModel(
                             error = null
                         )
                     } else {
-                        handleLoginFailure("Đăng nhập thất bại, vui lòng thử lại")
+                        // Kiểm tra mã lỗi trong body ngay cả khi response thành công (một số backend trả về 200 OK kèm mã lỗi)
+                        val msg = when (body?.code) {
+                            1011 -> "Tài khoản của bạn đã bị khóa bởi quản trị viên"
+                            1006 -> "Tên đăng nhập hoặc mật khẩu không đúng"
+                            else -> "Đăng nhập thất bại, vui lòng thử lại"
+                        }
+                        handleLoginFailure(msg)
                     }
                 } else {
                     val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
                     val msg = when (apiErr?.code) {
                         1006 -> "Tên đăng nhập hoặc mật khẩu không đúng"
                         1001 -> "Tài khoản không tồn tại"
+                        1011 -> "Tài khoản của bạn đã bị khóa bởi quản trị viên"
                         else -> apiErr?.message ?: "Đăng nhập thất bại (${response.code()})"
                     }
                     handleLoginFailure(msg)

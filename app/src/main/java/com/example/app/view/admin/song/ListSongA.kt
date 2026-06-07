@@ -244,7 +244,7 @@ fun ListSongA(
 @Composable
 fun DetailListSongA(
     song: Song,
-    //onSongClick: () -> Unit
+    onSongClick: () -> Unit = {},
     onDeleteClick: (String) -> Unit,
     onUploadClick: () -> Unit,
     onUpdateClick: () -> Unit
@@ -336,6 +336,7 @@ fun DetailListSongA(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clickable { onSongClick() }
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically

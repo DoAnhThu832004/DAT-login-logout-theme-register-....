@@ -42,6 +42,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
@@ -70,6 +71,19 @@ interface ApiService {
         @Path("id") id: String,
         @Part image: MultipartBody.Part
     ): Response<UserResponse>
+
+    @GET("users")
+    suspend fun getUsers(
+        @Query("page") page: Int,
+        @Query("size") size: Int
+    ): Response<ApiResponse<PageResponse<com.example.app.model.response.UserResult>>>
+
+    @PATCH("users/{userId}/block")
+    suspend fun blockUser(@Path("userId") userId: String): Response<UserResponse>
+
+    @PATCH("users/{userId}/unblock")
+    suspend fun unblockUser(@Path("userId") userId: String): Response<UserResponse>
+
     @GET("songs")
     suspend fun getSongs(
         @Query("page") page: Int = 1,
@@ -131,6 +145,12 @@ interface ApiService {
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 10
     ): Response<ApiResponse<PageResponse<Album>>>
+    @GET("albums/admin/searchKey")
+    suspend fun searchAlbumsForAdmin(
+        @Query("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): Response<ApiResponse<PageResponse<Album>>>
     @POST("albums")
     suspend fun createAlbum(@Body request: AlbumCreationRequest): Response<ApiResponse<Album>>
     @DELETE("albums/{id}")
@@ -158,6 +178,12 @@ interface ApiService {
     suspend fun searchArtists(
         @Query("name") name: String
     ): Response<ApiResponse<List<Artist>>>
+    @GET("artists/admin/searchKey")
+    suspend fun searchArtistsForAdmin(
+        @Query("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): Response<ApiResponse<PageResponse<Artist>>>
     @POST("artists")
     suspend fun createArtist(@Body request: com.example.app.model.request.ArtistCreationRequest): Response<ApiResponse<Artist>>
     @DELETE("artists/{id}")
@@ -189,6 +215,12 @@ interface ApiService {
     ) : Response<ApiError>
     @GET("playlists")
     suspend fun getPlaylists(): Response<ApiResponse<List<Playlist>>>
+    @GET("playlists/admin/searchKey")
+    suspend fun searchPlaylistsForAdmin(
+        @Query("name") name: String,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): Response<ApiResponse<PageResponse<Playlist>>>
     @GET("playlists/genre/{genreId}")
     suspend fun getPlaylistsByGenre(
         @Path("genreId") genreId: String,

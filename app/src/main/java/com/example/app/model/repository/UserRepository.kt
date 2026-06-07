@@ -16,4 +16,8 @@ class UserRepository(
     suspend fun getUserInfo() = apiService.getUserInfo()
     suspend fun uploadUserImage(id: String, imagePart: MultipartBody.Part) = apiService.uploadUserImage(id, imagePart)
     suspend fun changePassword(request: ChangePasswordRequest) = apiService.changePassword(request)
+
+    suspend fun getUsers(page: Int = 1, size: Int = 20) = apiService.getUsers(page, size)
+    suspend fun blockUser(userId: String) = apiService.blockUser(userId)
+    suspend fun unblockUser(userId: String) = apiService.unblockUser(userId)
 }

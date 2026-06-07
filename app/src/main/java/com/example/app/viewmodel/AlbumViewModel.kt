@@ -100,6 +100,78 @@ class AlbumViewModel(
         }
     }
 
+    private var searchJob: kotlinx.coroutines.Job? = null
+    private var currentSearchQuery: String = ""
+    private var currentPage: Int = 1
+
+    fun searchAdminAlbums(query: String, isLoadMore: Boolean = false) {
+        if (!isLoadMore) {
+            searchJob?.cancel()
+            currentSearchQuery = query
+            currentPage = 1
+        } else {
+            if (_albumUiState.value.isLastPage || _albumUiState.value.isLoadingMore) return
+            currentPage++
+        }
+
+        searchJob = viewModelScope.launch {
+            if (!isLoadMore) kotlinx.coroutines.delay(500)
+
+            _albumUiState.value = _albumUiState.value.copy(
+                isLoading = !isLoadMore,
+                isLoadingMore = isLoadMore,
+                error = null
+            )
+
+            try {
+                val response = if (query.isBlank()) {
+                    repository.getAlbums(page = currentPage, size = 20)
+                } else {
+                    repository.searchAlbumsForAdmin(query, page = currentPage, size = 20)
+                }
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000 && body.result != null) {
+                        val pageData = body.result
+                        val newAlbums = pageData.result
+
+                        val currentList = if (isLoadMore) _albumUiState.value.albums.orEmpty() else emptyList()
+                        val updatedList = currentList + newAlbums
+
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            isLoadingMore = false,
+                            albums = updatedList,
+                            isLastPage = currentPage >= pageData.totalPages,
+                            error = null
+                        )
+                    } else {
+                        _albumUiState.value = _albumUiState.value.copy(
+                            isLoading = false,
+                            isLoadingMore = false,
+                            error = "Không tải được dữ liệu"
+                        )
+                    }
+                } else {
+                    val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                    _albumUiState.value = _albumUiState.value.copy(
+                        isLoading = false,
+                        isLoadingMore = false,
+                        error = apiErr?.message ?: "Lỗi từ hệ thống máy chủ"
+                    )
+                }
+            } catch (e: Exception) {
+                _albumUiState.value = _albumUiState.value.copy(
+                    isLoading = false,
+                    isLoadingMore = false,
+                    error = "Lỗi đường truyền kết nối mạng"
+                )
+                if (isLoadMore) currentPage--
+            }
+        }
+    }
+
     fun getAlbumsByGenre(genreId: String) {
         viewModelScope.launch {
             _albumUiState.value = _albumUiState.value.copy(isLoading = true, error = null)
@@ -383,6 +455,8 @@ class AlbumViewModel(
         val albums: List<Album>? = null,
         val isCreating: Boolean = false,
         val isLoading: Boolean = false,
+        val isLoadingMore: Boolean = false,
+        val isLastPage: Boolean = false,
         val error: String? = null
     )
 }

@@ -47,7 +47,7 @@ fun PlaylistScreenA(
     val playlistState by playlistViewModel.playlistState.collectAsState()
     var selectIndex by rememberSaveable { mutableStateOf(0) }
     LaunchedEffect(Unit) {
-        playlistViewModel.getPlaylists()
+        playlistViewModel.searchAdminPlaylists("")
     }
     Scaffold(
         bottomBar = {

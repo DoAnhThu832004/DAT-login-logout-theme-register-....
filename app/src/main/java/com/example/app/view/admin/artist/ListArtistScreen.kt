@@ -28,8 +28,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
@@ -37,18 +37,24 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -65,13 +71,11 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
 import com.example.app.model.response.Artist
 import com.example.app.view.general.ConfirmDialog
-import com.example.app.view.general.SearchBar
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import kotlin.math.truncate
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
@@ -84,23 +88,68 @@ fun ListArtistScreen(
     onUpdateClick: (Artist) -> Unit,
     onUploadClick: (Artist) -> Unit
 ) {
-    val shouldAnimated by rememberSaveable { mutableStateOf(true) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val artistState by artistViewModel.artistState.collectAsState()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collect { lastVisibleIndex ->
+                if (lastVisibleIndex != null) {
+                    val isAtBottom = lastVisibleIndex >= artists.size - 1
+                    if (isAtBottom &&
+                        !artistState.isLoadingA &&
+                        !artistState.isLoadingMore &&
+                        !artistState.isLastPage
+                    ) {
+                        artistViewModel.searchAdminArtists(searchQuery, isLoadMore = true)
+                    }
+                }
+            }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
-        SearchBar(searchViewModel = searchViewModel)
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { newQuery ->
+                searchQuery = newQuery
+                artistViewModel.searchAdminArtists(newQuery)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            placeholder = { Text("Tìm kiếm nghệ sĩ...") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Search, contentDescription = "Search")
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = {
+                        searchQuery = ""
+                        artistViewModel.searchAdminArtists("")
+                    }) {
+                        Icon(imageVector = Icons.Default.Close, contentDescription = "Clear")
+                    }
+                }
+            },
+            shape = RoundedCornerShape(24.dp),
+            singleLine = true
+        )
+
         BoxWithConstraints {
             val startOffset = -maxWidth
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                itemsIndexed(artists) { index,artist ->
+                itemsIndexed(artists) { index, artist ->
                     val alphaAnim = remember { androidx.compose.animation.core.Animatable(0f) }
                     val slideAnim = remember { androidx.compose.animation.core.Animatable(startOffset.value) }
                     LaunchedEffect(key1 = artist.id) {
@@ -115,7 +164,7 @@ fun ListArtistScreen(
                             slideAnim.animateTo(
                                 targetValue = 0f,
                                 animationSpec = spring(
-                                    dampingRatio = 0.75f, // Độ nảy vừa phải
+                                    dampingRatio = 0.75f,
                                     stiffness = Spring.StiffnessLow
                                 )
                             )
@@ -142,10 +191,27 @@ fun ListArtistScreen(
                         )
                     }
                 }
+
+                if (artistState.isLoadingMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
+
 @Composable
 fun ListArtist(
     artist: Artist,
@@ -155,9 +221,9 @@ fun ListArtist(
     onUploadClick: () -> Unit
 ) {
     var show by remember { mutableStateOf(false) }
-    val density = LocalDensity.current // dùng để chuyển đổi giữa dp/sp -> px vì animation nó chuyển đổi theo px
-    val revealSizeDp = 160.dp // Kích thước vùng hiển thị nút xóa
-    val maxRevealPx = with(density) { -revealSizeDp.toPx() } // Chuyển đổi sang px giá trị âm vì kéo sang trái
+    val density = LocalDensity.current
+    val revealSizeDp = 160.dp
+    val maxRevealPx = with(density) { -revealSizeDp.toPx() }
     val snapThreshold = maxRevealPx / 2
     val offsetX = remember { androidx.compose.animation.core.Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -177,9 +243,9 @@ fun ListArtist(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             IconButton(
-                onClick = {onUpdateClick()},
+                onClick = { onUpdateClick() },
                 modifier = Modifier
-                    .scale(0.8f + (0.2f * progress)) // Hiệu ứng phóng to nhẹ
+                    .scale(0.8f + (0.2f * progress))
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color.Blue)
                     .padding(13.dp)
@@ -188,16 +254,13 @@ fun ListArtist(
                     imageVector = Icons.Default.Edit,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier
-                        .size(32.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
             IconButton(
-                onClick = {
-                    show = true
-                },
+                onClick = { show = true },
                 modifier = Modifier
-                    .scale(0.8f + (0.2f * progress)) // Hiệu ứng phóng to nhẹ
+                    .scale(0.8f + (0.2f * progress))
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFFF4D4D))
                     .padding(13.dp)
@@ -206,33 +269,29 @@ fun ListArtist(
                     imageVector = Icons.Default.Delete,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier
-                        .size(32.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }
         Box(
             modifier = Modifier
-                .offset { IntOffset(offsetX.value.roundToInt(), 0) } // Điều chỉnh vị trí theo giá trị của offsetX
+                .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .draggable( // Cho phép kéo và thả
-                    orientation = Orientation.Horizontal, // Chỉ cho phép kéo theo trục ngang
+                .draggable(
+                    orientation = Orientation.Horizontal,
                     state = rememberDraggableState { delta ->
-                        // Tính toán vị trí mới, chặn không cho kéo quá sang phải (0f)
-                        // Cho phép kéo quá sang trái một chút (* 1.1f) để tạo cảm giác đàn hồi
                         val newVal = (offsetX.value + delta).coerceIn(maxRevealPx * 1.1f, 0f)
                         scope.launch { offsetX.snapTo(newVal) }
                     },
                     onDragStopped = {
-                        // Logic lò xo: Nếu kéo quá 50% -> mở hết, ngược lại -> đóng
                         val targetOffset = if (offsetX.value < snapThreshold) maxRevealPx else 0f
                         scope.launch {
                             offsetX.animateTo(
                                 targetValue = targetOffset,
                                 animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy, // Điều chỉnh độ nhạy
-                                    stiffness = Spring.StiffnessLow // tố độ phản hoi
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
                                 )
                             )
                         }
@@ -254,7 +313,7 @@ fun ListArtist(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(artist.imageUrlAr.isNullOrEmpty()) {
+                    if (artist.imageUrlAr.isNullOrEmpty()) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = null,
@@ -284,7 +343,7 @@ fun ListArtist(
                         )
                     }
                     IconButton(
-                        onClick = {onUploadClick()}
+                        onClick = { onUploadClick() }
                     ) {
                         Icon(
                             imageVector = Icons.Default.CloudUpload,
@@ -300,7 +359,7 @@ fun ListArtist(
         icon = Icons.Default.Notifications,
         iconColor = Color.Yellow,
         title = stringResource(R.string.xac_nhan),
-        message = stringResource(R.string.tieu_de_xoa_bai_hat),
+        message = stringResource(R.string.tieu_de_xoa_bai_hat), // Giữ nguyên R string cũ của hệ thống
         confirmText = stringResource(R.string.xac_nhan),
         dismissText = stringResource(R.string.quay_lai),
         onConfirm = {

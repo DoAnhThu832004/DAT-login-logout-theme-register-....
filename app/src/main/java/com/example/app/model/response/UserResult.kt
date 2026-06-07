@@ -11,5 +11,6 @@ data class UserResult(
     val lastName: String,
     val dob: String,
     val imageUrl: String,
-    val roles: List<RoleResult>
+    val roles: List<RoleResult>,
+    val blocked: Boolean = false
 ) : Parcelable
