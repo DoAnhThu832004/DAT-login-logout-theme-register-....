@@ -46,6 +46,7 @@ import com.example.app.view.Playlist.MyPlaylistDetailScreen
 import com.example.app.view.Song.ListAllSong
 import com.example.app.view.admin.NavigationDraw
 import com.example.app.view.admin.report.AllReportScreen
+import com.example.app.view.general.NoInternetScreen
 import com.example.app.view.user.EditProfilePage
 import com.example.app.view.user.InformationProfilePage
 import com.example.app.view.user.SettingPage
@@ -76,6 +77,24 @@ import com.example.app.viewmodel.SearchViewModelFactory
 import com.example.app.viewmodel.SessionManager
 import com.example.app.viewmodel.SongViewModel
 import com.example.app.viewmodel.SongViewModelFactory
+import com.example.app.viewmodel.rememberNetworkState
+
+/**
+ * Wrapper kiểm tra kết nối mạng.
+ * Nếu [isConnected] = false → hiển thị NoInternetScreen.
+ * Nếu [isConnected] = true  → hiển thị [content].
+ */
+@Composable
+fun NetworkAwareWrapper(
+    isConnected: Boolean,
+    content: @Composable () -> Unit
+) {
+    if (isConnected) {
+        content()
+    } else {
+        NoInternetScreen()
+    }
+}
 
 @Composable
 fun RecipeApp(
@@ -85,6 +104,7 @@ fun RecipeApp(
     onThemeUpdated: () -> Unit
 ) {
     val context = LocalContext.current
+    val isConnected by rememberNetworkState()
     val apiService = ApiClient.build(context)
     val songRepository = remember { SongRepository(apiService) }
     val albumRepository = remember { com.example.app.model.repository.AlbumRepository(apiService) }
@@ -122,25 +142,29 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                LoginScreen(
-                    loginViewModel = loginViewModel,
-                    editProfileViewModel = editProfileViewModel,
-                    navController = navController,
-                    navigateToRegister = { navController.navigate(Screen.RegisterScreen.route) },
-                    navigateToUserHomePage = { token, name ->
-                        navController.currentBackStackEntry?.savedStateHandle?.set("token",token)
-                        navController.currentBackStackEntry?.savedStateHandle?.set("name",name)
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    LoginScreen(
+                        loginViewModel = loginViewModel,
+                        editProfileViewModel = editProfileViewModel,
+                        navController = navController,
+                        navigateToRegister = { navController.navigate(Screen.RegisterScreen.route) },
+                        navigateToUserHomePage = { token, name ->
+                            navController.currentBackStackEntry?.savedStateHandle?.set("token",token)
+                            navController.currentBackStackEntry?.savedStateHandle?.set("name",name)
+                        }
+                    )
+                }
             }
             composable(route = Screen.RegisterScreen.route) {
                 val registerViewModel : RegisterViewModel = viewModel(
                     factory = RegisterViewModelFactory(userRepository, songRepository)
                 )
-                RegisterScreen(
-                    registerViewModel = registerViewModel,
-                    navigateToLogin = { navController.navigate(Screen.LoginScreen.route) }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    RegisterScreen(
+                        registerViewModel = registerViewModel,
+                        navigateToLogin = { navController.navigate(Screen.LoginScreen.route) }
+                    )
+                }
             }
             composable(
                 route = Screen.SplashScreen.route,
@@ -150,6 +174,8 @@ fun RecipeApp(
                 val loginViewModel : LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
+                // SplashScreen không bị block bởi NetworkAware
+                // (nó tự navigate sau khi check token, không cần mạng để hiển thị)
                 com.example.app.view.general.SplashScreen(
                     navController,
                     sessionManager,
@@ -185,23 +211,25 @@ fun RecipeApp(
                 val reportViewModel : ReportViewModel = viewModel(factory = ReportViewModelFactory(reportRepository))
                 val reportState by reportViewModel.reportState.collectAsState()
                 val reports = reportState.reports ?: emptyList()
-                NavigationDraw(
-                    navController = navController,
-                    loginViewModel = loginViewModel,
-                    editProfileViewModel = editProfileViewModel,
-                    songViewModel = songViewModel,
-                    albumViewModel = albumViewModel,
-                    artistViewModel = artistViewModel,
-                    searchViewModel = searchViewModel,
-                    playlistViewModel = playlistViewModel,
-                    reports = reports,
-                    darkTheme = darkTheme,
-                    onThemeUpdated = onThemeUpdated,
-                    name = name,
-                    onToReport = {
-                        navController.navigate(Screen.AllReportScreen.route)
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    NavigationDraw(
+                        navController = navController,
+                        loginViewModel = loginViewModel,
+                        editProfileViewModel = editProfileViewModel,
+                        songViewModel = songViewModel,
+                        albumViewModel = albumViewModel,
+                        artistViewModel = artistViewModel,
+                        searchViewModel = searchViewModel,
+                        playlistViewModel = playlistViewModel,
+                        reports = reports,
+                        darkTheme = darkTheme,
+                        onThemeUpdated = onThemeUpdated,
+                        name = name,
+                        onToReport = {
+                            navController.navigate(Screen.AllReportScreen.route)
+                        }
+                    )
+                }
             }
             composable(route = Screen.UserHomePage.route) { backStackEntry ->
                 val name = backStackEntry.arguments?.getString("name") ?: "Guest"
@@ -241,6 +269,9 @@ fun RecipeApp(
                     }
                 }
 
+                // UserHomePage không bọc NetworkAwareWrapper ở đây
+                // vì ContentScreen xử lý từng tab riêng: tab 0,1,2 bị chặn,
+                // tab Profile (index=3) vẫn hoạt động khi không có mạng
                 userState.userResponse?.let {
                     UserHomePage(
                         navController = navController,
@@ -253,6 +284,7 @@ fun RecipeApp(
                         editProfileViewModel = editProfileViewModel,
                         playerViewModel = playerViewModel,
                         recommendationViewModel = recommendationViewModel,
+                        isConnected = isConnected,
                         name = name,
                         user = it,
                         onViewAllSongs = { genreId ->
@@ -281,6 +313,7 @@ fun RecipeApp(
                 }
             }
             composable(route = Screen.SettingPage.route) {
+                // SettingPage: không cần mạng (chỉ cài đặt local)
                 SettingPage(
                     navController = navController,
                     darkTheme = darkTheme,
@@ -294,11 +327,13 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                EditProfilePage(
-                    navController = navController,
-                    loginViewModel = loginViewModel,
-                    editProfileViewModel = editProfileViewModel
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    EditProfilePage(
+                        navController = navController,
+                        loginViewModel = loginViewModel,
+                        editProfileViewModel = editProfileViewModel
+                    )
+                }
             }
             composable(route = Screen.InformationProfilePage.route) {
                 val loginViewModel : LoginViewModel = viewModel(
@@ -307,10 +342,12 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                InformationProfilePage(
-                    navController = navController,
-                    editProfileViewModel = editProfileViewModel
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    InformationProfilePage(
+                        navController = navController,
+                        editProfileViewModel = editProfileViewModel
+                    )
+                }
             }
             composable(route = Screen.ListAllSong.route) {
                 val genreId = it.arguments?.getString("genreId")
@@ -322,17 +359,19 @@ fun RecipeApp(
                     songViewModel.setPagingGenreFilter(genreId)
                 }
                 val pagingSongs = songViewModel.songsPaging.collectAsLazyPagingItems()
-                ListAllSong(
-                    songs = pagingSongs,
-                    onBack = { navController.popBackStack() },
-                    songViewModel = songViewModel,
-                    playerViewModel = playerViewModel,
-                    onSongClick = { song ->
-                        val songs = pagingSongs.itemSnapshotList.items.filterNotNull()
-                        playerViewModel.play(song, songs)
-                        navController.navigate(Screen.PlayerScreen.createRoute())
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    ListAllSong(
+                        songs = pagingSongs,
+                        onBack = { navController.popBackStack() },
+                        songViewModel = songViewModel,
+                        playerViewModel = playerViewModel,
+                        onSongClick = { song ->
+                            val songs = pagingSongs.itemSnapshotList.items.filterNotNull()
+                            playerViewModel.play(song, songs)
+                            navController.navigate(Screen.PlayerScreen.createRoute())
+                        }
+                    )
+                }
             }
             composable(route = Screen.PlayerScreen.createRoute()) {
                 val songViewModel : SongViewModel = viewModel(
@@ -353,15 +392,17 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                PlayerScreen(
-                    playerViewModel = playerViewModel,
-                    songViewModel = songViewModel,
-                    reportViewModel = reportViewModel,
-                    commentViewModel = commentViewModel,
-                    downloadViewModel = downloadViewModel,
-                    editProfileViewModel = editProfileViewModel,
-                    onBack = {navController.popBackStack()}
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    PlayerScreen(
+                        playerViewModel = playerViewModel,
+                        songViewModel = songViewModel,
+                        reportViewModel = reportViewModel,
+                        commentViewModel = commentViewModel,
+                        downloadViewModel = downloadViewModel,
+                        editProfileViewModel = editProfileViewModel,
+                        onBack = {navController.popBackStack()}
+                    )
+                }
             }
             composable(route = Screen.AlbumDetailScreen.route) {
                 val albumId = it.arguments?.getString("albumId")
@@ -376,27 +417,26 @@ fun RecipeApp(
                         albumViewModel.getAlbumById(albumId)
                     }
                 }
-                if (albumState.isLoading) {
-                    // Giao diện chờ tải dữ liệu mạng
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    // Giao diện khi đã có dữ liệu
-                    currentAlbum?.let { album ->
-                        AlbumDetailScreen(
-                            album = album,
-                            reportViewModel = reportViewModel,
-                            onSongClick = { song ->
-                                // Kiến trúc tối ưu: Chỉ phát các bài hát nằm trong Album hiện tại
-                                // thay vì phát toàn bộ danh sách `songs` tổng của hệ thống
-                                val playlistToPlay = album.songs ?: emptyList()
-                                playerViewModel.play(song, playlistToPlay)
-
-                                navController.navigate(Screen.PlayerScreen.createRoute())
-                            },
-                            onBack = { navController.popBackStack() }
-                        )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    if (albumState.isLoading) {
+                        // Giao diện chờ tải dữ liệu mạng
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        // Giao diện khi đã có dữ liệu
+                        currentAlbum?.let { album ->
+                            AlbumDetailScreen(
+                                album = album,
+                                reportViewModel = reportViewModel,
+                                onSongClick = { song ->
+                                    val playlistToPlay = album.songs ?: emptyList()
+                                    playerViewModel.play(song, playlistToPlay)
+                                    navController.navigate(Screen.PlayerScreen.createRoute())
+                                },
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
@@ -421,28 +461,29 @@ fun RecipeApp(
                         artistViewModel.getArtistById(artistId)
                     }
                 }
-                if (artistState.isLoadingA) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    currentArtist?.let { artist ->
-                        ArtistScreen(
-                            artist = artist,
-                            onSongClick = { song ->
-                                // Phát nhạc dựa trên danh sách bài hát gắn liền với nghệ sĩ
-                                val playlistToPlay = artist.songs ?: emptyList()
-                                playerViewModel.play(song, playlistToPlay)
-                                navController.navigate(Screen.PlayerScreen.createRoute())
-                            },
-                            onBack = { navController.popBackStack() },
-                            albumViewModel = albumViewModel,
-                            artistViewModel = artistViewModel,
-                            editProfileViewModel = editProfileViewModel,
-                            onAlbumClick = { album ->
-                                navController.navigate(Screen.AlbumDetailScreen.createRoute(album.id))
-                            }
-                        )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    if (artistState.isLoadingA) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        currentArtist?.let { artist ->
+                            ArtistScreen(
+                                artist = artist,
+                                onSongClick = { song ->
+                                    val playlistToPlay = artist.songs ?: emptyList()
+                                    playerViewModel.play(song, playlistToPlay)
+                                    navController.navigate(Screen.PlayerScreen.createRoute())
+                                },
+                                onBack = { navController.popBackStack() },
+                                albumViewModel = albumViewModel,
+                                artistViewModel = artistViewModel,
+                                editProfileViewModel = editProfileViewModel,
+                                onAlbumClick = { album ->
+                                    navController.navigate(Screen.AlbumDetailScreen.createRoute(album.id))
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -458,19 +499,21 @@ fun RecipeApp(
                         playlistViewModel.getPlaylistById(playlistId)
                     }
                 }
-                if (playlistState.isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    currentPlaylist?.let { playlist ->
-                        MyPlaylistDetailScreen(
-                            playlist = playlist,
-                            playlistViewModel = playlistViewModel,
-                            onBack = {
-                                navController.popBackStack()
-                            }
-                        )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    if (playlistState.isLoading) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        currentPlaylist?.let { playlist ->
+                            MyPlaylistDetailScreen(
+                                playlist = playlist,
+                                playlistViewModel = playlistViewModel,
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -480,13 +523,15 @@ fun RecipeApp(
                 )
                 val songState by songViewModel.songState.collectAsState()
                 val songs = songState.songs ?: emptyList()
-                TopChartPage(
-                    topSongs = songViewModel.songState.value.topSongs ?: emptyList(),
-                    onSongClick = {
-                        playerViewModel.play(it, songs)
-                        navController.navigate(Screen.PlayerScreen.createRoute())
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    TopChartPage(
+                        topSongs = songViewModel.songState.value.topSongs ?: emptyList(),
+                        onSongClick = {
+                            playerViewModel.play(it, songs)
+                            navController.navigate(Screen.PlayerScreen.createRoute())
+                        }
+                    )
+                }
             }
             composable(route = Screen.AllReportScreen.route) {
                 val songViewModel : SongViewModel = viewModel(
@@ -505,17 +550,19 @@ fun RecipeApp(
                     factory = ReportViewModelFactory(reportRepository)
                 )
                 val reportState by reportViewModel.reportState.collectAsState()
-                AllReportScreen(
-                    reports = reportState.reports ?: emptyList(),
-                    songViewModel = songViewModel,
-                    reportViewModel = reportViewModel,
-                    albumViewModel = albumViewModel,
-                    playlistViewModel = playlistViewModel,
-                    artistViewModel = artistViewModel,
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    AllReportScreen(
+                        reports = reportState.reports ?: emptyList(),
+                        songViewModel = songViewModel,
+                        reportViewModel = reportViewModel,
+                        albumViewModel = albumViewModel,
+                        playlistViewModel = playlistViewModel,
+                        artistViewModel = artistViewModel,
+                        onBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
             }
             composable(route = Screen.DetailPlaylistScreen.route) {
                 val playlistId = it.arguments?.getString("playlistId")
@@ -529,17 +576,19 @@ fun RecipeApp(
                         playlistViewModel.getPlaylistById(playlistId)
                     }
                 }
-                if (playlistState.isLoading && currentPlaylist?.id != playlistId) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    currentPlaylist?.let { playlist ->
-                        DetailPlaylistScreen(
-                            playlist = playlist,
-                            playlistViewModel = playlistViewModel,
-                            onBack = { navController.popBackStack() }
-                        )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    if (playlistState.isLoading && currentPlaylist?.id != playlistId) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    } else {
+                        currentPlaylist?.let { playlist ->
+                            DetailPlaylistScreen(
+                                playlist = playlist,
+                                playlistViewModel = playlistViewModel,
+                                onBack = { navController.popBackStack() }
+                            )
+                        }
                     }
                 }
             }
@@ -573,15 +622,17 @@ fun RecipeApp(
                 LaunchedEffect(Unit) {
                     artistViewModel.getFollowerOfUser()
                 }
-                FollowerArtistScreen(
-                    artist = artists,
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onArtistClick = {
-                        navController.navigate(Screen.ArtistScreen.createRoute(it.id))
-                    }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    FollowerArtistScreen(
+                        artist = artists,
+                        onBack = {
+                            navController.popBackStack()
+                        },
+                        onArtistClick = {
+                            navController.navigate(Screen.ArtistScreen.createRoute(it.id))
+                        }
+                    )
+                }
             }
             composable(route = Screen.ChangePasswordScreen.route) {
                 val loginViewModel : LoginViewModel = viewModel(
@@ -593,10 +644,12 @@ fun RecipeApp(
                 val changePasswordViewModel : ChangePasswordViewModel = viewModel(
                     factory = ChangePasswordViewModelFactory(userRepository, loginViewModel, editProfileViewModel)
                 )
-                ChangePasswordScreen(
-                    changePasswordViewModel = changePasswordViewModel,
-                    onBack = { navController.popBackStack() }
-                )
+                NetworkAwareWrapper(isConnected = isConnected) {
+                    ChangePasswordScreen(
+                        changePasswordViewModel = changePasswordViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
             }
         }
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()

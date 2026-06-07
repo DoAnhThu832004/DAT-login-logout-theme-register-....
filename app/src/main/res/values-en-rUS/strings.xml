@@ -107,4 +107,9 @@
     <string name="doi_mat_khau">Change password</string>
     <string name="chao_mung_dang_nhap">Welcome back</string>
     <string name="dang_nhap_tiep_tuc">Login to continue</string>
+    <string name="ve">About</string>
+    <string name="khong_co_ket_noi">No Internet Connection</string>
+    <string name="mo_ta_khong_co_ket_noi">Please check your network connection and try again</string>
+    <string name="thu_lai">Try Again</string>
+    <string name="can_ket_noi_internet">This feature requires an internet connection</string>
 </resources>

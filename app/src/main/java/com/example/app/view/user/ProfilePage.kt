@@ -1,5 +1,6 @@
 package com.example.app.view.user
 
+import android.widget.Toast
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -91,11 +92,14 @@ fun ProfilePage(
     editProfileViewModel: EditProfileViewModel,
     name: String,
     user: UserResponse,
+    isConnected: Boolean = true,
     onPlaylistClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf(0) }
+    // Chuỗi thông báo cần internet (tự động song ngữ qua string resource)
+    val needInternetMsg = stringResource(R.string.can_ket_noi_internet)
     val itemsOthers = listOf(
         NavItemsDrawer(stringResource(R.string.cai_dat),Icons.Default.Settings,Screen.SettingPage.route),
         NavItemsDrawer(stringResource(R.string.dang_xuat),Icons.Default.Logout,Screen.LoginScreen.route)
@@ -183,7 +187,11 @@ fun ProfilePage(
                     )
                     IconButton(
                         onClick = {
-                            showPlaylistSheet = true
+                            if (!isConnected) {
+                                Toast.makeText(context, needInternetMsg, Toast.LENGTH_SHORT).show()
+                            } else {
+                                showPlaylistSheet = true
+                            }
                         }
                     ) {
                         Icon(
@@ -206,9 +214,13 @@ fun ProfilePage(
                             )
                             .padding(horizontal = 8.dp)
                     ) {
-                        Surface(
+                        IconButton(
                             onClick = {
-                                showPlaylistSheet = true
+                                if (!isConnected) {
+                                    Toast.makeText(context, needInternetMsg, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    showPlaylistSheet = true
+                                }
                             }
                         ) {
                             Row(
@@ -275,7 +287,15 @@ fun ProfilePage(
                                         else -> RoundedCornerShape(0.dp)
                                     }
                                 )
-                                .clickable { navController.navigate(navItem.route) }
+                                .clickable {
+                                    // Download (index=0) luôn hoạt động, kể cả khi không có mạng
+                                    // Các item khác (Nghệ sĩ, Đổi mật khẩu) cần internet
+                                    if (index != 0 && !isConnected) {
+                                        Toast.makeText(context, needInternetMsg, Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        navController.navigate(navItem.route)
+                                    }
+                                }
                                 .padding(horizontal = 16.dp, vertical = 14.dp)
                         ) {
                             Row(

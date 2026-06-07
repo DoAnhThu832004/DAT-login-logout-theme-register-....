@@ -40,6 +40,7 @@ import com.example.app.model.response.Playlist
 import com.example.app.model.response.Song
 import com.example.app.model.response.UserResponse
 import com.example.app.view.admin.CustomFloatingBottomBar
+import com.example.app.view.general.NoInternetScreen
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
@@ -64,6 +65,7 @@ fun UserHomePage(
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
     recommendationViewModel: RecommendationViewModel? = null,
+    isConnected: Boolean = true,
     name: String,
     user: UserResponse,
     onViewAllSongs: (genreId: String?) -> Unit,
@@ -106,6 +108,7 @@ fun UserHomePage(
             editProfileViewModel = editProfileViewModel,
             playerViewModel = playerViewModel,
             recommendationViewModel = recommendationViewModel,
+            isConnected = isConnected,
             user = user,
             onViewAllSongs = onViewAllSongs,
             onPlayerScreen = onPlayerScreen,
@@ -132,6 +135,7 @@ fun ContentScreen(
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
     recommendationViewModel: RecommendationViewModel? = null,
+    isConnected: Boolean = true,
     user: UserResponse,
     onViewAllSongs: (genreId: String?) -> Unit,
     onPlayerScreen: (Song) -> Unit,
@@ -171,36 +175,68 @@ fun ContentScreen(
     }
     when(selectedIndex) {
         0 -> {
-            val isScreenLoading = songState.isLoading || albumState.isLoading || playlistState.isLoading || artistState.isLoadingA
-            val screenError = playlistState.error ?: songState.error ?: albumState.error
-            val currentTopSongs = remember(songState.topSongs) { songState.topSongs?.take(5) ?: emptyList() }
-            HomePageU(
-                isLoading = isScreenLoading,
-                errorMessage = screenError,
-                songs = songState.songs ?: emptyList(),
-                topSongs = currentTopSongs,
-                albums = albumState.albums ?: emptyList(),
-                playlists = playlistState.adminPlaylists ?: emptyList(), // Use adminPlaylists
-                songViewModel = songViewModel,
-                searchViewModel = searchViewModel,
-                recommendationViewModel = recommendationViewModel,
-                onViewAllSongs = onViewAllSongs,
-                onPlayerScreen = onPlayerScreen,
-                onAlbumScreen = onAlbumScreen,
-                onArtistScreen = onArtistScreen,
-                onClickToTopChart = onClickToTopChart,
-                onToDetailClick = onToDetailClick
-            )
-        }
-        1 -> FavoritePage(
-            songs = songViewModel.songState.value.songs ?: emptyList(),
-            songViewModel = songViewModel,
-            playerViewModel = playerViewModel,
-            onSongClick = {
-                onPlayerScreen(it)
+            // Tab Home: hiển thị NoInternetScreen nếu mất mạng
+            if (!isConnected) {
+                NoInternetScreen()
+            } else {
+                val isScreenLoading = songState.isLoading || albumState.isLoading || playlistState.isLoading || artistState.isLoadingA
+                val screenError = playlistState.error ?: songState.error ?: albumState.error
+                val currentTopSongs = remember(songState.topSongs) { songState.topSongs?.take(5) ?: emptyList() }
+                HomePageU(
+                    isLoading = isScreenLoading,
+                    errorMessage = screenError,
+                    songs = songState.songs ?: emptyList(),
+                    topSongs = currentTopSongs,
+                    albums = albumState.albums ?: emptyList(),
+                    playlists = playlistState.adminPlaylists ?: emptyList(), // Use adminPlaylists
+                    songViewModel = songViewModel,
+                    searchViewModel = searchViewModel,
+                    recommendationViewModel = recommendationViewModel,
+                    onViewAllSongs = onViewAllSongs,
+                    onPlayerScreen = onPlayerScreen,
+                    onAlbumScreen = onAlbumScreen,
+                    onArtistScreen = onArtistScreen,
+                    onClickToTopChart = onClickToTopChart,
+                    onToDetailClick = onToDetailClick
+                )
             }
+        }
+        1 -> {
+            // Tab Favorite: hiển thị NoInternetScreen nếu mất mạng
+            if (!isConnected) {
+                NoInternetScreen()
+            } else {
+                FavoritePage(
+                    songs = songViewModel.songState.value.songs ?: emptyList(),
+                    songViewModel = songViewModel,
+                    playerViewModel = playerViewModel,
+                    onSongClick = { onPlayerScreen(it) }
+                )
+            }
+        }
+        2 -> {
+            // Tab TopChart: hiển thị NoInternetScreen nếu mất mạng
+            if (!isConnected) {
+                NoInternetScreen()
+            } else {
+                TopChartPage(
+                    topSongs = songViewModel.songState.value.topSongs ?: emptyList(),
+                    onSongClick = { onPlayerScreen(it) }
+                )
+            }
+        }
+        // Tab Profile (index=3): KHÔNG bị chặn bởi NetworkAware
+        // Download và Logout vẫn hoạt động offline
+        3 -> ProfilePage(
+            navController = navController,
+            loginViewModel = loginViewModel,
+            artistViewModel = artistViewModel,
+            playlistViewModel = playlistViewModel,
+            editProfileViewModel = editProfileViewModel,
+            name = name,
+            user = user,
+            isConnected = isConnected,
+            onPlaylistClick = onPlaylistClick
         )
-        2 -> TopChartPage(topSongs = songViewModel.songState.value.topSongs?: emptyList(), onSongClick = {onPlayerScreen(it)})
-        3 -> ProfilePage(navController = navController, loginViewModel = loginViewModel, artistViewModel = artistViewModel, playlistViewModel = playlistViewModel, editProfileViewModel = editProfileViewModel,name = name, user = user ,onPlaylistClick = onPlaylistClick)
     }
 }

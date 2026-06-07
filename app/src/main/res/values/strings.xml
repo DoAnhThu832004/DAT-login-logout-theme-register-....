@@ -107,4 +107,8 @@
     <string name="chao_mung_dang_nhap">Chào mừng bạn trở lại</string>
     <string name="dang_nhap_tiep_tuc">Đăng nhập để tiếp tục</string>
     <string name="ve">Về</string>
+    <string name="khong_co_ket_noi">Không có kết nối internet</string>
+    <string name="mo_ta_khong_co_ket_noi">Vui lòng kiểm tra kết nối mạng và thử lại</string>
+    <string name="thu_lai">Thử lại</string>
+    <string name="can_ket_noi_internet">Tính năng này cần kết nối internet</string>
 </resources>
