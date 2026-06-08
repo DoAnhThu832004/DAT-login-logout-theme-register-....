@@ -13,7 +13,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class DownloadViewModel(private val downloadRepository: DownloadRepository) : ViewModel() {
+class DownloadViewModel(
+    private val downloadRepository: DownloadRepository,
+    private val sessionManager: SessionManager? = null
+) : ViewModel() {
 
     private val _isDownloaded = mutableStateOf(false)
     val isDownloaded: State<Boolean> = _isDownloaded
@@ -38,6 +41,19 @@ class DownloadViewModel(private val downloadRepository: DownloadRepository) : Vi
         currentSongsJob = viewModelScope.launch {
             downloadRepository.getUserDownloadedSongs(userId).collect {
                 _downloadedSongs.value = it
+            }
+        }
+    }
+
+    /**
+     * Tự động load bài hát đã tải bằng cách lấy userId từ SessionManager.
+     * Dùng khi không có mạng (offline mode).
+     */
+    fun loadDownloadedSongsOffline() {
+        viewModelScope.launch {
+            val savedUserId = sessionManager?.getSavedUserId()
+            if (!savedUserId.isNullOrEmpty()) {
+                loadDownloadedSongs(savedUserId)
             }
         }
     }

@@ -44,6 +44,7 @@ import com.example.app.view.general.NoInternetScreen
 import com.example.app.viewmodel.AlbumViewModel
 import com.example.app.viewmodel.ArtistViewModel
 import com.example.app.viewmodel.EditProfileViewModel
+import com.example.app.viewmodel.FavoriteViewModel
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.PlaylistViewModel
@@ -64,6 +65,7 @@ fun UserHomePage(
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
+    favoriteViewModel: FavoriteViewModel,
     recommendationViewModel: RecommendationViewModel? = null,
     isConnected: Boolean = true,
     name: String,
@@ -107,6 +109,7 @@ fun UserHomePage(
             searchViewModel = searchViewModel,
             editProfileViewModel = editProfileViewModel,
             playerViewModel = playerViewModel,
+            favoriteViewModel = favoriteViewModel,
             recommendationViewModel = recommendationViewModel,
             isConnected = isConnected,
             user = user,
@@ -134,6 +137,7 @@ fun ContentScreen(
     searchViewModel: SearchViewModel,
     editProfileViewModel: EditProfileViewModel,
     playerViewModel: PlayerViewModel,
+    favoriteViewModel: FavoriteViewModel,
     recommendationViewModel: RecommendationViewModel? = null,
     isConnected: Boolean = true,
     user: UserResponse,
@@ -207,7 +211,7 @@ fun ContentScreen(
                 NoInternetScreen()
             } else {
                 FavoritePage(
-                    songs = songViewModel.songState.value.songs ?: emptyList(),
+                    favoriteViewModel = favoriteViewModel,
                     songViewModel = songViewModel,
                     playerViewModel = playerViewModel,
                     onSongClick = { onPlayerScreen(it) }

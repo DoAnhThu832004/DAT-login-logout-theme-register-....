@@ -11,7 +11,7 @@ unnamed module (file:/C:/Users/ASUS/.gradle/wrapper/dists/gradle-8.11.1-bin/bpt9
 WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
 WARNING: Restricted methods will be blocked in a future release unless native access is enabled
 
-Starting a Gradle Daemon, 2 incompatible and 5 stopped Daemons could not be reused, use --status for details
+Starting a Gradle Daemon, 2 incompatible and 6 stopped Daemons could not be reused, use --status for details
 > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
@@ -41,9 +41,9 @@ w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/InProfile/ChangePasswordScreen.kt:127:44 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/InProfile/DownloadScreen.kt:59:44 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/CommentScreen.kt:379:45 '@property:Deprecated(...) val Icons.Filled.ArrowBackIos: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBackIos.
-w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:151:35 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:283:32 '@property:Deprecated(...) val Icons.Filled.VolumeDown: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeDown.
-w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:294:32 '@property:Deprecated(...) val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:165:35 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:297:32 '@property:Deprecated(...) val Icons.Filled.VolumeDown: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeDown.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt:308:32 '@property:Deprecated(...) val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/MyPlaylistDetailScreen.kt:121:49 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/MyPlaylistDetailScreen.kt:210:49 '@property:Deprecated(...) val Icons.Filled.Comment: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Comment.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Playlist/PlaylistItem.kt:43:45 '@property:Deprecated(...) val Icons.Filled.PlaylistPlay: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.PlaylistPlay.
@@ -84,7 +84,11 @@ w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/CommentViewModel.kt:132:47 Condition is always 'true'.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/EditProfileViewModel.kt:45:46 Condition is always 'true'.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/EditProfileViewModel.kt:92:46 Condition is always 'true'.
-w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:84:28 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:104:28 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:315:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:342:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:375:9 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
+w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt:400:19 This is a delicate API and its use requires care. Make sure you fully read and understand documentation of the declaration that is marked as a delicate API.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:165:51 Condition is always 'true'.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:193:51 Condition is always 'true'.
 w: file:///C:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlaylistViewModel.kt:278:46 Condition is always 'true'.
@@ -113,5 +117,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 45s
+BUILD SUCCESSFUL in 1m 4s
 16 actionable tasks: 7 executed, 9 up-to-date

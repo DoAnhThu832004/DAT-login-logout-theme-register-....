@@ -64,260 +64,264 @@ fun EditSongScreen(
     var showGenreDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        var nameSong by remember(songToEdit) {
-            mutableStateOf(songToEdit?.name ?: "")
-        }
-        var description by remember(songToEdit) { mutableStateOf(songToEdit?.description ?: "") }
-        var duration by remember(songToEdit) { mutableStateOf(songToEdit?.duration.toString() ?: "") }
-        var releasedDate by remember(songToEdit) { mutableStateOf(songToEdit?.releasedDate ?: "") }
-        var status by remember(songToEdit) { mutableStateOf(songToEdit?.status ?: "") }
-        var type by remember(songToEdit) { mutableStateOf(songToEdit?.type ?: "") }
-        var showDatePicker by remember { mutableStateOf(false) }
-        if (showDatePicker) {
-            DateDialog(
-                onDateSelected = { formattedDate ->
-                    releasedDate = formattedDate
-                },
-                onDismiss = { showDatePicker = false }
-            )
-        }
-        Text(
-            text = stringResource(R.string.chinh_sua_bai_hat),
-            fontSize = 20.sp,
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = nameSong,
-            onValueChange = { nameSong = it},
-            label = {
-                Text(
-                    text = stringResource(R.string.ten),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.MusicNote, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it},
-            label = {
-                Text(
-                    text = stringResource(R.string.mo_ta),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Description, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = status,
-            onValueChange = { status = it},
-            label = {
-                Text(
-                    text = stringResource(R.string.trang_thai),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Description, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = duration,
-            onValueChange = { duration = it},
-            label = {
-                Text(
-                    text = stringResource(R.string.thoi_gian),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.Timer, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = releasedDate,
-            onValueChange = { releasedDate = it},
-            label = {
-                Text(
-                    text = stringResource(R.string.ngay_phat_hanh),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            },
-            leadingIcon = {
-                IconButton(onClick = { showDatePicker = true }) {
-                    Icon(
-                        Icons.Default.DateRange, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+    LazyColumn() {
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                var nameSong by remember(songToEdit) {
+                    mutableStateOf(songToEdit?.name ?: "")
+                }
+                var description by remember(songToEdit) { mutableStateOf(songToEdit?.description ?: "") }
+                var duration by remember(songToEdit) { mutableStateOf(songToEdit?.duration.toString() ?: "") }
+                var releasedDate by remember(songToEdit) { mutableStateOf(songToEdit?.releasedDate ?: "") }
+                var status by remember(songToEdit) { mutableStateOf(songToEdit?.status ?: "") }
+                var type by remember(songToEdit) { mutableStateOf(songToEdit?.type ?: "") }
+                var showDatePicker by remember { mutableStateOf(false) }
+                if (showDatePicker) {
+                    DateDialog(
+                        onDateSelected = { formattedDate ->
+                            releasedDate = formattedDate
+                        },
+                        onDismiss = { showDatePicker = false }
                     )
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true }
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = type,
-            onValueChange = { type = it},
-            label = {
                 Text(
-                    text = stringResource(R.string.ngay_phat_hanh),
-                    color = MaterialTheme.colorScheme.onBackground
+                    text = stringResource(R.string.chinh_sua_bai_hat),
+                    fontSize = 20.sp,
                 )
-            },
-            leadingIcon = {
-                Icon(
-                    Icons.Default.DateRange, contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = nameSong,
+                    onValueChange = { nameSong = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.ten),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.MusicNote, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
                 )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.padding(top = 8.dp))
-        OutlinedTextField(
-            value = if (selectedGenres.isEmpty()) "Chưa chọn thể loại" else "${selectedGenres.size} thể loại đã chọn",
-            onValueChange = {},
-            readOnly = true,
-            label = {
-                Text(
-                    text = "Thể loại",
-                    color = MaterialTheme.colorScheme.onBackground
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.mo_ta),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Description, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
                 )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-                .clickable { showGenreDialog = true },
-            shape = RoundedCornerShape(15.dp)
-        )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = status,
+                    onValueChange = { status = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.trang_thai),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Description, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = duration,
+                    onValueChange = { duration = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.thoi_gian),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.Timer, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = releasedDate,
+                    onValueChange = { releasedDate = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.ngay_phat_hanh),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(
+                                Icons.Default.DateRange, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDatePicker = true }
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = type,
+                    onValueChange = { type = it},
+                    label = {
+                        Text(
+                            text = stringResource(R.string.ngay_phat_hanh),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Default.DateRange, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                Spacer(modifier = Modifier.padding(top = 8.dp))
+                OutlinedTextField(
+                    value = if (selectedGenres.isEmpty()) "Chưa chọn thể loại" else "${selectedGenres.size} thể loại đã chọn",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = {
+                        Text(
+                            text = "Thể loại",
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                        .clickable { showGenreDialog = true },
+                    shape = RoundedCornerShape(15.dp)
+                )
 
-        if (showGenreDialog) {
-            AlertDialog(
-                onDismissRequest = { showGenreDialog = false },
-                title = { Text(text = "Chọn thể loại") },
-                text = {
-                    LazyColumn {
-                        val genres = songState.genres ?: emptyList()
-                        items(genres) { genre ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        if (selectedGenres.contains(genre.id)) {
-                                            selectedGenres.remove(genre.id)
-                                        } else {
-                                            selectedGenres.add(genre.id)
-                                        }
+                if (showGenreDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showGenreDialog = false },
+                        title = { Text(text = "Chọn thể loại") },
+                        text = {
+                            LazyColumn {
+                                val genres = songState.genres ?: emptyList()
+                                items(genres) { genre ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                if (selectedGenres.contains(genre.id)) {
+                                                    selectedGenres.remove(genre.id)
+                                                } else {
+                                                    selectedGenres.add(genre.id)
+                                                }
+                                            }
+                                            .padding(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Checkbox(
+                                            checked = selectedGenres.contains(genre.id),
+                                            onCheckedChange = { isChecked ->
+                                                if (isChecked) {
+                                                    selectedGenres.add(genre.id)
+                                                } else {
+                                                    selectedGenres.remove(genre.id)
+                                                }
+                                            }
+                                        )
+                                        Text(text = genre.name, modifier = Modifier.padding(start = 8.dp))
                                     }
-                                    .padding(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = selectedGenres.contains(genre.id),
-                                    onCheckedChange = { isChecked ->
-                                        if (isChecked) {
-                                            selectedGenres.add(genre.id)
-                                        } else {
-                                            selectedGenres.remove(genre.id)
-                                        }
-                                    }
-                                )
-                                Text(text = genre.name, modifier = Modifier.padding(start = 8.dp))
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = { showGenreDialog = false }) {
+                                Text("Xong")
                             }
                         }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showGenreDialog = false }) {
-                        Text("Xong")
-                    }
+                    )
                 }
-            )
-        }
-        Spacer(modifier = Modifier.padding(top = 8.dp))
+                Spacer(modifier = Modifier.padding(top = 8.dp))
 
-        Button(
-            onClick = {
-                if(nameSong.isEmpty() || description.isEmpty() || duration.isEmpty() || releasedDate.isEmpty() || type.isEmpty() || status.isEmpty()) {
-                    val errorMessage = context.getString(R.string.thong_bao_khong_de_trong)
-                    Toast.makeText(
-                        context,
-                        errorMessage,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    songViewModel.updateSong(songId, nameSong, description,status, duration.toInt(), releasedDate, type, selectedGenres.toList())
-                    val successMessage = context.getString(R.string.cap_nhap_bai_hat_thanh_cong)
-                    Toast.makeText(
-                        context,
-                        successMessage,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    nameSong = ""
-                    description = ""
-                    duration = ""
-                    releasedDate = ""
-                    type = ""
-                    status = ""
+                Button(
+                    onClick = {
+                        if(nameSong.isEmpty() || description.isEmpty() || duration.isEmpty() || releasedDate.isEmpty() || type.isEmpty() || status.isEmpty()) {
+                            val errorMessage = context.getString(R.string.thong_bao_khong_de_trong)
+                            Toast.makeText(
+                                context,
+                                errorMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            songViewModel.updateSong(songId, nameSong, description,status, duration.toInt(), releasedDate, type, selectedGenres.toList())
+                            val successMessage = context.getString(R.string.cap_nhap_bai_hat_thanh_cong)
+                            Toast.makeText(
+                                context,
+                                successMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            nameSong = ""
+                            description = ""
+                            duration = ""
+                            releasedDate = ""
+                            type = ""
+                            status = ""
+                        }
+                    }
+                ) {
+                    Text(
+                        text = stringResource(R.string.xac_nhan),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
-        ) {
-            Text(
-                text = stringResource(R.string.xac_nhan),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
         }
     }
 }

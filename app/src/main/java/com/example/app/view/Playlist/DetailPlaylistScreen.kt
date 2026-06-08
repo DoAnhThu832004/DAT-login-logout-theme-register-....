@@ -88,7 +88,7 @@ fun DetailPlaylistScreen(
                         Icon(
                             Icons.Default.ArrowBackIosNew,
                             contentDescription = null,
-                            tint = MaterialTheme.colors.onSurface
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Image(
@@ -106,14 +106,14 @@ fun DetailPlaylistScreen(
                         Icon(
                             Icons.Default.MoreVert,
                             contentDescription = null,
-                            tint = MaterialTheme.colors.onSurface
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
                 Text(
                     text = playlist.title,
                     style = MaterialTheme.typography.h5,
-                    color = MaterialTheme.colors.onSurface
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Row(
                     modifier = Modifier
@@ -125,7 +125,7 @@ fun DetailPlaylistScreen(
                         Icon(
                             Icons.Default.Download,
                             contentDescription = null,
-                            tint = MaterialTheme.colors.onSurface
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     IconButton(
@@ -134,7 +134,7 @@ fun DetailPlaylistScreen(
                         Icon(
                             Icons.Default.Favorite,
                             contentDescription = null,
-                            tint = MaterialTheme.colors.onSurface
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -144,14 +144,16 @@ fun DetailPlaylistScreen(
             Text(
                 text = stringResource(R.string.bai_hat),
                 style = MaterialTheme.typography.h6,
-                color = MaterialTheme.colors.onSurface,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 8.dp, top = 8.dp)
             )
         }
         items(songs, key = { it.id }) {
             SongListInAlbum(
                 song = it,
-                onSongClick = {}
+                onSongClick = {
+
+                }
             )
         }
     }

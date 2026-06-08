@@ -21,21 +21,29 @@ class PlayerViewModel(private val songRepository: com.example.app.model.reposito
     val maxVolume = mutableStateOf(100)
 
     init {
-        // Lắng nghe khi bài hát thay đổi (tự động chuyển bài)
-        PlayerManager.onSongChanged = { song ->
+        // Lắng nghe khi bài hát thay đổi (tự động chuyển bài hoặc khôi phục)
+        PlayerManager.onSongChanged = { song, shouldPlay ->
             currentSong.value = song
-            isPlaying.value = true
+            isPlaying.value = shouldPlay
             updateDuration()
             
             // Trigger play count update
-            viewModelScope.launch {
-                try {
-                    songRepository.incrementPlayCount(song.id)
-                    songRepository.recordListen(song.id)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+            if (shouldPlay) {
+                viewModelScope.launch {
+                    try {
+                        songRepository.incrementPlayCount(song.id)
+                        songRepository.recordListen(song.id)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
+        }
+        PlayerManager.onDurationChanged = { dur ->
+            duration.value = dur
+        }
+        PlayerManager.onIsPlayingChanged = { playing ->
+            isPlaying.value = playing
         }
     }
 

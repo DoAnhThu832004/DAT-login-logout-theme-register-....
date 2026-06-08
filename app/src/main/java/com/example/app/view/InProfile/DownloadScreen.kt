@@ -44,6 +44,12 @@ fun DownloadScreen(
     val userId = userState.userResponse?.result?.id ?: ""
     val downloadedSongs by downloadViewModel.downloadedSongs.collectAsState()
 
+    // Load bài hát đã tải ngay khi màn hình mở (offline-first)
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        // Thử load offline ngay lập tức (dùng userId đã lưu trong DataStore)
+        downloadViewModel.loadDownloadedSongsOffline()
+    }
+    // Khi có userId từ network (online), load lại để đảm bảo chính xác
     androidx.compose.runtime.LaunchedEffect(userId) {
         if (userId.isNotEmpty()) {
             downloadViewModel.loadDownloadedSongs(userId)

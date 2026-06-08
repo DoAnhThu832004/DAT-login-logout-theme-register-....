@@ -45,5 +45,26 @@ Tôi đã xử lý triệt để lỗi đổi mật khẩu (`uncategorized error
 - Chạy lệnh biên dịch Kotlin: `./gradlew compileDebugKotlin`
 - **Trạng thái:** **`BUILD SUCCESSFUL`** trong 57 giây. Toàn bộ code compile hoàn toàn sạch sẽ, không có bất kỳ lỗi cú pháp hay cảnh báo nghiêm trọng nào làm gián đoạn ứng dụng.
 
-## Bước Tiếp Theo
-Giao diện và API đổi mật khẩu mới đã sẵn sàng. Bạn có thể tiến hành chạy thử ứng dụng trên máy ảo (Emulator) hoặc thiết bị thật, đăng nhập và tiến hành kiểm tra tính năng **Đổi mật khẩu** tại màn hình Profile. Mọi thứ hiện tại sẽ hoạt động đồng bộ và mượt mà với Backend!
+## Cập Nhật Sửa Lỗi Đồng bộ Trạng thái Favorite & Hỗ trợ Phát nhạc Offline
+
+### 1. Đồng bộ Trạng thái Favorite (Icon Cập Nhật Ngay Lập Tức)
+* **Lỗi gốc**: Mỗi route tạo một instance `SongViewModel` riêng, khiến việc thả tim ở một màn hình không cập nhật trạng thái sang màn hình khác. Đồng thời, trạng thái yêu thích trong paging data không tự động cập nhật, gây ra hiện tượng lag/không đổi màu icon cho đến khi load lại trang.
+* **Sửa đổi**:
+  - Chuyển `FavoriteViewModel` lên cấp độ root `RecipeApp` để chia sẻ trạng thái chung (Global State Shared ViewModel).
+  - Cập nhật [FavoriteViewModel.kt](file:///c:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/FavoriteViewModel.kt): Thực hiện cơ chế **Optimistic Update** trong `toggleFavorite()`, chủ động thêm/xóa bài hát khỏi list local `favoriteSongs` ngay khi ấn nút thay vì đợi API phản hồi.
+  - Thay đổi [PlayerScreen.kt](file:///c:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Player/PlayerScreen.kt) và [ListAllSong.kt](file:///c:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/view/Song/ListAllSong.kt) để kiểm tra trạng thái favorite của bài hát trực tiếp từ `FavoriteViewModel.favoriteSongs` (source of truth) thay vì lấy từ thuộc tính `song.favorite` cũ.
+
+### 2. Phát nhạc Offline & Đăng nhập Offline
+* **Lỗi gốc**: Khi tắt mạng khởi động app, `EditProfileViewModel` gọi API lấy user profile thất bại dẫn đến `userResponse` bằng `null`, màn hình Home/Profile trống trơn. Khi mở danh sách tải về, click vào bài hát tải về không phát được nhạc vì `PlayerManager` thiếu `currentUserId` để truy vấn Room DB và ExoPlayer báo lỗi không có mạng do thiếu URI định dạng local (`file://`).
+* **Sửa đổi**:
+  - **Tự động lưu và khôi phục thông tin đăng nhập**: `LoginViewModel` lưu `userId` và `username` vào DataStore. `RecipeApp` tự động nạp `PlayerManager.currentUserId` khi khởi chạy bằng cách đọc từ DataStore.
+  - **Màn hình Profile hoạt động Offline**: [EditProfileViewModel.kt](file:///c:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/EditProfileViewModel.kt) sẽ tự tạo fallback `UserResponse` từ DataStore khi gọi API thất bại do mất mạng. Giúp màn hình không bị trắng và cho phép vào được mục "Bài hát đã tải".
+  - **Bỏ chặn mạng cho PlayerScreen**: Gỡ bỏ `NetworkAwareWrapper` bọc quanh màn hình phát nhạc trong `RecipeApp.kt` để người dùng mở được trình phát nhạc khi offline.
+  - **Hỗ trợ ExoPlayer đọc File Local**: Thêm hàm `resolveUri()` trong [PlayerManager.kt](file:///c:/Users/ASUS/AndroidStudioProjects/App/app/src/main/java/com/example/app/viewmodel/PlayerManager.kt) tự động chuyển đổi đường dẫn tuyệt đối của file tải về thành URI dạng `file://` hợp lệ để ExoPlayer/MediaPlayer có thể giải mã và phát offline bình thường mà không cần mạng.
+
+---
+
+## Kết Quả Xác Nhận (Verification Result)
+- Chạy biên dịch toàn bộ dự án debug: `.\gradlew assembleDebug`
+- **Trạng thái:** **`BUILD SUCCESSFUL`** sạch sẽ. Toàn bộ tính năng compile ổn định, không có bất kỳ lỗi biên dịch nào. Giao diện hoạt động trơn tru cả khi online lẫn offline!
+

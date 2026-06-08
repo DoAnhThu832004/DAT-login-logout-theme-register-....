@@ -35,6 +35,7 @@ class SongRepository(
         return apiService.uploadSongFiles(songId, imagePart, audioPart)
     }
     suspend fun downloadSong(songId: String) = apiService.downloadSong(songId)
+    suspend fun getFavoriteSongs() = apiService.getFavoriteSongs()
     fun getSongsPaging(query: String? = null, genreId: String? = null): Flow<PagingData<Song>> {
         return Pager(
             config = PagingConfig(pageSize = 10),

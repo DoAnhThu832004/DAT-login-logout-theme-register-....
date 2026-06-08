@@ -49,4 +49,16 @@ class SessionManager(private val context: Context) {
     suspend fun saveUsername(username: String) {
         DataStoreUtils.saveUsername(context, username)
     }
+    // Lưu userId để dùng khi offline
+    suspend fun saveUserId(userId: String) {
+        DataStoreUtils.saveUserId(context, userId)
+    }
+    // Lấy userId đã lưu (offline support)
+    suspend fun getSavedUserId(): String? {
+        return DataStoreUtils.getSavedUserIdSuspend(context)
+    }
+    // Lấy tên đăng nhập đã lưu (offline support)
+    suspend fun getSavedUsername(): String? {
+        return DataStoreUtils.getSavedUsername(context).first()
+    }
 }

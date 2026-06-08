@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.view.general.SelectReportBottomSheet
 import com.example.app.viewmodel.CommentViewModel
+import com.example.app.viewmodel.FavoriteViewModel
 import com.example.app.viewmodel.ReportViewModel
 import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
@@ -76,6 +77,7 @@ import kotlinx.coroutines.delay
 fun PlayerScreen(
     playerViewModel: PlayerViewModel,
     songViewModel: SongViewModel,
+    favoriteViewModel: FavoriteViewModel,
     reportViewModel: ReportViewModel,
     commentViewModel: CommentViewModel,
     downloadViewModel: com.example.app.viewmodel.DownloadViewModel,
@@ -87,6 +89,10 @@ fun PlayerScreen(
 
     val userState by editProfileViewModel.editUiState.collectAsState()
     val userId = userState.userResponse?.result?.id ?: ""
+
+    // Kiểm tra trạng thái favorite từ FavoriteViewModel (source of truth)
+    val favoriteSongs by favoriteViewModel.favoriteSongs.collectAsState()
+    val isCurrentSongFavorite = song?.let { s -> favoriteSongs.any { it.id == s.id } } ?: false
 
     val isPlaying = playerViewModel.isPlaying.value
     val repeatMode = playerViewModel.repeatMode.value
@@ -110,13 +116,27 @@ fun PlayerScreen(
         while (isPlaying && !isSeeking) {
             playerViewModel.updatePosition()
             currentPosition = playerViewModel.currentPosition.value
+            if (playerViewModel.duration.value <= 0L) {
+                playerViewModel.updateDuration()
+            }
             delay(100)
+        }
+    }
+    LaunchedEffect(song?.id) {
+        if (song != null) {
+            playerViewModel.updateDuration()
+            var count = 0
+            while (playerViewModel.duration.value <= 0L && count < 10) {
+                delay(500)
+                playerViewModel.updateDuration()
+                count++
+            }
         }
     }
     LaunchedEffect(showBottomSheet) {
         if (showBottomSheet && song != null) {
             // Lấy ID trực tiếp từ bài hát đang phát
-            commentViewModel.getComment(song!!.id)
+            commentViewModel.getComment(song.id)
         }
     }
     LaunchedEffect(song?.id, userId) {
@@ -319,13 +339,13 @@ fun PlayerScreen(
             ) {
                 IconButton(
                     onClick = {
-                        songViewModel.toggleFavorite(song,playerViewModel)
+                        favoriteViewModel.toggleFavorite(song.copy(favorite = isCurrentSongFavorite), playerViewModel)
                     }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = null,
-                        tint = if (song.favorite) Color.Red else Color.Gray,
+                        tint = if (isCurrentSongFavorite) Color.Red else Color.Gray,
                         modifier = Modifier.size(32.dp)
                     )
                 }

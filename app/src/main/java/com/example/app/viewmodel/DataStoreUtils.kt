@@ -20,6 +20,7 @@ object DataStoreKeys {
     val IS_LOGGED_IN_KEY = booleanPreferencesKey("is_logged_in")
     val DARK_THEME_KEY = booleanPreferencesKey("dark_theme")
     val SAVED_USERNAME_KEY = stringPreferencesKey("saved_username")
+    val SAVED_USER_ID_KEY = stringPreferencesKey("saved_user_id")
 }
 
 data class Tokens(val accessToken: String?, val refreshToken: String?)
@@ -76,5 +77,15 @@ object DataStoreUtils {
     }
     fun getSavedUsername(context: Context): Flow<String?> {
         return context.authDataStore.data.map { it[DataStoreKeys.SAVED_USERNAME_KEY] }
+    }
+    suspend fun saveUserId(context: Context, userId: String) {
+        context.authDataStore.edit { it[DataStoreKeys.SAVED_USER_ID_KEY] = userId }
+    }
+    suspend fun getSavedUserIdSuspend(context: Context): String? {
+        val prefs = context.authDataStore.data.first()
+        return prefs[DataStoreKeys.SAVED_USER_ID_KEY]
+    }
+    fun getSavedUserId(context: Context): Flow<String?> {
+        return context.authDataStore.data.map { it[DataStoreKeys.SAVED_USER_ID_KEY] }
     }
 }

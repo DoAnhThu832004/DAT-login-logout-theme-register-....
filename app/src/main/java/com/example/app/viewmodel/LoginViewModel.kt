@@ -94,6 +94,10 @@ class LoginViewModel(
                         val role = getRoleFromToken(token)
                         sessionManager.saveSession(token)
                         sessionManager.saveUsername(username)
+                        // Lưu userId để dùng offline (DownloadScreen)
+                        if (!userId.isNullOrEmpty()) {
+                            sessionManager.saveUserId(userId)
+                        }
 
                         progressJob?.cancel()
                         _loginUiState.value = _loginUiState.value.copy(progress = 100f)

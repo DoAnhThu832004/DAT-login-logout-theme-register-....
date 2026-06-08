@@ -121,7 +121,7 @@ fun UploadFileArtist(
             }
         }
         Button(
-            onClick = {}
+            onClick = {artistViewModel}
         ) {
             Text(
                 text = stringResource(R.string.upload_file)

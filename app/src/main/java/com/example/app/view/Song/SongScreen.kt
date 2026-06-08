@@ -329,7 +329,7 @@ fun SongScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.padding(bottom = 64.dp))
+            Spacer(modifier = Modifier.padding(bottom = 128.dp))
         }
     }
 }

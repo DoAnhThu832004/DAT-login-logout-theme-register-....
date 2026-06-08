@@ -11,6 +11,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 object PlayerManager {
     private var player: ExoPlayer? = null
@@ -31,7 +35,11 @@ object PlayerManager {
         private set
     private var audioManager: AudioManager? = null
 
-    var onSongChanged: ((Song) -> Unit)? = null
+    var onSongChanged: ((Song, Boolean) -> Unit)? = null
+    var onDurationChanged: ((Long) -> Unit)? = null
+    var onIsPlayingChanged: ((Boolean) -> Unit)? = null
+
+    private var saveJob: Job? = null
 
     fun init(context: Context) {
         this.context = context.applicationContext
@@ -45,11 +53,23 @@ object PlayerManager {
         player?.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
+                    Player.STATE_READY -> {
+                        onDurationChanged?.invoke(getDuration())
+                    }
                     Player.STATE_ENDED -> {
                         // Bài hát đã kết thúc, xử lý tự động chuyển bài
                         handleSongEnded()
                     }
                 }
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (isPlaying) {
+                    startPeriodicSave()
+                } else {
+                    stopPeriodicSave()
+                }
+                onIsPlayingChanged?.invoke(isPlaying)
             }
         })
     }
@@ -69,6 +89,18 @@ object PlayerManager {
             }
         }
     }
+    private fun resolveUri(uriString: String): String {
+        return if (!uriString.startsWith("http://") && !uriString.startsWith("https://") && !uriString.startsWith("file://") && !uriString.startsWith("content://")) {
+            try {
+                android.net.Uri.fromFile(java.io.File(uriString)).toString()
+            } catch (e: Exception) {
+                uriString
+            }
+        } else {
+            uriString
+        }
+    }
+
     fun play(song: Song, playlist: List<Song>? = null) {
         if (player == null && context != null) {
             init(context!!)
@@ -82,23 +114,35 @@ object PlayerManager {
         currentSong = song
         
         kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            // Sử dụng currentUserId để tìm kiếm bài hát đã tải của đúng người dùng
-            val localSong = if (context != null && !currentUserId.isNullOrBlank()) {
+            // Nếu currentUserId trống, khôi phục từ SessionManager để lấy đúng bài hát đã tải
+            var userId = currentUserId
+            if (userId.isNullOrBlank() && context != null) {
+                userId = SessionManager(context!!).getSavedUserId()
+                if (!userId.isNullOrBlank()) {
+                    currentUserId = userId
+                }
+            }
+
+            // Sử dụng userId để tìm kiếm bài hát đã tải của đúng người dùng
+            val localSong = if (context != null && !userId.isNullOrBlank()) {
                 com.example.app.model.room.AppDatabase.getDatabase(context!!).songDao()
-                    .getDownloadedSongById(song.id, currentUserId!!)
+                    .getDownloadedSongById(song.id, userId)
             } else null
 
-            val uri = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
+            val uriString = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
                 localSong.localAudioPath
             } else {
                 song.audioUrl.toString()
             }
+
+            val finalUri = resolveUri(uriString)
+
             kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
-                val mediaItem = MediaItem.fromUri(uri)
+                val mediaItem = MediaItem.fromUri(finalUri)
                 player?.setMediaItem(mediaItem)
                 player?.prepare()
                 player?.play()
-                onSongChanged?.invoke(song) // Trigger callback để update notification
+                onSongChanged?.invoke(song, true) // Trigger callback để update notification
             }
         }
     }
@@ -253,6 +297,7 @@ object PlayerManager {
     fun getPlayer() : ExoPlayer? = player
 
     fun release() {
+        stopPeriodicSave()
         player?.release()
         player = null
         currentSong = null
@@ -261,6 +306,8 @@ object PlayerManager {
         shuffledList = emptyList()
         originalIndices = emptyList()
         onSongChanged = null
+        onDurationChanged = null
+        onIsPlayingChanged = null
     }
 
     fun setPlaylist(songs: List<Song>, startIndex: Int = 0) {
@@ -276,5 +323,133 @@ object PlayerManager {
         indices.shuffle()
         shuffledList = indices.map { songList[it] }
         originalIndices = indices
+    }
+
+    fun savePlaybackState() {
+        val ctx = context ?: return
+        val userId = currentUserId ?: return
+        if (userId.isBlank()) return
+        val song = currentSong ?: return
+        val list = songList
+        val index = currentIndex
+        val pos = getCurrentPosition()
+        val rep = repeatMode
+        val shuf = isShuffleMode
+
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                val prefs = ctx.getSharedPreferences("player_prefs_$userId", Context.MODE_PRIVATE)
+                val gson = Gson()
+                val songJson = gson.toJson(song)
+                val playlistJson = gson.toJson(list)
+                
+                prefs.edit().apply {
+                    putString("last_song", songJson)
+                    putString("last_playlist", playlistJson)
+                    putInt("last_index", index)
+                    putLong("last_position", pos)
+                    putInt("last_repeat", rep)
+                    putBoolean("last_shuffle", shuf)
+                    apply()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun restorePlaybackState() {
+        val ctx = context ?: return
+        GlobalScope.launch(Dispatchers.IO) {
+            var userId = currentUserId
+            if (userId.isNullOrBlank()) {
+                userId = SessionManager(ctx).getSavedUserId()
+                if (!userId.isNullOrBlank()) {
+                    currentUserId = userId
+                }
+            }
+            if (userId.isNullOrBlank()) return@launch
+
+            try {
+                val prefs = ctx.getSharedPreferences("player_prefs_$userId", Context.MODE_PRIVATE)
+                val songJson = prefs.getString("last_song", null) ?: return@launch
+                val playlistJson = prefs.getString("last_playlist", null)
+                
+                val gson = Gson()
+                val song = gson.fromJson(songJson, Song::class.java)
+                val typeToken = object : TypeToken<List<Song>>() {}.type
+                val playlist = gson.fromJson<List<Song>>(playlistJson, typeToken) ?: emptyList()
+                val index = prefs.getInt("last_index", -1)
+                val position = prefs.getLong("last_position", 0L)
+                val repeat = prefs.getInt("last_repeat", 0)
+                val shuffle = prefs.getBoolean("last_shuffle", false)
+
+                withContext(Dispatchers.Main) {
+                    currentSong = song
+                    songList = playlist
+                    currentIndex = index
+                    repeatMode = repeat
+                    isShuffleMode = shuffle
+
+                    prepareRestoredPlayer(song, position)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun prepareRestoredPlayer(song: Song, position: Long) {
+        val ctx = context ?: return
+        GlobalScope.launch(Dispatchers.IO) {
+            var userId = currentUserId
+            if (userId.isNullOrBlank()) {
+                userId = SessionManager(ctx).getSavedUserId()
+                if (!userId.isNullOrBlank()) {
+                    currentUserId = userId
+                }
+            }
+            val localSong = if (!userId.isNullOrBlank()) {
+                com.example.app.model.room.AppDatabase.getDatabase(ctx).songDao()
+                    .getDownloadedSongById(song.id, userId)
+            } else null
+
+            val uriString = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
+                localSong.localAudioPath
+            } else {
+                song.audioUrl.toString()
+            }
+
+            val finalUri = resolveUri(uriString)
+
+            withContext(Dispatchers.Main) {
+                if (player == null) {
+                    init(ctx)
+                }
+                val mediaItem = MediaItem.fromUri(finalUri)
+                player?.setMediaItem(mediaItem)
+                player?.prepare()
+                player?.seekTo(position)
+                player?.pause()
+                onSongChanged?.invoke(song, false)
+                onDurationChanged?.invoke(getDuration())
+            }
+        }
+    }
+
+    private fun startPeriodicSave() {
+        saveJob?.cancel()
+        saveJob = GlobalScope.launch(Dispatchers.Main) {
+            while (isPlaying()) {
+                savePlaybackState()
+                delay(2000)
+            }
+        }
+    }
+
+    private fun stopPeriodicSave() {
+        saveJob?.cancel()
+        saveJob = null
+        savePlaybackState()
     }
 }

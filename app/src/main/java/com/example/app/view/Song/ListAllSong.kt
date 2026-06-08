@@ -46,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +66,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.itemKey
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
+import com.example.app.viewmodel.FavoriteViewModel
 import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.SongViewModel
 import kotlinx.coroutines.delay
@@ -77,6 +79,7 @@ fun ListAllSong(
     songs: LazyPagingItems<Song>,
     songViewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
+    favoriteViewModel: FavoriteViewModel,
     onSongClick: (Song) -> Unit,
     onBack: () -> Unit
 ) {
@@ -165,6 +168,7 @@ fun ListAllSong(
                                 song = i,
                                 songViewModel = songViewModel,
                                 playerViewModel = playerViewModel,
+                                favoriteViewModel = favoriteViewModel,
                                 //artist = artist,
                                 onSongClick = { onSongClick(i)}
                             )
@@ -200,6 +204,7 @@ fun DetailListSong(
     song: Song,
     songViewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
+    favoriteViewModel: FavoriteViewModel,
     onSongClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -207,6 +212,11 @@ fun DetailListSong(
         targetValue = if (expanded) 180f else 0f,
         label = "Rotation" // Label cho Android Studio Animation Preview
     )
+    // Kiểm tra trạng thái favorite từ FavoriteViewModel (source of truth)
+    // vì paging data không tự cập nhật khi toggle
+    val favoriteSongs by favoriteViewModel.favoriteSongs.collectAsState()
+    val isFavorite = favoriteSongs.any { it.id == song.id }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -266,13 +276,13 @@ fun DetailListSong(
             }
             IconButton(
                 onClick = {
-                    songViewModel.toggleFavorite(song, playerViewModel = playerViewModel)
+                    favoriteViewModel.toggleFavorite(song.copy(favorite = isFavorite), playerViewModel)
                 }
             ) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,
-                    tint = if (song.favorite) Color.Red else Color.Gray
+                    tint = if (isFavorite) Color.Red else Color.Gray
                 )
             }
         }

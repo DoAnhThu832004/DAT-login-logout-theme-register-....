@@ -64,21 +64,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.app.R
+import com.example.app.viewmodel.FavoriteViewModel
 import com.example.app.viewmodel.PlayerViewModel
 import com.example.app.viewmodel.SongViewModel
+import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun FavoritePage(
-    songs: List<Song>,
+    favoriteViewModel: FavoriteViewModel,
     songViewModel: SongViewModel,
     playerViewModel: PlayerViewModel,
     onSongClick: (Song) -> Unit
 ) {
-    val favoriteSongs = remember(songs) {
-        songs.filter { it.favorite }
-    }
+    val favoriteSongs by favoriteViewModel.favoriteSongs.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -140,9 +141,9 @@ fun FavoritePage(
                 )
                 DetailListSongF(
                     song = song,
-                    // 4. TỐI ƯU: State Hoisting - Truyền sự kiện ra ngoài thay vì truyền ViewModel vào trong
+                    // Dùng favoriteViewModel để toggle favorite - đây là source of truth
                     onToggleFavorite = {
-                        songViewModel.toggleFavorite(song, playerViewModel)
+                        favoriteViewModel.toggleFavorite(song, playerViewModel)
                     },
                     onSongClick = { onSongClick(song) },
                     modifier = Modifier
@@ -155,7 +156,7 @@ fun FavoritePage(
 //                } ?: Artist(id = "", name = "Unknown", imageUrlAr = "",songs = emptyList())
             }
             item {
-                Spacer(modifier = Modifier.padding(bottom = 64.dp))
+                Spacer(modifier = Modifier.padding(bottom = 128.dp))
             }
         }
     }

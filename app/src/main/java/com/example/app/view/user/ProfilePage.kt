@@ -394,7 +394,7 @@ fun ProfilePage(
                 }
             }
             item {
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(144.dp))
             }
         }
     }

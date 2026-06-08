@@ -12,6 +12,8 @@ import com.example.app.model.FileUtils
 import com.example.app.model.request.UserUpdateRequest
 import com.example.app.model.response.ApiError
 import com.example.app.model.response.UserResponse
+import com.example.app.model.response.UserResult
+import com.example.app.model.response.RoleResult
 import com.example.app.viewmodel.AlbumViewModel.AlbumState
 import com.example.app.viewmodel.ArtistViewModel.ArtistState
 import com.google.gson.Gson
@@ -49,16 +51,50 @@ class EditProfileViewModel(
                             userResponse = body,
                             errorE = "get user successfully"
                         )
+                        // Cập nhật lại userId và username vào sessionManager để dùng offline
+                        body.result.id.let { sessionManager.saveUserId(it) }
+                        body.result.username.let { sessionManager.saveUsername(it) }
                     } else {
-                        resetEditUiState(body?.message ?: "Get failed")
+                        tryLoadOfflineUser()
                     }
                 } else {
-                    val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
-                    resetEditUiState(apiErr?.message ?: "Get failed")
+                    tryLoadOfflineUser()
                 }
             } catch (e : Exception) {
-                resetEditUiState("Error: ${e.message}")
+                tryLoadOfflineUser()
             }
+        }
+    }
+
+    private suspend fun tryLoadOfflineUser() {
+        val savedUserId = sessionManager.getSavedUserId()
+        if (!savedUserId.isNullOrEmpty()) {
+            val savedUsername = sessionManager.getSavedUsername()
+            val token = sessionManager.getAccessToken()
+            val role = if (!token.isNullOrEmpty()) loginViewModel.getRoleFromToken(token) else "USER"
+            val roleName = role ?: "USER"
+            val offlineUser = UserResponse(
+                code = 1000,
+                message = "Offline mode",
+                result = UserResult(
+                    id = savedUserId,
+                    username = savedUsername ?: "Offline User",
+                    firstName = "",
+                    lastName = "",
+                    dob = "",
+                    imageUrl = "",
+                    roles = listOf(RoleResult(roleName, "User role", emptyList())),
+                    blocked = false
+                )
+            )
+            _editUiState.value = _editUiState.value.copy(
+                isLoadingE = false,
+                isSuccessfulE = false,
+                userResponse = offlineUser,
+                errorE = "Offline mode active"
+            )
+        } else {
+            resetEditUiState("Get user info failed (No internet and no cached session)")
         }
     }
 

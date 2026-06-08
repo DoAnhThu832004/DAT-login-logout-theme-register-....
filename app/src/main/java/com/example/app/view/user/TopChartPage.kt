@@ -82,7 +82,7 @@ fun TopChartPage(
             }
         }
         item {
-            Spacer(modifier = Modifier.padding(bottom = 72.dp))
+            Spacer(modifier = Modifier.padding(bottom = 144.dp))
         }
     }
 }

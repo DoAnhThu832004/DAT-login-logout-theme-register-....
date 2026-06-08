@@ -60,6 +60,8 @@ import com.example.app.viewmodel.CommentViewModel
 import com.example.app.viewmodel.CommentViewModelFactory
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.EditProfileViewModelFactory
+import com.example.app.viewmodel.FavoriteViewModel
+import com.example.app.viewmodel.FavoriteViewModelFactory
 import com.example.app.viewmodel.LoginViewModel
 import com.example.app.viewmodel.LoginViewModelFactory
 import com.example.app.viewmodel.PlayerViewModel
@@ -122,6 +124,11 @@ fun RecipeApp(
 
     val playerViewModel : PlayerViewModel = viewModel(
         factory = com.example.app.viewmodel.PlayerViewModelFactory(songRepository)
+    )
+
+    // FavoriteViewModel ở cấp RecipeApp để share state giữa tất cả màn hình
+    val favoriteViewModel: FavoriteViewModel = viewModel(
+        factory = FavoriteViewModelFactory(songRepository)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -272,6 +279,14 @@ fun RecipeApp(
                     if (!userId.isNullOrBlank()) {
                         recommendationViewModel.getHomeRecommendations(userId = userId)
                         PlayerManager.currentUserId = userId // Cập nhật userId cho PlayerManager
+                        PlayerManager.restorePlaybackState() // Khôi phục trạng thái phát nhạc trước đó
+                    }
+                }
+
+                LaunchedEffect(userState.userResponse?.result?.id) {
+                    // Load danh sách yêu thích khi có userId
+                    if (!userState.userResponse?.result?.id.isNullOrEmpty()) {
+                        favoriteViewModel.loadFavoriteSongs()
                     }
                 }
 
@@ -289,6 +304,7 @@ fun RecipeApp(
                         searchViewModel = searchViewModel,
                         editProfileViewModel = editProfileViewModel,
                         playerViewModel = playerViewModel,
+                        favoriteViewModel = favoriteViewModel,
                         recommendationViewModel = recommendationViewModel,
                         isConnected = isConnected,
                         name = name,
@@ -371,6 +387,7 @@ fun RecipeApp(
                         onBack = { navController.popBackStack() },
                         songViewModel = songViewModel,
                         playerViewModel = playerViewModel,
+                        favoriteViewModel = favoriteViewModel,
                         onSongClick = { song ->
                             val songs = pagingSongs.itemSnapshotList.items.filterNotNull()
                             playerViewModel.play(song, songs)
@@ -390,7 +407,7 @@ fun RecipeApp(
                     factory = ReportViewModelFactory(reportRepository)
                 )
                 val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
-                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
+                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository, sessionManager)
                 )
                 val loginViewModel : LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(userRepository, sessionManager)
@@ -398,17 +415,19 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                NetworkAwareWrapper(isConnected = isConnected) {
-                    PlayerScreen(
-                        playerViewModel = playerViewModel,
-                        songViewModel = songViewModel,
-                        reportViewModel = reportViewModel,
-                        commentViewModel = commentViewModel,
-                        downloadViewModel = downloadViewModel,
-                        editProfileViewModel = editProfileViewModel,
-                        onBack = {navController.popBackStack()}
-                    )
-                }
+                // PlayerScreen KHÔNG bọc NetworkAwareWrapper vì:
+                // - Bài hát đã tải về (offline) phát từ local file, không cần mạng
+                // - PlayerManager tự kiểm tra local file trước khi dùng stream URL
+                PlayerScreen(
+                    playerViewModel = playerViewModel,
+                    songViewModel = songViewModel,
+                    favoriteViewModel = favoriteViewModel,
+                    reportViewModel = reportViewModel,
+                    commentViewModel = commentViewModel,
+                    downloadViewModel = downloadViewModel,
+                    editProfileViewModel = editProfileViewModel,
+                    onBack = {navController.popBackStack()}
+                )
             }
             composable(route = Screen.AlbumDetailScreen.route) {
                 val albumId = it.arguments?.getString("albumId")
@@ -600,7 +619,7 @@ fun RecipeApp(
             }
             composable(route = Screen.DownloadScreen.route) {
                 val downloadViewModel : com.example.app.viewmodel.DownloadViewModel = viewModel(
-                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository)
+                    factory = com.example.app.viewmodel.DownloadViewModelFactory(downloadRepository, sessionManager)
                 )
                 val loginViewModel : LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(userRepository, sessionManager)
@@ -658,26 +677,35 @@ fun RecipeApp(
                 }
             }
         }
+        val isUserSection = currentRoute != null && 
+                currentRoute != Screen.LoginScreen.route &&
+                currentRoute != Screen.RegisterScreen.route &&
+                currentRoute != Screen.SplashScreen.route &&
+                currentRoute != Screen.NavigationDraw.route
+
         val isOnPlayer = currentRoute == Screen.PlayerScreen.createRoute()
-        MiniPlayer(
-            playerViewModel,
-            modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomCenter).zIndex(1f)
-                .navigationBarsPadding()
-                .padding(bottom = 80.dp)
-                .shadow(
-                    elevation = 20.dp, // Độ mờ của box
-                    shape = RoundedCornerShape(36.dp),
-                    spotColor = Color.Black.copy(0.6f)  // màu đậm của bóng
-                )
-                .clip(RoundedCornerShape(36.dp))
-                .border(1.dp, Color(0xFF2B2939).copy(alpha = 0.95f), RoundedCornerShape(36.dp)),
-            isOnPlayerScreen = isOnPlayer,
-            onBack = {
-                navController.navigate(Screen.PlayerScreen.createRoute()) {
-                    launchSingleTop = true
+
+        if (isUserSection && !isOnPlayer) {
+            MiniPlayer(
+                playerViewModel,
+                modifier = Modifier
+                    .align(androidx.compose.ui.Alignment.BottomCenter).zIndex(1f)
+                    .navigationBarsPadding()
+                    .padding(bottom = 80.dp)
+                    .shadow(
+                        elevation = 20.dp, // Độ mờ của box
+                        shape = RoundedCornerShape(36.dp),
+                        spotColor = Color.Black.copy(0.6f)  // màu đậm của bóng
+                    )
+                    .clip(RoundedCornerShape(36.dp))
+                    .border(1.dp, Color(0xFF2B2939).copy(alpha = 0.95f), RoundedCornerShape(36.dp)),
+                isOnPlayerScreen = isOnPlayer,
+                onBack = {
+                    navController.navigate(Screen.PlayerScreen.createRoute()) {
+                        launchSingleTop = true
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
