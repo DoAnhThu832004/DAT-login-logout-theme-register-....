@@ -319,6 +319,10 @@ interface ApiService {
         @Path("reportId") reportId: String,
         @Body request: ReportUpdateRequest
     ): Response<ApiResponse<Report>>
+    @DELETE("reports/{reportId}")
+    suspend fun deleteReport(
+        @Path("reportId") reportId: String
+    ): Response<ApiResponse<String>>
     @Streaming
     @GET("songs/{songId}/download")
     suspend fun downloadSong(@Path("songId") id: String): Response<ResponseBody>

@@ -10,4 +10,5 @@ class ReportRepository(
     suspend fun getReport() = apiService.getReport()
     suspend fun createReport(request: ReportCreationRequest) = apiService.createReport(request)
     suspend fun updateReport(reportId: String, request: ReportUpdateRequest) = apiService.updateReport(reportId, request)
+    suspend fun deleteReport(reportId: String) = apiService.deleteReport(reportId)
 }

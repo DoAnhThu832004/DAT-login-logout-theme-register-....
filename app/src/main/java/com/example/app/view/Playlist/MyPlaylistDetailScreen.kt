@@ -67,11 +67,13 @@ import com.example.app.viewmodel.PlaylistViewModel
 fun MyPlaylistDetailScreen(
     playlist: Playlist,
     playlistViewModel: PlaylistViewModel,
+    onSongClick: (com.example.app.model.response.Song) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
     var show by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val playlistState by playlistViewModel.playlistState.collectAsState()
 
     // State cho Sheet sửa playlist
@@ -215,10 +217,19 @@ fun MyPlaylistDetailScreen(
 
         LazyColumn {
             items(
-                items = songs,
+                items = songs.distinctBy { it.id },
                 key = { it.id }
             ) { song ->
-                SongCard(song = song)
+                SongCard(
+                    song = song,
+                    check = true,
+                    onClick = {
+                        onSongClick(song)
+                    },
+                    onDeleteClick = {
+                        playlistViewModel.deleteSongInPlaylist(playlist.id, song.id)
+                    }
+                )
             }
         }
     }
@@ -254,6 +265,9 @@ fun MyPlaylistDetailScreen(
                 onSongSelected = { selectedSong ->
                     playlistViewModel.addSongInPlaylist(playlist.id, selectedSong)
                     showAddSongSheet = false
+                },
+                onSearchQueryChange = { query ->
+                    playlistViewModel.getAllSongs(query = query)
                 }
             )
         }

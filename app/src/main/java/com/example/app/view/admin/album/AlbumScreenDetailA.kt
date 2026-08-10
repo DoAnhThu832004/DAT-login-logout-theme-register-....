@@ -152,7 +152,7 @@ fun AlbumDetailScreenA(
             Spacer(modifier = Modifier.padding(top = 8.dp))
             LazyColumn {
                 val list: List<Song> = currentAlbum.songs ?: emptyList()
-                items(list, key = {it.id}) { song ->
+                items(list.distinctBy { it.id }, key = {it.id}) { song ->
                     SongListInAlbumA(
                         song = song,
                         onSongClick = { onSongClick(song) },
@@ -180,6 +180,9 @@ fun AlbumDetailScreenA(
                     // Gọi ViewModel thêm bài hát
                     albumViewModel.addSongToAlbum(currentAlbum.id, selectedSong)
                     showAddSongSheet = false // Đóng sheet
+                },
+                onSearchQueryChange = { query ->
+                    albumViewModel.getAllSongs(query = query)
                 }
             )
         }

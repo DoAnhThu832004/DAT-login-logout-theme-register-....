@@ -126,6 +126,7 @@ fun UploadFileAlbum(
                 if (imageUri != null) {
                     albumViewModel.uploadFiles(albumId,imageUri!!,context)
                     Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
+                    imageUri = null
                 } else {
                     Toast.makeText(context, "Vui lòng chọn đủ cả ảnh và nhạc", Toast.LENGTH_SHORT).show()
                 }

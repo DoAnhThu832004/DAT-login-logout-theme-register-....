@@ -118,6 +118,44 @@ class ReportViewModel (
             }
         }
     }
+    fun deleteReport(reportId: String) {
+        viewModelScope.launch {
+            _reportState.value = _reportState.value.copy(
+                isLoading = true,
+                error = null
+            )
+            try {
+                val response = repository.deleteReport(reportId)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.code == 1000) {
+                        val currentList = _reportState.value.reports ?: emptyList()
+                        val updatedList = currentList.filter { it.id != reportId }
+                        _reportState.value = _reportState.value.copy(
+                            isLoading = false,
+                            reports = updatedList,
+                            error = null
+                        )
+                    } else {
+                        _reportState.value = _reportState.value.copy(
+                            isLoading = false,
+                            error = "Xóa thất bại"
+                        )
+                    }
+                } else {
+                    _reportState.value = _reportState.value.copy(
+                        isLoading = false,
+                        error = "Lỗi từ hệ thống máy chủ"
+                    )
+                }
+            } catch (e: Exception) {
+                _reportState.value = _reportState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi: ${e.message}"
+                )
+            }
+        }
+    }
     data class ReportState(
         val reports: List<Report>? = null,
         val isLoading: Boolean = false,

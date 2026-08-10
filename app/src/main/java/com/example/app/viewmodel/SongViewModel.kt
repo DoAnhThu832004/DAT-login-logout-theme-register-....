@@ -211,11 +211,11 @@ class SongViewModel(
             }
         }
     }
-    fun getSongs() {
+    fun getSongs(page: Int = 1, size: Int = 10) {
         viewModelScope.launch {
             _songUiState.value = _songUiState.value.copy(isLoading = true, error = null)
             try {
-                val response = repository.getSongs()
+                val response = repository.getSongs(page = page, size = size)
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
@@ -401,7 +401,10 @@ class SongViewModel(
                     )
                 }
             } catch (e : Exception) {
-                _songUiState.value = _songUiState.value.copy(isLoading = false)
+                _songUiState.value = _songUiState.value.copy(
+                    isLoading = false,
+                    error = "Lỗi kết nối: ${e.message}"
+                )
             }
         }
     }

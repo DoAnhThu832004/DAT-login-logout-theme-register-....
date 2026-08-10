@@ -59,7 +59,7 @@ fun ArtistScreen(
     albumViewModel: AlbumViewModel,
     artistViewModel: ArtistViewModel,
     editProfileViewModel: EditProfileViewModel,
-    onAlbumClick: (Album) -> Unit
+    onAlbumClick: (Album) -> Unit,
 ) {
     val context = LocalContext.current
     val albumState by albumViewModel.albumState.collectAsState()
@@ -157,17 +157,17 @@ fun ArtistScreen(
                         .weight(1f)
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
-                Text(
-                    text = "Tất cả >",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .clickable {
-
-                        }
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                )
+//                Text(
+//                    text = "Tất cả >",
+//                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                    fontSize = 18.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    modifier = Modifier
+//                        .clickable {
+//
+//                        }
+//                        .padding(horizontal = 8.dp, vertical = 4.dp)
+//                )
 
             }
             SongsGrid(
@@ -177,7 +177,9 @@ fun ArtistScreen(
                     in 3..4 -> 160.dp
                     else -> 240.dp
                 },
-                onSongClick = {}
+                onSongClick = {
+                    onSongClick(it)
+                }
             )
         }
         item {

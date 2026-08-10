@@ -37,6 +37,20 @@ fun UploadFileSong(
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var audioUri by remember { mutableStateOf<Uri?>(null) }
+    var isUploadingInProgress by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading) {
+        if (isUploadingInProgress && !uiState.isLoading) {
+            isUploadingInProgress = false
+            if (uiState.error == null) {
+                Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
+                imageUri = null
+                audioUri = null
+            } else {
+                Toast.makeText(context, "Upload thất bại: ${uiState.error}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -138,10 +152,8 @@ fun UploadFileSong(
                     val audioFile = FileUtils.getFileFromUri(context, audioUri!!)
 
                     if (imageFile != null && audioFile != null) {
+                        isUploadingInProgress = true
                         viewModel.uploadFiles(songId, imageFile, audioFile)
-                        Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
-                        imageUri = null
-                        audioUri = null
                     } else {
                         Toast.makeText(context, "Lỗi quá trình khởi tạo tệp tin", Toast.LENGTH_SHORT).show()
                     }

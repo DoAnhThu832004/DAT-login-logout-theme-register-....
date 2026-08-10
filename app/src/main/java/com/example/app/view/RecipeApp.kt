@@ -534,6 +534,10 @@ fun RecipeApp(
                             MyPlaylistDetailScreen(
                                 playlist = playlist,
                                 playlistViewModel = playlistViewModel,
+                                onSongClick = { song ->
+                                    playerViewModel.play(song)
+                                    navController.navigate(Screen.PlayerScreen.createRoute())
+                                },
                                 onBack = {
                                     navController.popBackStack()
                                 }
@@ -594,6 +598,9 @@ fun RecipeApp(
                 val playlistViewModel : PlaylistViewModel = viewModel(
                     factory = PlaylistViewModelFactory(playlistRepository)
                 )
+                val reportViewModel : ReportViewModel = viewModel(
+                    factory = ReportViewModelFactory(reportRepository)
+                )
                 val playlistState by playlistViewModel.playlistState.collectAsState()
                 val currentPlaylist by playlistViewModel.currentPlaylistDetail.collectAsState()
                 LaunchedEffect(playlistId) {
@@ -611,7 +618,13 @@ fun RecipeApp(
                             DetailPlaylistScreen(
                                 playlist = playlist,
                                 playlistViewModel = playlistViewModel,
-                                onBack = { navController.popBackStack() }
+                                reportViewModel = reportViewModel,
+                                onBack = { navController.popBackStack() },
+                                onSongClick = { song ->
+                                    //val playlistToPlay = playlist. ?: emptyList()
+                                    playerViewModel.play(song)
+                                    navController.navigate(Screen.PlayerScreen.createRoute())
+                                }
                             )
                         }
                     }

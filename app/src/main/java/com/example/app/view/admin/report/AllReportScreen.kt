@@ -99,7 +99,10 @@ fun AllReportScreen(
 
     LaunchedEffect(Unit) {
         reportViewModel.getReport()
-        songViewModel.getSongs()
+        songViewModel.getSongs(size = 100)
+        albumViewModel.getAlbums(size = 100)
+        playlistViewModel.getPlaylists()
+        artistViewModel.getArtists()
     }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {

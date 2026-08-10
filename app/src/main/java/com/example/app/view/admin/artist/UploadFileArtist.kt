@@ -1,6 +1,7 @@
 package com.example.app.view.admin.artist
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -121,7 +122,15 @@ fun UploadFileArtist(
             }
         }
         Button(
-            onClick = {artistViewModel}
+            onClick = {
+                if(imageUri != null) {
+                    artistViewModel.uploadFiles(artistId,imageUri!!,context)
+                    Toast.makeText(context, "Upload thành công", Toast.LENGTH_SHORT).show()
+                    imageUri = null
+                } else {
+                    Toast.makeText(context, "Vui lòng chọn đủ cả ảnh", Toast.LENGTH_SHORT).show()
+                }
+            }
         ) {
             Text(
                 text = stringResource(R.string.upload_file)

@@ -42,6 +42,16 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.app.model.response.Song
 
+fun String.normalizeForSearch(): String {
+    val temp = java.text.Normalizer.normalize(this, java.text.Normalizer.Form.NFD)
+    val pattern = java.util.regex.Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
+    return pattern.matcher(temp).replaceAll("")
+        .lowercase()
+        .replace("đ", "d")
+        .replace("Đ", "d")
+        .trim()
+}
+
 @Composable
 fun SelectSongBottomSheet(
     allSongs: List<Song>,
@@ -50,20 +60,28 @@ fun SelectSongBottomSheet(
     isLastPage: Boolean,
     onLoadMore: () -> Unit,
     onDismiss: () -> Unit,
-    onSongSelected: (Song) -> Unit
+    onSongSelected: (Song) -> Unit,
+    onSearchQueryChange: (String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    // Lọc: chưa có trong album/artist/playlist + khớp query tìm kiếm
-    val filteredSongs = remember(allSongs, existingSongIds, searchQuery) {
+    LaunchedEffect(searchQuery) {
+        onSearchQueryChange(searchQuery)
+    }
+
+    val normalizedQuery = remember(searchQuery) { searchQuery.normalizeForSearch() }
+
+    // Lọc: chưa có trong album/artist/playlist + khớp query tìm kiếm + loại bỏ trùng lặp (distinctBy) để tránh lỗi duplicate key trong LazyColumn
+    val filteredSongs = remember(allSongs, existingSongIds, normalizedQuery) {
         allSongs
             .filter { !existingSongIds.contains(it.id) }
             .filter {
-                searchQuery.isBlank() ||
-                it.name.contains(searchQuery, ignoreCase = true) ||
-                (it.artistName?.contains(searchQuery, ignoreCase = true) == true)
+                normalizedQuery.isBlank() ||
+                it.name.normalizeForSearch().contains(normalizedQuery) ||
+                (it.artistName?.normalizeForSearch()?.contains(normalizedQuery) == true)
             }
+            .distinctBy { it.id }
     }
 
     // Phát hiện người dùng cuộn đến gần cuối danh sách để load thêm bài hát

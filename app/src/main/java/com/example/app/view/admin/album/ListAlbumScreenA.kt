@@ -69,7 +69,7 @@ fun ListAlbumScreen(
         snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collect { lastVisibleIndex ->
                 if (lastVisibleIndex != null) {
-                    val isAtBottom = lastVisibleIndex >= albums.size - 1
+                    val isAtBottom = albums.isNotEmpty() && lastVisibleIndex >= albums.size - 1
                     if (isAtBottom &&
                         !albumState.isLoading &&
                         !albumState.isLoadingMore &&

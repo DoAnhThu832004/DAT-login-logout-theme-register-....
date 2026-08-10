@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +28,9 @@ import com.example.app.model.response.Song
 fun SongCard(
     song: Song,
     shape: Dp = 8.dp,
-    onClick: () -> Unit = {}
+    check: Boolean = false,
+    onClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -50,13 +53,15 @@ fun SongCard(
         ) {
             Text(text = song.name, maxLines = 1)
         }
-        IconButton(
-            onClick = {}
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = null
-            )
+        if(check) {
+            IconButton(
+                onClick = {onDeleteClick()}
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null
+                )
+            }
         }
     }
 }

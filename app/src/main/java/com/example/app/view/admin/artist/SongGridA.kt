@@ -1,6 +1,5 @@
 package com.example.app.view.admin.artist
 
-import com.example.app.view.Artist.SongCard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize

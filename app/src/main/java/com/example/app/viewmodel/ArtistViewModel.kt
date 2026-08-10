@@ -1,10 +1,13 @@
 package com.example.app.viewmodel
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.app.model.ApiErrorUtils
+import com.example.app.model.FileUtils
 import com.example.app.model.repository.ArtistRepository
 import com.example.app.model.request.ArtistUpdateRequest
 import com.example.app.model.response.Album
@@ -15,6 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 
 class ArtistViewModel(
     private val repository: ArtistRepository
@@ -32,6 +38,18 @@ class ArtistViewModel(
     val isSongsLastPage: StateFlow<Boolean> = _isSongsLastPage.asStateFlow()
 
     private var songsCurrentPage = 1
+    private var songsSearchJob: kotlinx.coroutines.Job? = null
+    private var currentSongsSearchQuery: String = ""
+
+    private val _isLoadingMoreAlbums = MutableStateFlow(false)
+    val isLoadingMoreAlbums: StateFlow<Boolean> = _isLoadingMoreAlbums.asStateFlow()
+
+    private val _isAlbumsLastPage = MutableStateFlow(false)
+    val isAlbumsLastPage: StateFlow<Boolean> = _isAlbumsLastPage.asStateFlow()
+
+    private var albumsSearchJob: kotlinx.coroutines.Job? = null
+    private var currentAlbumsSearchQuery: String = ""
+    private var albumsCurrentPage = 1
 
     private val _allAlbumsState = MutableStateFlow<List<Album>>(emptyList())
     val allAlbumsState: StateFlow<List<Album>> = _allAlbumsState.asStateFlow()
@@ -302,20 +320,31 @@ class ArtistViewModel(
         }
 
     }
-    fun getAllSongs(isLoadMore: Boolean = false) {
+    fun getAllSongs(query: String = "", isLoadMore: Boolean = false) {
         if (isLoadMore && _isSongsLastPage.value) return
         if (_isLoadingMoreSongs.value) return
 
         if (!isLoadMore) {
+            songsSearchJob?.cancel()
+            currentSongsSearchQuery = query
             songsCurrentPage = 1
             _isSongsLastPage.value = false
             _allSongsState.value = emptyList()
+        } else {
+            songsCurrentPage++
         }
 
         _isLoadingMoreSongs.value = true
-        viewModelScope.launch {
+        songsSearchJob = viewModelScope.launch {
+            if (!isLoadMore && query.isNotBlank()) {
+                kotlinx.coroutines.delay(500)
+            }
             try {
-                val response = repository.getSongs(page = songsCurrentPage, size = 10)
+                val response = if (currentSongsSearchQuery.isBlank()) {
+                    repository.getSongs(page = songsCurrentPage, size = 10)
+                } else {
+                    repository.searchSongsForAdmin(currentSongsSearchQuery, page = songsCurrentPage, size = 10)
+                }
                 if (response.isSuccessful && response.body()?.result != null) {
                     val pageData = response.body()!!.result
                     val newSongs = pageData.result
@@ -327,22 +356,59 @@ class ArtistViewModel(
                     }
 
                     _isSongsLastPage.value = songsCurrentPage >= pageData.totalPages
-                    if (!_isSongsLastPage.value) {
-                        songsCurrentPage++
-                    }
+                } else {
+                    if (isLoadMore) songsCurrentPage--
                 }
             } catch (e: Exception) {
-                // handle error
+                if (isLoadMore) songsCurrentPage--
             } finally {
                 _isLoadingMoreSongs.value = false
             }
         }
     }
-    fun getAllAlbums() {
-        viewModelScope.launch {
-            val response = repository.getAlbums()
-            if (response.isSuccessful && response.body()?.result != null) {
-                _allAlbumsState.value = response.body()!!.result.result
+    fun getAllAlbums(query: String = "", isLoadMore: Boolean = false) {
+        if (isLoadMore && _isAlbumsLastPage.value) return
+        if (_isLoadingMoreAlbums.value) return
+
+        if (!isLoadMore) {
+            albumsSearchJob?.cancel()
+            currentAlbumsSearchQuery = query
+            albumsCurrentPage = 1
+            _isAlbumsLastPage.value = false
+            _allAlbumsState.value = emptyList()
+        } else {
+            albumsCurrentPage++
+        }
+
+        _isLoadingMoreAlbums.value = true
+        albumsSearchJob = viewModelScope.launch {
+            if (!isLoadMore && query.isNotBlank()) {
+                kotlinx.coroutines.delay(500)
+            }
+            try {
+                val response = if (currentAlbumsSearchQuery.isBlank()) {
+                    repository.getAlbums(page = albumsCurrentPage, size = 10)
+                } else {
+                    repository.searchAlbumsForAdmin(currentAlbumsSearchQuery, page = albumsCurrentPage, size = 10)
+                }
+                if (response.isSuccessful && response.body()?.result != null) {
+                    val pageData = response.body()!!.result
+                    val newAlbums = pageData.result
+
+                    _allAlbumsState.value = if (isLoadMore) {
+                        _allAlbumsState.value + newAlbums
+                    } else {
+                        newAlbums
+                    }
+
+                    _isAlbumsLastPage.value = albumsCurrentPage >= pageData.totalPages
+                } else {
+                    if (isLoadMore) albumsCurrentPage--
+                }
+            } catch (e: Exception) {
+                if (isLoadMore) albumsCurrentPage--
+            } finally {
+                _isLoadingMoreAlbums.value = false
             }
         }
     }
@@ -535,6 +601,37 @@ class ArtistViewModel(
                     }
                 }
             } catch (e: Exception) {
+            }
+        }
+    }
+    fun uploadFiles(artistId: String, imageUri: Uri,context: Context) {
+        viewModelScope.launch {
+            _artistState.value = _artistState.value.copy(
+                isLoadingA = true,
+                errorA = null
+            )
+            try {
+                val imageFile = FileUtils.getFileFromUri(context,imageUri)
+                if(imageFile != null) {
+                    val requestBody = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+                    val part = MultipartBody.Part.createFormData("image",imageFile.name,requestBody)
+                    val response = repository.uploadArtistImage(artistId,part)
+                    if(response.isSuccessful) {
+                        _artistState.value = _artistState.value.copy(
+                            isLoadingA = false,
+                            errorA = null
+                        )
+                    } else {
+                        _artistState.value = _artistState.value.copy(
+                            isLoadingA = false,
+                            errorA = "Upload thất bại: ${response.code()}"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _artistState.value = _artistState.value.copy(
+                    isLoadingA = false
+                )
             }
         }
     }

@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Loop
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -253,6 +254,35 @@ fun DetailReportScreen(
                         )
                     }
                     Text("Xong", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                }
+            } else if (report.status == "RESOLVED") {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .scale(0.75f + 0.25f * progress)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(Color(0xFFEF5350), Color(0xFFC62828))
+                            )
+                        )
+                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                ) {
+                    androidx.compose.material3.IconButton(
+                        onClick = {
+                            reportViewModel.deleteReport(report.id)
+                            Toast.makeText(context, "Đã xóa báo cáo", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Xóa",
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Text("Xóa", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

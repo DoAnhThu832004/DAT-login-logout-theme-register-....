@@ -39,6 +39,8 @@ class PlaylistViewModel(
     val isSongsLastPage: State<Boolean> = _isSongsLastPage
 
     private var songsCurrentPage = 1
+    private var songsSearchJob: kotlinx.coroutines.Job? = null
+    private var currentSongsSearchQuery: String = ""
 
     private var songsPageCurrent = 1
     private var songsTotalPages = 1
@@ -507,20 +509,31 @@ class PlaylistViewModel(
         }
     }
 
-    fun getAllSongs(isLoadMore: Boolean = false) {
+    fun getAllSongs(query: String = "", isLoadMore: Boolean = false) {
         if (isLoadMore && _isSongsLastPage.value) return
         if (_isLoadingMoreSongs.value) return
 
         if (!isLoadMore) {
+            songsSearchJob?.cancel()
+            currentSongsSearchQuery = query
             songsCurrentPage = 1
             _isSongsLastPage.value = false
             _allSongsState.value = emptyList()
+        } else {
+            songsCurrentPage++
         }
 
         _isLoadingMoreSongs.value = true
-        viewModelScope.launch {
+        songsSearchJob = viewModelScope.launch {
+            if (!isLoadMore && query.isNotBlank()) {
+                kotlinx.coroutines.delay(500)
+            }
             try {
-                val response = repository.getSongs(page = songsCurrentPage, size = 10)
+                val response = if (currentSongsSearchQuery.isBlank()) {
+                    repository.getSongs(page = songsCurrentPage, size = 10)
+                } else {
+                    repository.searchSongsForAdmin(currentSongsSearchQuery, page = songsCurrentPage, size = 10)
+                }
                 if (response.isSuccessful && response.body()?.result != null) {
                     val pageData = response.body()!!.result
                     val newSongs = pageData.result
@@ -532,12 +545,11 @@ class PlaylistViewModel(
                     }
 
                     _isSongsLastPage.value = songsCurrentPage >= pageData.totalPages
-                    if (!_isSongsLastPage.value) {
-                        songsCurrentPage++
-                    }
+                } else {
+                    if (isLoadMore) songsCurrentPage--
                 }
             } catch (e: Exception) {
-                // handle error
+                if (isLoadMore) songsCurrentPage--
             } finally {
                 _isLoadingMoreSongs.value = false
             }

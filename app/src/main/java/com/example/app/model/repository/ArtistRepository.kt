@@ -21,7 +21,9 @@ class ArtistRepository(
     suspend fun unfollowArtist(artistId: String) = apiService.unfollowArtist(artistId)
     suspend fun getMyFollowers() = apiService.getMyFollowers()
     suspend fun getSongs(page: Int = 1, size: Int = 10) = apiService.getSongs(page, size)
+    suspend fun searchSongsForAdmin(query: String, page: Int = 1, size: Int = 10) = apiService.searchSongsForAdmin(query, page, size)
     suspend fun getAlbums(page: Int = 1, size: Int = 10) = apiService.getAlbums(page, size)
+    suspend fun searchAlbumsForAdmin(query: String, page: Int = 1, size: Int = 10) = apiService.searchAlbumsForAdmin(query, page, size)
     suspend fun uploadArtistImage(artistId: String, imagePart: okhttp3.MultipartBody.Part) = apiService.uploadArtistImage(artistId, imagePart)
     suspend fun searchArtistsForAdmin(query: String, page: Int, size: Int) = apiService.searchArtistsForAdmin(query, page, size)
 }
