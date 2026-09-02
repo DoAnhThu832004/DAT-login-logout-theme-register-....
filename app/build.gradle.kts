@@ -98,4 +98,5 @@ dependencies {
     implementation("androidx.media3:media3-common:1.3.1")
     implementation("androidx.paging:paging-runtime:3.2.1")
     implementation("androidx.paging:paging-compose:3.2.1")
+    implementation("com.google.android.gms:play-services-ads:23.3.0")
 }

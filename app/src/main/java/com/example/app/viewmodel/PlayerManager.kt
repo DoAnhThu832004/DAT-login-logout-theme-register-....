@@ -23,6 +23,7 @@ object PlayerManager {
         private set
 
     var currentUserId: String? = null // Thêm để theo dõi người dùng hiện tại
+    var isAdShowing: Boolean = false // Cờ tạm dừng khi đang phát quảng cáo
 
     private var songList: List<Song> = emptyList()
     private var currentIndex: Int = -1
@@ -146,7 +147,18 @@ object PlayerManager {
             }
         }
     }
+    fun pause() {
+        player?.pause()
+    }
+
+    fun resume() {
+        if (!isAdShowing) {
+            player?.play()
+        }
+    }
+
     fun togglePlayPause() {
+        if (isAdShowing) return
         player?.let {
             if (it.isPlaying) it.pause() else it.play()
         }

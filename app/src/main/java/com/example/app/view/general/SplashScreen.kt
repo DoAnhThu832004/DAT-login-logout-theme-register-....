@@ -84,6 +84,9 @@ fun SplashScreen(
     navController: NavHostController,
     splashViewModel: SplashViewModel
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = context as? android.app.Activity
+
     // Bắt đầu resolve destination ngay khi Composable được mount
     LaunchedEffect(Unit) { splashViewModel.resolveDestination() }
 
@@ -91,28 +94,36 @@ fun SplashScreen(
     val destination by splashViewModel.destination.collectAsState()
     LaunchedEffect(destination) {
         val dest = destination ?: return@LaunchedEffect
-        when (dest) {
-            is SplashViewModel.Destination.Admin -> navController.navigate(
-                Screen.NavigationDraw.createRoute(dest.name)
-            ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
+        val doNavigate = {
+            when (dest) {
+                is SplashViewModel.Destination.Admin -> navController.navigate(
+                    Screen.NavigationDraw.createRoute(dest.name)
+                ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
 
-            is SplashViewModel.Destination.User -> navController.navigate(
-                Screen.UserHomePage.createRoute(dest.name)
-            ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
+                is SplashViewModel.Destination.User -> navController.navigate(
+                    Screen.UserHomePage.createRoute(dest.name)
+                ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
 
-            is SplashViewModel.Destination.Login -> navController.navigate(
-                Screen.LoginScreen.route
-            ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
+                is SplashViewModel.Destination.Login -> navController.navigate(
+                    Screen.LoginScreen.route
+                ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
 
-            // Lần đầu mở app → show onboarding
-            is SplashViewModel.Destination.Onboarding -> navController.navigate(
-                Screen.OnboardingScreen.route
-            ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
+                // Lần đầu mở app → show onboarding
+                is SplashViewModel.Destination.Onboarding -> navController.navigate(
+                    Screen.OnboardingScreen.route
+                ) { popUpTo(Screen.SplashScreen.route) { inclusive = true } }
+            }
+        }
+
+        if (activity != null) {
+            com.example.app.admob.AdMobManager.showInterstitialAd(activity) {
+                doNavigate()
+            }
+        } else {
+            doNavigate()
         }
     }
 
-    // [FIX #4] Truyền onFinished thực sự – IntroContent sẽ gọi khi animation xong
-    // (Trong trường hợp này navigation do ViewModel kiểm soát nên để trống)
     IntroContent()
 }
 

@@ -153,7 +153,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 40.dp),
+                .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Page indicator dots
@@ -162,7 +162,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 currentPage  = pagerState.currentPage
             )
 
-            Spacer(modifier = Modifier.height(36.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Nút điều hướng Back / Next + nút Bắt đầu
             NavigationControls(
@@ -172,6 +172,13 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                 onBack       = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) } },
                 onNext       = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } },
                 onFinish     = onFinish
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Banner Ad ở đáy OnboardingScreen
+            com.example.app.view.ads.BannerAdView(
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -278,7 +285,7 @@ fun OnboardingPagerItem(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 32.dp)
-                .padding(bottom = 180.dp),    // tránh đè lên bottom controls
+                .padding(bottom = 250.dp),    // tránh đè lên bottom controls + banner
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
