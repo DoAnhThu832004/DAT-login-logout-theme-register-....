@@ -138,7 +138,7 @@ fun RecipeApp(
     ) {
         NavHost(
             navController = navController,
-            startDestination = Screen.LoginScreen.route,
+            startDestination = Screen.SplashScreen.route,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
@@ -151,18 +151,24 @@ fun RecipeApp(
                 val editProfileViewModel : EditProfileViewModel = viewModel(
                     factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
                 )
-                NetworkAwareWrapper(isConnected = isConnected) {
-                    LoginScreen(
-                        loginViewModel = loginViewModel,
-                        editProfileViewModel = editProfileViewModel,
-                        navController = navController,
-                        navigateToRegister = { navController.navigate(Screen.RegisterScreen.route) },
-                        navigateToUserHomePage = { token, name ->
-                            navController.currentBackStackEntry?.savedStateHandle?.set("token",token)
-                            navController.currentBackStackEntry?.savedStateHandle?.set("name",name)
-                        }
-                    )
-                }
+                // LoginScreen KHÔNG bọc NetworkAwareWrapper:
+                // – Khi có mạng: user đăng nhập bình thường
+                // – Khi mất mạng: hiện OfflineBanner + disable nút đăng nhập
+                //   + hiện nút "Nghe nhạc offline" để vào OfflinePlayerScreen
+                LoginScreen(
+                    loginViewModel = loginViewModel,
+                    editProfileViewModel = editProfileViewModel,
+                    navController = navController,
+                    navigateToRegister = { navController.navigate(Screen.RegisterScreen.route) },
+                    navigateToUserHomePage = { token, name ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("token", token)
+                        navController.currentBackStackEntry?.savedStateHandle?.set("name", name)
+                    },
+                    isConnected = isConnected,
+                    onGoToOfflinePlayer = {
+                        navController.navigate(Screen.OfflinePlayerScreen.route)
+                    }
+                )
             }
             composable(route = Screen.RegisterScreen.route) {
                 val registerViewModel : RegisterViewModel = viewModel(
@@ -180,15 +186,41 @@ fun RecipeApp(
                 exitTransition = { ExitTransition.None },
                 popExitTransition = { ExitTransition.None }
             ) {
+                // [FIX #3] Business logic (token/role) đã chuyển sang SplashViewModel
+                // Composable chỉ observe StateFlow và navigate – không làm I/O trực tiếp
                 val loginViewModel : LoginViewModel = viewModel(
                     factory = LoginViewModelFactory(userRepository, sessionManager)
                 )
-                // SplashScreen không bị block bởi NetworkAware
-                // (nó tự navigate sau khi check token, không cần mạng để hiển thị)
+                val splashViewModel : com.example.app.viewmodel.SplashViewModel = viewModel(
+                    factory = com.example.app.viewmodel.SplashViewModelFactory(
+                        sessionManager = sessionManager,
+                        loginViewModel = loginViewModel,
+                        context = context                  // Thêm context để đọc DataStore onboarding
+                    )
+                )
                 com.example.app.view.general.SplashScreen(
-                    navController,
-                    sessionManager,
-                    loginViewModel
+                    navController   = navController,
+                    splashViewModel = splashViewModel
+                )
+            }
+
+            // ── Onboarding – chỉ hiện lần đầu dùng app ──────────────────────
+            composable(
+                route = Screen.OnboardingScreen.route,
+                exitTransition = { ExitTransition.None },
+                popExitTransition = { ExitTransition.None }
+            ) {
+                val onboardingViewModel: com.example.app.viewmodel.OnboardingViewModel = viewModel(
+                    factory = com.example.app.viewmodel.OnboardingViewModelFactory(context)
+                )
+                com.example.app.view.general.OnboardingScreen(
+                    onFinish = {
+                        // Lưu DataStore rồi navigate sang Login, xoá backstack
+                        onboardingViewModel.markOnboardingDone()
+                        navController.navigate(Screen.LoginScreen.route) {
+                            popUpTo(Screen.OnboardingScreen.route) { inclusive = true }
+                        }
+                    }
                 )
             }
 //        composable(route = Screen.HomeScreen.route) {
@@ -688,6 +720,33 @@ fun RecipeApp(
                         onBack = { navController.popBackStack() }
                     )
                 }
+            }
+
+            // ── Màn hình nghe nhạc offline (không cần đăng nhập) ─────────────
+            // Truy cập được từ LoginScreen khi mất mạng qua nút "Nghe nhạc đã tải"
+            composable(route = Screen.OfflinePlayerScreen.route) {
+                val loginViewModel: LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(userRepository, sessionManager)
+                )
+                val downloadViewModel: com.example.app.viewmodel.DownloadViewModel = viewModel(
+                    factory = com.example.app.viewmodel.DownloadViewModelFactory(
+                        downloadRepository = downloadRepository,
+                        sessionManager = sessionManager
+                    )
+                )
+                val editProfileViewModel: EditProfileViewModel = viewModel(
+                    factory = EditProfileViewModelFactory(userRepository, loginViewModel, sessionManager)
+                )
+                com.example.app.view.InProfile.DownloadScreen(
+                    downloadViewModel    = downloadViewModel,
+                    playerViewModel      = playerViewModel,
+                    editProfileViewModel = editProfileViewModel,
+                    onBack               = { navController.popBackStack() },
+                    onSongClick          = { song ->
+                        navController.navigate(Screen.PlayerScreen.createRoute())
+                        PlayerManager.play(song)
+                    }
+                )
             }
         }
         val isUserSection = currentRoute != null && 

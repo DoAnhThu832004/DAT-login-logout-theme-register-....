@@ -3,6 +3,7 @@ package com.example.app.view
 sealed class Screen(val route : String) {
     object LoginScreen : Screen("login_screen")
     object SplashScreen : Screen("splash_screen")
+    object OnboardingScreen : Screen("onboarding_screen")
     object HomeScreen : Screen("home_screen")
     object UserHomePage : Screen("user_home_page/{name}") {
         fun createRoute(name: String) = "user_home_page/$name"
@@ -77,4 +78,6 @@ sealed class Screen(val route : String) {
     object FollowerArtstScreen : Screen("followerArtstScreen")
     object ChangePasswordScreen : Screen("changePasswordScreen")
     object UserManagementScreen : Screen("user_management_screen")
+    // Màn hình nghe nhạc offline (không cần đăng nhập)
+    object OfflinePlayerScreen : Screen("offline_player_screen")
 }

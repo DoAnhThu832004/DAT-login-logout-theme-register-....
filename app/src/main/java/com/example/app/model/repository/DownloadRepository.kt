@@ -54,6 +54,7 @@ class DownloadRepository(
                     // Thêm userId vào tên file để tránh xung đột nếu cần, hoặc quản lý theo sub-folder
                     val audioFile = File(downloadDir, "${userId}_${song.id}.mp3")
 
+                    // Lưu audio file
                     val inputStream = body.byteStream()
                     val outputStream = FileOutputStream(audioFile)
 
@@ -66,7 +67,32 @@ class DownloadRepository(
                     outputStream.close()
                     inputStream.close()
 
-                    // Save to Room with userId
+                    // Tải luôn ảnh thumbnail về local để offline hiển thị được (tránh ảnh vỡ khi không có mạng)
+                    var savedImagePath = song.imageUrl ?: ""
+                    if (!song.imageUrl.isNullOrBlank()) {
+                        try {
+                            val imageFile = File(downloadDir, "${userId}_${song.id}.jpg")
+                            val url = java.net.URL(song.imageUrl)
+                            val imgConnection = url.openConnection()
+                            imgConnection.connectTimeout = 5000
+                            imgConnection.readTimeout = 5000
+                            val imgInputStream = imgConnection.getInputStream()
+                            val imgOutputStream = FileOutputStream(imageFile)
+                            val imgBuffer = ByteArray(4096)
+                            var imgBytesRead: Int
+                            while (imgInputStream.read(imgBuffer).also { imgBytesRead = it } != -1) {
+                                imgOutputStream.write(imgBuffer, 0, imgBytesRead)
+                            }
+                            imgOutputStream.flush()
+                            imgOutputStream.close()
+                            imgInputStream.close()
+                            savedImagePath = imageFile.absolutePath
+                        } catch (e: Exception) {
+                            Log.w("DownloadRepository", "Could not download thumbnail image locally, fallback to URL", e)
+                        }
+                    }
+
+                    // Save to Room with userId and local paths
                     val entity = DownloadedSongEntity(
                         id = song.id,
                         userId = userId,
@@ -74,7 +100,7 @@ class DownloadRepository(
                         artistName = song.artistName ?: "Unknown",
                         duration = song.duration,
                         localAudioPath = audioFile.absolutePath,
-                        localImagePath = song.imageUrl ?: ""
+                        localImagePath = savedImagePath
                     )
                     songDao.insertSong(entity)
                     return@withContext true
@@ -94,6 +120,12 @@ class DownloadRepository(
                 val file = File(localSong.localAudioPath)
                 if (file.exists()) {
                     file.delete()
+                }
+                if (localSong.localImagePath.isNotBlank()) {
+                    val imgFile = File(localSong.localImagePath)
+                    if (imgFile.exists()) {
+                        imgFile.delete()
+                    }
                 }
                 songDao.deleteSong(songId, userId)
             }

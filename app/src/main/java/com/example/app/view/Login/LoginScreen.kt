@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -66,6 +68,7 @@ import com.example.app.view.general.JetpackRoundedProgressBar
 import com.example.app.viewmodel.DataStoreUtils
 import com.example.app.viewmodel.EditProfileViewModel
 import com.example.app.viewmodel.LoginViewModel
+import com.example.app.view.general.OfflineBanner
 import kotlinx.coroutines.delay
 
 private val loginErrorColor = Color(0xFFFF6B6B)
@@ -83,7 +86,9 @@ fun LoginScreen(
     editProfileViewModel: EditProfileViewModel,
     navController: NavHostController,
     navigateToRegister: () -> Unit,
-    navigateToUserHomePage: (String, String) -> Unit
+    navigateToUserHomePage: (String, String) -> Unit,
+    isConnected: Boolean = true,
+    onGoToOfflinePlayer: (() -> Unit)? = null   // Callback điều hướng đến nhạc offline
 ) {
     val context = LocalContext.current
     val loginUiState by loginViewModel.loginUiState.collectAsState()
@@ -142,6 +147,13 @@ fun LoginScreen(
                 )
             )
     ) {
+        // ── OfflineBanner – hiện ở đầu màn hình khi mất mạng ─────────────────
+        OfflineBanner(
+            visible  = !isConnected,
+            modifier = Modifier.align(Alignment.TopCenter),
+            message  = "Mất kết nối – Đăng nhập không khả dụng"
+        )
+
         // ── Decorative blur circles ──────────────────────────────────────────
         Box(
             modifier = Modifier
@@ -342,7 +354,8 @@ fun LoginScreen(
                             .height(52.dp)
                             .clip(RoundedCornerShape(16.dp))
                             .background(
-                                if (!loginUiState.isLoading)
+                                // Mờ đi khi đang load HOẶC khi offline
+                                if (!loginUiState.isLoading && isConnected)
                                     Brush.horizontalGradient(listOf(accentPurple, accentPink))
                                 else
                                     Brush.horizontalGradient(
@@ -352,13 +365,16 @@ fun LoginScreen(
                                         )
                                     )
                             )
-                            .clickable(enabled = !loginUiState.isLoading) {
+                            // Disable khi đang load HOẶC khi offline
+                            .clickable(enabled = !loginUiState.isLoading && isConnected) {
                                 loginViewModel.login()
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = stringResource(R.string.dang_nhap),
+                            // Đổi text nút khi offline
+                            text = if (isConnected) stringResource(R.string.dang_nhap)
+                                   else "Cần kết nối mạng",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -369,6 +385,39 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            // ── Nút nghe nhạc offline (chỉ hiện khi mất mạng) ───────────────
+            if (!isConnected && onGoToOfflinePlayer != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.10f))
+                        .clickable { onGoToOfflinePlayer() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Headphones,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text       = "Nghe nhạc đã tải (Offline)",
+                            color      = Color.White,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize   = 15.sp
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // Register link
             Row(

@@ -51,7 +51,16 @@ import com.example.app.viewmodel.PlaylistViewModel
 import com.example.app.viewmodel.SearchViewModel
 import com.example.app.viewmodel.SongViewModel
 
+import com.example.app.viewmodel.DownloadViewModel
 import com.example.app.viewmodel.RecommendationViewModel
+import com.example.app.view.general.OfflineBanner
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun UserHomePage(
@@ -179,9 +188,43 @@ fun ContentScreen(
     }
     when(selectedIndex) {
         0 -> {
-            // Tab Home: hiển thị NoInternetScreen nếu mất mạng
+            // Tab Home: khi mất mạng hiện OfflineBanner + thông báo nhỏ thay vì che toàn màn hình
             if (!isConnected) {
-                NoInternetScreen()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OfflineBanner(visible = true)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.WifiOff,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.4f),
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Text(
+                                text = "Không có kết nối mạng",
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "Vào tab Hồ sơ → Nhạc đã tải để nghe offline",
+                                color = Color.White.copy(alpha = 0.4f),
+                                fontSize = 13.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(horizontal = 32.dp)
+                            )
+                        }
+                    }
+                }
             } else {
                 val isScreenLoading = songState.isLoading || albumState.isLoading || playlistState.isLoading || artistState.isLoadingA
                 val screenError = playlistState.error ?: songState.error ?: albumState.error
@@ -206,9 +249,26 @@ fun ContentScreen(
             }
         }
         1 -> {
-            // Tab Favorite: hiển thị NoInternetScreen nếu mất mạng
+            // Tab Favorite: khi mất mạng hiện OfflineBanner + thông báo
             if (!isConnected) {
-                NoInternetScreen()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OfflineBanner(visible = true)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Tính năng Yêu thích cần kết nối mạng",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                    }
+                }
             } else {
                 FavoritePage(
                     favoriteViewModel = favoriteViewModel,
@@ -219,9 +279,25 @@ fun ContentScreen(
             }
         }
         2 -> {
-            // Tab TopChart: hiển thị NoInternetScreen nếu mất mạng
+            // Tab TopChart: khi mất mạng hiện OfflineBanner + thông báo
             if (!isConnected) {
-                NoInternetScreen()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OfflineBanner(visible = true)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Top Chart cần kết nối mạng",
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             } else {
                 TopChartPage(
                     topSongs = songViewModel.songState.value.topSongs ?: emptyList(),
