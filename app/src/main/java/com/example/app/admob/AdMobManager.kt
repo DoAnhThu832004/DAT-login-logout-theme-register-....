@@ -90,6 +90,20 @@ object AdMobManager {
 
                 override fun onAdShowedFullScreenContent() {
                     Log.d(TAG, "Interstitial Ad showed full screen content.")
+                    // Telemetry: ad_impression (interstitial)
+                    com.example.app.analytics.AnalyticsHelper.logAdImpression(
+                        adFormat = "interstitial",
+                        adUnitId = TEST_INTERSTITIAL_ID,
+                        screenName = "interstitial_dialog"
+                    )
+                }
+
+                override fun onAdClicked() {
+                    // Telemetry: ad_click (interstitial)
+                    com.example.app.analytics.AnalyticsHelper.logAdClick(
+                        adFormat = "interstitial",
+                        adUnitId = TEST_INTERSTITIAL_ID
+                    )
                 }
             }
             currentAd.show(activity)
@@ -155,10 +169,32 @@ object AdMobManager {
                     loadRewardedAd(activity)
                     onAdDismissed()
                 }
+
+                override fun onAdShowedFullScreenContent() {
+                    // Telemetry: ad_impression (rewarded)
+                    com.example.app.analytics.AnalyticsHelper.logAdImpression(
+                        adFormat = "rewarded",
+                        adUnitId = TEST_REWARDED_ID,
+                        screenName = "rewarded_dialog"
+                    )
+                }
+
+                override fun onAdClicked() {
+                    // Telemetry: ad_click (rewarded)
+                    com.example.app.analytics.AnalyticsHelper.logAdClick(
+                        adFormat = "rewarded",
+                        adUnitId = TEST_REWARDED_ID
+                    )
+                }
             }
 
             currentAd.show(activity) { rewardItem ->
                 Log.d(TAG, "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
+                // Telemetry: ad_reward_completed
+                com.example.app.analytics.AnalyticsHelper.logAdRewardCompleted(
+                    rewardType = rewardItem.type,
+                    rewardAmount = rewardItem.amount.toLong()
+                )
                 rewardEarned = true
             }
         } else {

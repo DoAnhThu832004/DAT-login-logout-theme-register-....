@@ -124,6 +124,11 @@ fun SearchBar(
                             }
                         },
                         onClick = {
+                            com.example.app.analytics.AnalyticsHelper.logSearchResultClick(
+                                keyword = query,
+                                itemId = artist.id,
+                                itemType = "artist"
+                            )
                             query = artist.name
                             expanded = false
                             searchViewModel.clearSuggestions()
@@ -151,6 +156,11 @@ fun SearchBar(
                             }
                         },
                         onClick = {
+                            com.example.app.analytics.AnalyticsHelper.logSearchResultClick(
+                                keyword = query,
+                                itemId = songs.id.toString(),
+                                itemType = "song"
+                            )
                             query = songs.name
                             expanded = false
                             searchViewModel.clearSuggestions()

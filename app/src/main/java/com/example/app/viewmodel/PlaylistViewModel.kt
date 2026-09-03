@@ -278,6 +278,9 @@ class PlaylistViewModel(
                 if(response.isSuccessful) {
                     val body = response.body()
                     if(body?.code == 1000 && body.result != null) {
+                        // Telemetry: playlist_create
+                        com.example.app.analytics.AnalyticsHelper.logPlaylistCreate(playlistName = name, isPublic = true)
+
                         val currentMyPlaylists = _playlistState.value.myPlaylists?.toMutableList() ?: mutableListOf()
                         currentMyPlaylists.add(body.result)
                         _playlistState.value = _playlistState.value.copy(
@@ -457,6 +460,12 @@ class PlaylistViewModel(
                 val response = repository.addSongToPlaylist(playlistId, song.id)
 
                 if (response.isSuccessful && response.body()?.code == 1000) {
+                    // Telemetry: playlist_add_song
+                    com.example.app.analytics.AnalyticsHelper.logPlaylistAddSong(
+                        playlistId = playlistId,
+                        songId = song.id.toString()
+                    )
+
                     if (songs.none { it.id == song.id }) {
                         songs.add(song)
                     }

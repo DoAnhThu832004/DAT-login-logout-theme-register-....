@@ -71,6 +71,12 @@ class CommentViewModel(
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.code == 1000 && body.result != null) {
+                        // Telemetry: song_comment_submit
+                        com.example.app.analytics.AnalyticsHelper.logSongCommentSubmit(
+                            songId = songId,
+                            commentLength = text.length.toLong()
+                        )
+
                         // Gọi lại phương thức lấy dữ liệu để đồng bộ hóa cấu trúc cây phân cấp từ máy chủ
                         getComment(songId)
 

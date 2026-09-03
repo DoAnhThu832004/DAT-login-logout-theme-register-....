@@ -171,7 +171,10 @@ private fun HomeRecommendationContent(
         ) {
             items(home.recommendedSongs, key = { it.id }) { song ->
                 Box(modifier = Modifier.width(140.dp)) {
-                    SongItem(song = song, onClick = { onSongClick(song) })
+                    SongItem(song = song, onClick = {
+                        com.example.app.analytics.AnalyticsHelper.logHomeSectionClick("recommended_songs", song.id.toString())
+                        onSongClick(song)
+                    })
                 }
             }
         }
@@ -191,7 +194,10 @@ private fun HomeRecommendationContent(
             items(home.recommendedArtists, key = { it.id }) { artist ->
                 ArtistRecommendItem(
                     artist = artist,
-                    onClick = { onArtistClick?.invoke(artist) }
+                    onClick = {
+                        com.example.app.analytics.AnalyticsHelper.logHomeSectionClick("recommended_artists", artist.id)
+                        onArtistClick?.invoke(artist)
+                    }
                 )
             }
         }
@@ -211,7 +217,10 @@ private fun HomeRecommendationContent(
             items(home.recommendedAlbums, key = { it.id }) { album ->
                 AlbumRecommendItem(
                     album = album,
-                    onClick = { onAlbumClick?.invoke(album) }
+                    onClick = {
+                        com.example.app.analytics.AnalyticsHelper.logHomeSectionClick("recommended_albums", album.id)
+                        onAlbumClick?.invoke(album)
+                    }
                 )
             }
         }
@@ -231,7 +240,10 @@ private fun HomeRecommendationContent(
             items(home.recommendedPlaylists, key = { it.id }) { playlist ->
                 PlaylistRecommendItem(
                     playlist = playlist,
-                    onClick = { onPlaylistClick?.invoke(playlist) }
+                    onClick = {
+                        com.example.app.analytics.AnalyticsHelper.logHomeSectionClick("recommended_playlists", playlist.id)
+                        onPlaylistClick?.invoke(playlist)
+                    }
                 )
             }
         }

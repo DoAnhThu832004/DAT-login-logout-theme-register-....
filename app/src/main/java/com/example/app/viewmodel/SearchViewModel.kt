@@ -80,9 +80,21 @@ class SearchViewModel(
                     emptyList()
                 }
             }
-            _sSong.value = songDeferred.await()
-            _sAlbum.value = albumDeferred.await()
-            _sArtist.value = artistDeferred.await()
+            val songs = songDeferred.await()
+            val albums = albumDeferred.await()
+            val artists = artistDeferred.await()
+
+            _sSong.value = songs
+            _sAlbum.value = albums
+            _sArtist.value = artists
+
+            // Telemetry: search_query_submit
+            val totalCount = (songs.size + albums.size + artists.size).toLong()
+            com.example.app.analytics.AnalyticsHelper.logSearchQuerySubmit(
+                keyword = name,
+                hasResults = totalCount > 0,
+                resultCount = totalCount
+            )
         }
     }
     fun clearSuggestions() {

@@ -13,8 +13,12 @@ import com.google.android.gms.ads.AdView
 @Composable
 fun BannerAdView(
     modifier: Modifier = Modifier,
-    adUnitId: String = AdMobManager.TEST_BANNER_ID
+    adUnitId: String = AdMobManager.TEST_BANNER_ID,
+    screenName: String = "general_screen"
 ) {
+    // Kiểm tra cờ tính năng từ Remote Config
+    if (!com.example.app.analytics.RemoteConfigManager.isShowAds()) return
+
     AndroidView(
         modifier = modifier
             .fillMaxWidth()
@@ -23,6 +27,22 @@ fun BannerAdView(
             AdView(context).apply {
                 setAdSize(AdSize.BANNER)
                 this.adUnitId = adUnitId
+                adListener = object : com.google.android.gms.ads.AdListener() {
+                    override fun onAdImpression() {
+                        com.example.app.analytics.AnalyticsHelper.logAdImpression(
+                            adFormat = "banner",
+                            adUnitId = adUnitId,
+                            screenName = screenName
+                        )
+                    }
+
+                    override fun onAdClicked() {
+                        com.example.app.analytics.AnalyticsHelper.logAdClick(
+                            adFormat = "banner",
+                            adUnitId = adUnitId
+                        )
+                    }
+                }
                 loadAd(AdRequest.Builder().build())
             }
         }

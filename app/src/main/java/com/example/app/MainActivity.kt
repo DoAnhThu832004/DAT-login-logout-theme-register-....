@@ -50,7 +50,10 @@ class MainActivity : ComponentActivity() {
     @OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Khởi tạo Firebase Analytics & Remote Config
+        com.example.app.analytics.AnalyticsHelper.init(this)
+        com.example.app.analytics.RemoteConfigManager.init()
+
         PlayerManager.init(this)
         com.example.app.admob.AdMobManager.init(this)
         val serviceIntent = Intent(this, MusicPlayerService::class.java)
@@ -63,10 +66,15 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val mainViewModel: MainViewModel = viewModel()
             val darkTheme by mainViewModel.darkThemeFlow.collectAsState()
+            val dynamicTheme by mainViewModel.dynamicThemeFlow.collectAsState()
 
-            AppTheme(
-                darkTheme = darkTheme,
-                dynamicColor = false
+            // Ghi nhận User Property: app_theme khi theme thay đổi
+            androidx.compose.runtime.LaunchedEffect(dynamicTheme.themeId) {
+                com.example.app.analytics.AnalyticsHelper.setAppTheme(dynamicTheme.themeId)
+            }
+
+            com.example.app.theme.ui.DynamicAppTheme(
+                theme = dynamicTheme
             ) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     RecipeApp(

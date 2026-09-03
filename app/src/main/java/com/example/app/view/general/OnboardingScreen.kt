@@ -129,6 +129,17 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == onboardingPages.lastIndex
 
+    // Telemetry: onboarding_view khi trang hiển thị
+    LaunchedEffect(pagerState.currentPage) {
+        val currentPageIndex = pagerState.currentPage
+        if (currentPageIndex in onboardingPages.indices) {
+            com.example.app.analytics.AnalyticsHelper.logOnboardingView(
+                stepIndex = currentPageIndex + 1,
+                stepTitle = onboardingPages[currentPageIndex].title
+            )
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         // ── PAGER ─────────────────────────────────────────────────────────────
@@ -537,7 +548,11 @@ private fun NavigationControls(
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = onFinish
+                    onClick = {
+                        // Telemetry: onboarding_skip_click
+                        com.example.app.analytics.AnalyticsHelper.logOnboardingSkip(currentPage + 1)
+                        onFinish()
+                    }
                 )
             )
 

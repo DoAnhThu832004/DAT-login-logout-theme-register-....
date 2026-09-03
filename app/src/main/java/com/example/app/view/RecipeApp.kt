@@ -133,6 +133,17 @@ fun RecipeApp(
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Telemetry: Ghi nhận screen_view tự động khi chuyển màn hình
+    LaunchedEffect(currentRoute) {
+        if (!currentRoute.isNullOrEmpty()) {
+            com.example.app.analytics.AnalyticsHelper.logEvent(com.google.firebase.analytics.FirebaseAnalytics.Event.SCREEN_VIEW) {
+                putString(com.google.firebase.analytics.FirebaseAnalytics.Param.SCREEN_NAME, currentRoute)
+                putString(com.google.firebase.analytics.FirebaseAnalytics.Param.SCREEN_CLASS, currentRoute)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -746,6 +757,13 @@ fun RecipeApp(
                         navController.navigate(Screen.PlayerScreen.createRoute())
                         PlayerManager.play(song)
                     }
+                )
+            }
+
+            // ── Màn hình Showcase Theme Mùa Lễ Hội (Halloween / Tết / Remote Config) ──
+            composable(route = Screen.SeasonalThemeScreen.route) {
+                com.example.app.theme.ui.HalloweenSeasonalScreen(
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

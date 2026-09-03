@@ -204,6 +204,12 @@ class RegisterViewModel(
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body.code == 1000) {
+                        // Telemetry: auth_register_success
+                        com.example.app.analytics.AnalyticsHelper.logRegisterSuccess("email")
+                        if (state.selectedGenreIds.isNotEmpty()) {
+                            com.example.app.analytics.AnalyticsHelper.setPreferredGenre(state.selectedGenreIds.joinToString(","))
+                        }
+
                         _registerUiState.update { it.copy(
                             isLoading = false,
                             isSuccessful = true,

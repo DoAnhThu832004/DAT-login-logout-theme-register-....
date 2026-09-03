@@ -72,6 +72,9 @@ class LoginViewModel(
         }
 
         viewModelScope.launch {
+            val startTime = System.currentTimeMillis()
+            com.example.app.analytics.AnalyticsHelper.logLoginAttempt("email")
+
             _loginUiState.value = _loginUiState.value.copy(
                 isLoading = true,
                 error = null,
@@ -86,6 +89,7 @@ class LoginViewModel(
                         password = password
                     ),
                 )
+                val durationMs = System.currentTimeMillis() - startTime
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.result?.authenticated == true && !body.result.token.isNullOrEmpty()) {
@@ -98,6 +102,11 @@ class LoginViewModel(
                         if (!userId.isNullOrEmpty()) {
                             sessionManager.saveUserId(userId)
                         }
+
+                        // Telemetry: Login success & Set User Profile
+                        com.example.app.analytics.AnalyticsHelper.logLoginSuccess("email", durationMs)
+                        com.example.app.analytics.AnalyticsHelper.setUserProfile(userId, role, "free")
+                        com.example.app.analytics.CrashlyticsHelper.setUserId(userId)
 
                         progressJob?.cancel()
                         _loginUiState.value = _loginUiState.value.copy(progress = 100f)
@@ -114,24 +123,30 @@ class LoginViewModel(
                         )
                     } else {
                         // Kiểm tra mã lỗi trong body ngay cả khi response thành công (một số backend trả về 200 OK kèm mã lỗi)
+                        val errCode = body?.code?.toString() ?: "AUTH_FAILED"
                         val msg = when (body?.code) {
                             1011 -> "Tài khoản của bạn đã bị khóa bởi quản trị viên"
                             1006 -> "Tên đăng nhập hoặc mật khẩu không đúng"
                             else -> "Đăng nhập thất bại, vui lòng thử lại"
                         }
+                        com.example.app.analytics.AnalyticsHelper.logLoginFailed("email", errCode, msg)
                         handleLoginFailure(msg)
                     }
                 } else {
                     val apiErr = ApiErrorUtils.parse(response.errorBody()?.string())
+                    val errCode = apiErr?.code?.toString() ?: response.code().toString()
                     val msg = when (apiErr?.code) {
                         1006 -> "Tên đăng nhập hoặc mật khẩu không đúng"
                         1001 -> "Tài khoản không tồn tại"
                         1011 -> "Tài khoản của bạn đã bị khóa bởi quản trị viên"
                         else -> apiErr?.message ?: "Đăng nhập thất bại (${response.code()})"
                     }
+                    com.example.app.analytics.AnalyticsHelper.logLoginFailed("email", errCode, msg)
                     handleLoginFailure(msg)
                 }
             } catch (e: Exception) {
+                com.example.app.analytics.AnalyticsHelper.logLoginFailed("email", "NETWORK_ERROR", e.message ?: "Network error")
+                com.example.app.analytics.CrashlyticsHelper.recordException(e, "feature", "auth_login")
                 handleLoginFailure("Lỗi kết nối, vui lòng kiểm tra mạng và thử lại")
             }
         }
@@ -183,6 +198,7 @@ class LoginViewModel(
     }
 
     suspend fun logout() {
+        com.example.app.analytics.AnalyticsHelper.logLogout("profile_page")
         sessionManager.clearSession()
         _loginUiState.value = LoginUiState()
     }

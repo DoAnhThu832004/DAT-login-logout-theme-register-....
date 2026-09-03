@@ -179,6 +179,17 @@ fun SettingPage(
                     )
                 )
             }
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+            )
+            SettingNavItem(
+                icon = Icons.Default.DarkMode,
+                iconTint = Color(0xFFF97316),
+                label = "Theme Mùa Lễ Hội (Halloween / Remote Config)",
+                onClick = { navController.navigate(Screen.SeasonalThemeScreen.route) }
+            )
         }
 
         Spacer(modifier = Modifier.height(20.dp))

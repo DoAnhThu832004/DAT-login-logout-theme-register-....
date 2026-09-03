@@ -58,9 +58,25 @@ object PlayerManager {
                         onDurationChanged?.invoke(getDuration())
                     }
                     Player.STATE_ENDED -> {
+                        // Ghi nhận sự kiện telemetry khi nghe hết bài
+                        currentSong?.let {
+                            com.example.app.analytics.AnalyticsHelper.logPlaybackSongComplete(
+                                songId = it.id.toString(),
+                                durationListenedSec = getDuration() / 1000
+                            )
+                        }
                         // Bài hát đã kết thúc, xử lý tự động chuyển bài
                         handleSongEnded()
                     }
+                }
+            }
+
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                currentSong?.let {
+                    com.example.app.analytics.AnalyticsHelper.logPlaybackError(
+                        songId = it.id.toString(),
+                        errorReason = error.message ?: "Unknown playback error"
+                    )
                 }
             }
 
@@ -130,8 +146,9 @@ object PlayerManager {
                     .getDownloadedSongById(song.id, userId)
             } else null
 
-            val uriString = if (localSong != null && java.io.File(localSong.localAudioPath).exists()) {
-                localSong.localAudioPath
+            val isOfflineSong = localSong != null && java.io.File(localSong.localAudioPath).exists()
+            val uriString = if (isOfflineSong) {
+                localSong!!.localAudioPath
             } else {
                 song.audioUrl.toString()
             }
@@ -144,10 +161,27 @@ object PlayerManager {
                 player?.prepare()
                 player?.play()
                 onSongChanged?.invoke(song, true) // Trigger callback để update notification
+
+                // Telemetry: playback_song_start
+                com.example.app.analytics.AnalyticsHelper.logPlaybackSongStart(
+                    songId = song.id,
+                    songTitle = song.name,
+                    artistId = song.artistName ?: "Unknown",
+                    genreId = song.genres?.firstOrNull()?.id ?: "",
+                    sourceContext = "player_screen",
+                    isOffline = isOfflineSong
+                )
             }
         }
     }
     fun pause() {
+        // Telemetry: playback_pause
+        currentSong?.let {
+            com.example.app.analytics.AnalyticsHelper.logPlaybackPause(
+                songId = it.id.toString(),
+                positionSec = getCurrentPosition() / 1000
+            )
+        }
         player?.pause()
     }
 
@@ -160,7 +194,11 @@ object PlayerManager {
     fun togglePlayPause() {
         if (isAdShowing) return
         player?.let {
-            if (it.isPlaying) it.pause() else it.play()
+            if (it.isPlaying) {
+                pause()
+            } else {
+                it.play()
+            }
         }
     }
     fun getCurrentPosition(): Long {
@@ -180,6 +218,15 @@ object PlayerManager {
         }
     }
     fun seekTo(position: Long) {
+        val fromSec = getCurrentPosition() / 1000
+        val toSec = position / 1000
+        currentSong?.let {
+            com.example.app.analytics.AnalyticsHelper.logPlaybackSeek(
+                songId = it.id.toString(),
+                fromSec = fromSec,
+                toSec = toSec
+            )
+        }
         player?.seekTo(position)
     }
     fun getMaxVolume(): Int {
@@ -239,6 +286,14 @@ object PlayerManager {
         }
 
         nextSong?.let {
+            // Telemetry: playback_skip (next)
+            currentSong?.let { curr ->
+                com.example.app.analytics.AnalyticsHelper.logPlaybackSkip(
+                    songId = curr.id.toString(),
+                    skipType = "next",
+                    positionSec = getCurrentPosition() / 1000
+                )
+            }
             currentIndex = if (isShuffleMode) {
                 songList.indexOfFirst { it.id == it.id }
             } else {
@@ -283,6 +338,14 @@ object PlayerManager {
         }
 
         prevSong?.let {
+            // Telemetry: playback_skip (previous)
+            currentSong?.let { curr ->
+                com.example.app.analytics.AnalyticsHelper.logPlaybackSkip(
+                    songId = curr.id.toString(),
+                    skipType = "previous",
+                    positionSec = getCurrentPosition() / 1000
+                )
+            }
             currentIndex = if (isShuffleMode) {
                 songList.indexOfFirst { it.id == it.id }
             } else {
@@ -295,6 +358,12 @@ object PlayerManager {
     }
     fun toggleRepeat(): Int {
         repeatMode = (repeatMode + 1) % 3 // 0 -> 1 -> 2 -> 0
+        val modeVal = when (repeatMode) {
+            1 -> "all"
+            2 -> "one"
+            else -> "off"
+        }
+        com.example.app.analytics.AnalyticsHelper.logPlaybackModeToggle("repeat", modeVal)
         return repeatMode
     }
     fun toggleShuffle(): Boolean {
@@ -302,6 +371,8 @@ object PlayerManager {
         if (isShuffleMode) {
             createShuffledList()
         }
+        val modeVal = if (isShuffleMode) "on" else "off"
+        com.example.app.analytics.AnalyticsHelper.logPlaybackModeToggle("shuffle", modeVal)
         return isShuffleMode
     }
     fun isPlaying() : Boolean = player?.isPlaying ?: false

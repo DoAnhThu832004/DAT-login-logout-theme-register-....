@@ -52,6 +52,12 @@ class FavoriteViewModel(
     fun toggleFavorite(song: Song, playerViewModel: PlayerViewModel) {
         val newFavoriteState = !song.favorite
 
+        // Telemetry: song_favorite_toggle
+        com.example.app.analytics.AnalyticsHelper.logSongFavoriteToggle(
+            songId = song.id.toString(),
+            isFavorite = newFavoriteState
+        )
+
         // Optimistic update ngay lập tức (cập nhật UI không cần chờ API)
         if (newFavoriteState) {
             // Thêm bài vào list yêu thích ngay - kể cả khi bài chưa có trong list

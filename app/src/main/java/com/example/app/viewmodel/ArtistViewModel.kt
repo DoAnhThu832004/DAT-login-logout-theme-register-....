@@ -533,6 +533,11 @@ class ArtistViewModel(
     }
     fun toggleFollow(artist: Artist) {
         val newFollowerState = !artist.followed
+        // Telemetry: artist_follow_toggle
+        com.example.app.analytics.AnalyticsHelper.logArtistFollowToggle(
+            artistId = artist.id,
+            isFollow = newFollowerState
+        )
         updateLocalArtistFollowerStatus(artist.id, newFollowerState)
         viewModelScope.launch {
             try {

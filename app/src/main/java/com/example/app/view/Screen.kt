@@ -80,4 +80,6 @@ sealed class Screen(val route : String) {
     object UserManagementScreen : Screen("user_management_screen")
     // Màn hình nghe nhạc offline (không cần đăng nhập)
     object OfflinePlayerScreen : Screen("offline_player_screen")
+    // Màn hình Seasonal Theme (Halloween / Tết / Lễ hội Remote Config)
+    object SeasonalThemeScreen : Screen("seasonal_theme_screen")
 }

@@ -56,6 +56,13 @@ fun DownloadScreen(
         }
     }
 
+    // Telemetry: offline_mode_enter
+    androidx.compose.runtime.LaunchedEffect(downloadedSongs) {
+        if (downloadedSongs.isNotEmpty()) {
+            com.example.app.analytics.AnalyticsHelper.logOfflineModeEnter(downloadedSongs.size.toLong())
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

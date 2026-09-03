@@ -66,12 +66,29 @@ class DownloadViewModel(
 
     fun downloadSong(song: Song, userId: String, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
+            val startTime = System.currentTimeMillis()
+            com.example.app.analytics.AnalyticsHelper.logDownloadSongStart(song.id.toString())
+
             _isDownloading.value = true
             _downloadError.value = null
             val success = downloadRepository.downloadSong(song, userId)
+            val durationSec = (System.currentTimeMillis() - startTime) / 1000
+
             _isDownloaded.value = success
             _isDownloading.value = false
-            if (!success) {
+            if (success) {
+                // Telemetry: download_song_success
+                com.example.app.analytics.AnalyticsHelper.logDownloadSongSuccess(
+                    songId = song.id.toString(),
+                    durationSec = durationSec,
+                    fileSizeKb = 0L // Ước lượng nếu không có kích thước file cụ thể
+                )
+            } else {
+                // Telemetry: download_song_failed
+                com.example.app.analytics.AnalyticsHelper.logDownloadSongFailed(
+                    songId = song.id.toString(),
+                    errorCode = "DOWNLOAD_FAILED"
+                )
                 _downloadError.value = "Download failed. Please try again."
             }
             onComplete(success)
